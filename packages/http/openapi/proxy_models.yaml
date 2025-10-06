@@ -1,0 +1,7 @@
+library: jvm-okhttp4
+serializationLibrary: kotlinx_serialization
+dateLibrary: java8
+modelNamePrefix: Proxy
+enumPropertyNaming: original
+useTags: false
+sourceFolder: src/main/kotlin

@@ -1,0 +1,27 @@
+package com.turnkey.internal.storage.keys
+
+import android.content.Context
+import com.turnkey.internal.storage.primitives.SecureStore
+
+object KeyPairStore {
+    private const val SECURE_ACCOUNT = "turnkey.secure.account"
+
+    fun save(context: Context, privateHex: String, publicHex: String) {
+        SecureStore.set(
+            context = context,
+            data = privateHex.toByteArray(Charsets.UTF_8),
+            service = publicHex,
+            account = SECURE_ACCOUNT
+        )
+    }
+
+    fun getPrivateHex(context: Context, publicHex: String): String {
+        val data = SecureStore.get(context, service = publicHex, account = SECURE_ACCOUNT)
+            ?: throw IllegalStateException("Key not found")
+        return data.toString(Charsets.UTF_8)
+    }
+
+    fun delete(context: Context, publicHex: String) {
+        SecureStore.delete(context, service = publicHex, account = SECURE_ACCOUNT)
+    }
+}
