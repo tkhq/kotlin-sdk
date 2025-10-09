@@ -32,7 +32,7 @@ data class ProxyProtobufAny (
     @SerialName(value = "@type")
     val atType: kotlin.String? = null
 
-) : kotlin.collections.HashMap<String, kotlin.Any>()() {
+) : kotlin.collections.HashMap<String, kotlin.Any>() {
 
 
 }

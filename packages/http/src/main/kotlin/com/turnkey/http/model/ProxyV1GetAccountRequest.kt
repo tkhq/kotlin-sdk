@@ -25,6 +25,7 @@ import kotlinx.serialization.Contextual
  *
  * @param filterType Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY'
  * @param filterValue The value of the filter to apply for the specified type. For example, a specific email or name string.
+ * @param verificationToken Signed JWT containing a unique id, expiry, verification type, contact. Used to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'.
  */
 @Serializable
 
@@ -36,7 +37,11 @@ data class ProxyV1GetAccountRequest (
 
     /* The value of the filter to apply for the specified type. For example, a specific email or name string. */
     @SerialName(value = "filterValue")
-    val filterValue: kotlin.String
+    val filterValue: kotlin.String,
+
+    /* Signed JWT containing a unique id, expiry, verification type, contact. Used to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. */
+    @SerialName(value = "verificationToken")
+    val verificationToken: kotlin.String? = null
 
 ) {
 

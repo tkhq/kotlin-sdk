@@ -18,7 +18,11 @@ import com.turnkey.http.model.ProxyV1SignupResponse
 import com.turnkey.http.model.ProxyV1VerifyOtpRequest
 import com.turnkey.http.model.ProxyV1VerifyOtpResponse
 import com.turnkey.http.model.V1ActivityResponse
+import com.turnkey.http.model.V1AddressFormat
+import com.turnkey.http.model.V1ApiKeyParamsV2
+import com.turnkey.http.model.V1ApiOnlyUserParams
 import com.turnkey.http.model.V1ApproveActivityRequest
+import com.turnkey.http.model.V1AuthenticatorParamsV2
 import com.turnkey.http.model.V1BootProofResponse
 import com.turnkey.http.model.V1CreateApiKeysRequest
 import com.turnkey.http.model.V1CreateApiOnlyUsersRequest
@@ -27,6 +31,7 @@ import com.turnkey.http.model.V1CreateInvitationsRequest
 import com.turnkey.http.model.V1CreateOauth2CredentialRequest
 import com.turnkey.http.model.V1CreateOauthProvidersRequest
 import com.turnkey.http.model.V1CreatePoliciesRequest
+import com.turnkey.http.model.V1CreatePolicyIntentV3
 import com.turnkey.http.model.V1CreatePolicyRequest
 import com.turnkey.http.model.V1CreatePrivateKeyTagRequest
 import com.turnkey.http.model.V1CreatePrivateKeysRequest
@@ -38,6 +43,7 @@ import com.turnkey.http.model.V1CreateUserTagRequest
 import com.turnkey.http.model.V1CreateUsersRequest
 import com.turnkey.http.model.V1CreateWalletAccountsRequest
 import com.turnkey.http.model.V1CreateWalletRequest
+import com.turnkey.http.model.V1Curve
 import com.turnkey.http.model.V1DeleteApiKeysRequest
 import com.turnkey.http.model.V1DeleteAuthenticatorsRequest
 import com.turnkey.http.model.V1DeleteInvitationRequest
@@ -51,10 +57,18 @@ import com.turnkey.http.model.V1DeleteSubOrganizationRequest
 import com.turnkey.http.model.V1DeleteUserTagsRequest
 import com.turnkey.http.model.V1DeleteUsersRequest
 import com.turnkey.http.model.V1DeleteWalletsRequest
+import com.turnkey.http.model.V1Effect
 import com.turnkey.http.model.V1EmailAuthRequest
+import com.turnkey.http.model.V1EmailCustomizationParams
 import com.turnkey.http.model.V1ExportPrivateKeyRequest
 import com.turnkey.http.model.V1ExportWalletAccountRequest
 import com.turnkey.http.model.V1ExportWalletRequest
+import com.turnkey.http.model.V1FeatureName
+import com.turnkey.http.model.V1FiatOnRampBlockchainNetwork
+import com.turnkey.http.model.V1FiatOnRampCryptoCurrency
+import com.turnkey.http.model.V1FiatOnRampCurrency
+import com.turnkey.http.model.V1FiatOnRampPaymentMethod
+import com.turnkey.http.model.V1FiatOnRampProvider
 import com.turnkey.http.model.V1GetActivitiesRequest
 import com.turnkey.http.model.V1GetActivitiesResponse
 import com.turnkey.http.model.V1GetActivityRequest
@@ -112,6 +126,7 @@ import com.turnkey.http.model.V1GetWalletsRequest
 import com.turnkey.http.model.V1GetWalletsResponse
 import com.turnkey.http.model.V1GetWhoamiRequest
 import com.turnkey.http.model.V1GetWhoamiResponse
+import com.turnkey.http.model.V1HashFunction
 import com.turnkey.http.model.V1ImportPrivateKeyRequest
 import com.turnkey.http.model.V1ImportWalletRequest
 import com.turnkey.http.model.V1InitFiatOnRampRequest
@@ -120,28 +135,38 @@ import com.turnkey.http.model.V1InitImportWalletRequest
 import com.turnkey.http.model.V1InitOtpAuthRequest
 import com.turnkey.http.model.V1InitOtpRequest
 import com.turnkey.http.model.V1InitUserEmailRecoveryRequest
+import com.turnkey.http.model.V1InvitationParams
 import com.turnkey.http.model.V1ListOauth2CredentialsRequest
 import com.turnkey.http.model.V1ListOauth2CredentialsResponse
 import com.turnkey.http.model.V1ListPrivateKeyTagsRequest
 import com.turnkey.http.model.V1ListPrivateKeyTagsResponse
 import com.turnkey.http.model.V1ListUserTagsRequest
 import com.turnkey.http.model.V1ListUserTagsResponse
+import com.turnkey.http.model.V1MnemonicLanguage
 import com.turnkey.http.model.V1NOOPCodegenAnchorResponse
 import com.turnkey.http.model.V1Oauth2AuthenticateRequest
+import com.turnkey.http.model.V1Oauth2Provider
 import com.turnkey.http.model.V1OauthLoginRequest
+import com.turnkey.http.model.V1OauthProviderParams
 import com.turnkey.http.model.V1OauthRequest
 import com.turnkey.http.model.V1OtpAuthRequest
 import com.turnkey.http.model.V1OtpLoginRequest
+import com.turnkey.http.model.V1PayloadEncoding
+import com.turnkey.http.model.V1PrivateKeyParams
 import com.turnkey.http.model.V1RecoverUserRequest
 import com.turnkey.http.model.V1RejectActivityRequest
 import com.turnkey.http.model.V1RemoveOrganizationFeatureRequest
+import com.turnkey.http.model.V1RootUserParamsV4
 import com.turnkey.http.model.V1SetOrganizationFeatureRequest
 import com.turnkey.http.model.V1SignRawPayloadRequest
 import com.turnkey.http.model.V1SignRawPayloadsRequest
 import com.turnkey.http.model.V1SignTransactionRequest
+import com.turnkey.http.model.V1SmartContractInterfaceType
+import com.turnkey.http.model.V1SmsCustomizationParams
 import com.turnkey.http.model.V1StampLoginRequest
 import com.turnkey.http.model.V1TestRateLimitsRequest
 import com.turnkey.http.model.V1TestRateLimitsResponse
+import com.turnkey.http.model.V1TransactionType
 import com.turnkey.http.model.V1UpdateOauth2CredentialRequest
 import com.turnkey.http.model.V1UpdatePolicyRequest
 import com.turnkey.http.model.V1UpdatePrivateKeyTagRequest
@@ -152,8 +177,14 @@ import com.turnkey.http.model.V1UpdateUserPhoneNumberRequest
 import com.turnkey.http.model.V1UpdateUserRequest
 import com.turnkey.http.model.V1UpdateUserTagRequest
 import com.turnkey.http.model.V1UpdateWalletRequest
+import com.turnkey.http.model.V1UserParamsV3
 import com.turnkey.http.model.V1VerifyOtpRequest
+import com.turnkey.http.model.V1WalletAccountParams
+import com.turnkey.http.model.V1WalletParams
+import kotlin.Boolean
+import kotlin.Int
 import kotlin.String
+import kotlin.collections.List
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -173,405 +204,1296 @@ public typealias TGetActivityResponse = V1ActivityResponse
 
 public typealias TGetActivityBody = V1GetActivityRequest
 
+public typealias TGetActivityRequest = V1GetActivityRequest
+
 public typealias TGetApiKeyResponse = V1GetApiKeyResponse
 
 public typealias TGetApiKeyBody = V1GetApiKeyRequest
+
+public typealias TGetApiKeyRequest = V1GetApiKeyRequest
 
 public typealias TGetApiKeysResponse = V1GetApiKeysResponse
 
 public typealias TGetApiKeysBody = V1GetApiKeysRequest
 
+public typealias TGetApiKeysRequest = V1GetApiKeysRequest
+
 public typealias TGetAttestationDocumentResponse = V1GetAttestationDocumentResponse
 
 public typealias TGetAttestationDocumentBody = V1GetAttestationDocumentRequest
+
+public typealias TGetAttestationDocumentRequest = V1GetAttestationDocumentRequest
 
 public typealias TGetAuthenticatorResponse = V1GetAuthenticatorResponse
 
 public typealias TGetAuthenticatorBody = V1GetAuthenticatorRequest
 
+public typealias TGetAuthenticatorRequest = V1GetAuthenticatorRequest
+
 public typealias TGetAuthenticatorsResponse = V1GetAuthenticatorsResponse
 
 public typealias TGetAuthenticatorsBody = V1GetAuthenticatorsRequest
+
+public typealias TGetAuthenticatorsRequest = V1GetAuthenticatorsRequest
 
 public typealias TGetBootProofResponse = V1BootProofResponse
 
 public typealias TGetBootProofBody = V1GetBootProofRequest
 
+public typealias TGetBootProofRequest = V1GetBootProofRequest
+
 public typealias TGetLatestBootProofResponse = V1BootProofResponse
 
 public typealias TGetLatestBootProofBody = V1GetLatestBootProofRequest
+
+public typealias TGetLatestBootProofRequest = V1GetLatestBootProofRequest
 
 public typealias TGetOauth2CredentialResponse = V1GetOauth2CredentialResponse
 
 public typealias TGetOauth2CredentialBody = V1GetOauth2CredentialRequest
 
+public typealias TGetOauth2CredentialRequest = V1GetOauth2CredentialRequest
+
 public typealias TGetOauthProvidersResponse = V1GetOauthProvidersResponse
 
 public typealias TGetOauthProvidersBody = V1GetOauthProvidersRequest
+
+public typealias TGetOauthProvidersRequest = V1GetOauthProvidersRequest
 
 public typealias TGetOrganizationResponse = V1GetOrganizationResponse
 
 public typealias TGetOrganizationBody = V1GetOrganizationRequest
 
+public typealias TGetOrganizationRequest = V1GetOrganizationRequest
+
 public typealias TGetOrganizationConfigsResponse = V1GetOrganizationConfigsResponse
 
 public typealias TGetOrganizationConfigsBody = V1GetOrganizationConfigsRequest
+
+public typealias TGetOrganizationConfigsRequest = V1GetOrganizationConfigsRequest
 
 public typealias TGetPolicyResponse = V1GetPolicyResponse
 
 public typealias TGetPolicyBody = V1GetPolicyRequest
 
+public typealias TGetPolicyRequest = V1GetPolicyRequest
+
 public typealias TGetPolicyEvaluationsResponse = V1GetPolicyEvaluationsResponse
 
 public typealias TGetPolicyEvaluationsBody = V1GetPolicyEvaluationsRequest
+
+public typealias TGetPolicyEvaluationsRequest = V1GetPolicyEvaluationsRequest
 
 public typealias TGetPrivateKeyResponse = V1GetPrivateKeyResponse
 
 public typealias TGetPrivateKeyBody = V1GetPrivateKeyRequest
 
+public typealias TGetPrivateKeyRequest = V1GetPrivateKeyRequest
+
 public typealias TGetSmartContractInterfaceResponse = V1GetSmartContractInterfaceResponse
 
 public typealias TGetSmartContractInterfaceBody = V1GetSmartContractInterfaceRequest
+
+public typealias TGetSmartContractInterfaceRequest = V1GetSmartContractInterfaceRequest
 
 public typealias TGetUserResponse = V1GetUserResponse
 
 public typealias TGetUserBody = V1GetUserRequest
 
+public typealias TGetUserRequest = V1GetUserRequest
+
 public typealias TGetWalletResponse = V1GetWalletResponse
 
 public typealias TGetWalletBody = V1GetWalletRequest
+
+public typealias TGetWalletRequest = V1GetWalletRequest
 
 public typealias TGetWalletAccountResponse = V1GetWalletAccountResponse
 
 public typealias TGetWalletAccountBody = V1GetWalletAccountRequest
 
+public typealias TGetWalletAccountRequest = V1GetWalletAccountRequest
+
 public typealias TGetActivitiesResponse = V1GetActivitiesResponse
 
 public typealias TGetActivitiesBody = V1GetActivitiesRequest
+
+public typealias TGetActivitiesRequest = V1GetActivitiesRequest
 
 public typealias TGetAppProofsResponse = V1GetAppProofsResponse
 
 public typealias TGetAppProofsBody = V1GetAppProofsRequest
 
+public typealias TGetAppProofsRequest = V1GetAppProofsRequest
+
 public typealias TListOauth2CredentialsResponse = V1ListOauth2CredentialsResponse
 
 public typealias TListOauth2CredentialsBody = V1ListOauth2CredentialsRequest
+
+public typealias TListOauth2CredentialsRequest = V1ListOauth2CredentialsRequest
 
 public typealias TGetPoliciesResponse = V1GetPoliciesResponse
 
 public typealias TGetPoliciesBody = V1GetPoliciesRequest
 
+public typealias TGetPoliciesRequest = V1GetPoliciesRequest
+
 public typealias TListPrivateKeyTagsResponse = V1ListPrivateKeyTagsResponse
 
 public typealias TListPrivateKeyTagsBody = V1ListPrivateKeyTagsRequest
+
+public typealias TListPrivateKeyTagsRequest = V1ListPrivateKeyTagsRequest
 
 public typealias TGetPrivateKeysResponse = V1GetPrivateKeysResponse
 
 public typealias TGetPrivateKeysBody = V1GetPrivateKeysRequest
 
+public typealias TGetPrivateKeysRequest = V1GetPrivateKeysRequest
+
 public typealias TGetSmartContractInterfacesResponse = V1GetSmartContractInterfacesResponse
 
 public typealias TGetSmartContractInterfacesBody = V1GetSmartContractInterfacesRequest
+
+public typealias TGetSmartContractInterfacesRequest = V1GetSmartContractInterfacesRequest
 
 public typealias TGetSubOrgIdsResponse = V1GetSubOrgIdsResponse
 
 public typealias TGetSubOrgIdsBody = V1GetSubOrgIdsRequest
 
+public typealias TGetSubOrgIdsRequest = V1GetSubOrgIdsRequest
+
 public typealias TListUserTagsResponse = V1ListUserTagsResponse
 
 public typealias TListUserTagsBody = V1ListUserTagsRequest
+
+public typealias TListUserTagsRequest = V1ListUserTagsRequest
 
 public typealias TGetUsersResponse = V1GetUsersResponse
 
 public typealias TGetUsersBody = V1GetUsersRequest
 
+public typealias TGetUsersRequest = V1GetUsersRequest
+
 public typealias TGetVerifiedSubOrgIdsResponse = V1GetVerifiedSubOrgIdsResponse
 
 public typealias TGetVerifiedSubOrgIdsBody = V1GetVerifiedSubOrgIdsRequest
+
+public typealias TGetVerifiedSubOrgIdsRequest = V1GetVerifiedSubOrgIdsRequest
 
 public typealias TGetWalletAccountsResponse = V1GetWalletAccountsResponse
 
 public typealias TGetWalletAccountsBody = V1GetWalletAccountsRequest
 
+public typealias TGetWalletAccountsRequest = V1GetWalletAccountsRequest
+
 public typealias TGetWalletsResponse = V1GetWalletsResponse
 
 public typealias TGetWalletsBody = V1GetWalletsRequest
+
+public typealias TGetWalletsRequest = V1GetWalletsRequest
 
 public typealias TGetWhoamiResponse = V1GetWhoamiResponse
 
 public typealias TGetWhoamiBody = V1GetWhoamiRequest
 
+public typealias TGetWhoamiRequest = V1GetWhoamiRequest
+
 public typealias TApproveActivityResponse = V1ActivityResponse
 
-public typealias TApproveActivityBody = V1ApproveActivityRequest
+/**
+ * POST `/public/v1/submit/approve_activity`
+ */
+@Serializable
+public class TApproveActivityBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val fingerprint: String,
+)
+
+public typealias TApproveActivityRequest = V1ApproveActivityRequest
 
 public typealias TCreateApiKeysResponse = V1ActivityResponse
 
-public typealias TCreateApiKeysBody = V1CreateApiKeysRequest
+/**
+ * POST `/public/v1/submit/create_api_keys`
+ */
+@Serializable
+public class TCreateApiKeysBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val apiKeys: List<V1ApiKeyParamsV2>,
+  public val userId: String,
+)
+
+public typealias TCreateApiKeysRequest = V1CreateApiKeysRequest
 
 public typealias TCreateApiOnlyUsersResponse = V1ActivityResponse
 
-public typealias TCreateApiOnlyUsersBody = V1CreateApiOnlyUsersRequest
+/**
+ * POST `/public/v1/submit/create_api_only_users`
+ */
+@Serializable
+public class TCreateApiOnlyUsersBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val apiOnlyUsers: List<V1ApiOnlyUserParams>,
+)
+
+public typealias TCreateApiOnlyUsersRequest = V1CreateApiOnlyUsersRequest
 
 public typealias TCreateAuthenticatorsResponse = V1ActivityResponse
 
-public typealias TCreateAuthenticatorsBody = V1CreateAuthenticatorsRequest
+/**
+ * POST `/public/v1/submit/create_authenticators`
+ */
+@Serializable
+public class TCreateAuthenticatorsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val authenticators: List<V1AuthenticatorParamsV2>,
+  public val userId: String,
+)
+
+public typealias TCreateAuthenticatorsRequest = V1CreateAuthenticatorsRequest
 
 public typealias TCreateInvitationsResponse = V1ActivityResponse
 
-public typealias TCreateInvitationsBody = V1CreateInvitationsRequest
+/**
+ * POST `/public/v1/submit/create_invitations`
+ */
+@Serializable
+public class TCreateInvitationsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val invitations: List<V1InvitationParams>,
+)
+
+public typealias TCreateInvitationsRequest = V1CreateInvitationsRequest
 
 public typealias TCreateOauth2CredentialResponse = V1ActivityResponse
 
-public typealias TCreateOauth2CredentialBody = V1CreateOauth2CredentialRequest
+/**
+ * POST `/public/v1/submit/create_oauth2_credential`
+ */
+@Serializable
+public class TCreateOauth2CredentialBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val provider: V1Oauth2Provider,
+  public val clientId: String,
+  public val encryptedClientSecret: String,
+)
+
+public typealias TCreateOauth2CredentialRequest = V1CreateOauth2CredentialRequest
 
 public typealias TCreateOauthProvidersResponse = V1ActivityResponse
 
-public typealias TCreateOauthProvidersBody = V1CreateOauthProvidersRequest
+/**
+ * POST `/public/v1/submit/create_oauth_providers`
+ */
+@Serializable
+public class TCreateOauthProvidersBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val oauthProviders: List<V1OauthProviderParams>,
+)
+
+public typealias TCreateOauthProvidersRequest = V1CreateOauthProvidersRequest
 
 public typealias TCreatePoliciesResponse = V1ActivityResponse
 
-public typealias TCreatePoliciesBody = V1CreatePoliciesRequest
+/**
+ * POST `/public/v1/submit/create_policies`
+ */
+@Serializable
+public class TCreatePoliciesBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val policies: List<V1CreatePolicyIntentV3>,
+)
+
+public typealias TCreatePoliciesRequest = V1CreatePoliciesRequest
 
 public typealias TCreatePolicyResponse = V1ActivityResponse
 
-public typealias TCreatePolicyBody = V1CreatePolicyRequest
+/**
+ * POST `/public/v1/submit/create_policy`
+ */
+@Serializable
+public class TCreatePolicyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val policyName: String,
+  public val effect: V1Effect,
+  public val condition: String? = null,
+  public val consensus: String? = null,
+  public val notes: String? = null,
+)
+
+public typealias TCreatePolicyRequest = V1CreatePolicyRequest
 
 public typealias TCreatePrivateKeyTagResponse = V1ActivityResponse
 
-public typealias TCreatePrivateKeyTagBody = V1CreatePrivateKeyTagRequest
+/**
+ * POST `/public/v1/submit/create_private_key_tag`
+ */
+@Serializable
+public class TCreatePrivateKeyTagBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeyTagName: String,
+  public val privateKeyIds: List<String>,
+)
+
+public typealias TCreatePrivateKeyTagRequest = V1CreatePrivateKeyTagRequest
 
 public typealias TCreatePrivateKeysResponse = V1ActivityResponse
 
-public typealias TCreatePrivateKeysBody = V1CreatePrivateKeysRequest
+/**
+ * POST `/public/v1/submit/create_private_keys`
+ */
+@Serializable
+public class TCreatePrivateKeysBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeys: List<V1PrivateKeyParams>,
+)
+
+public typealias TCreatePrivateKeysRequest = V1CreatePrivateKeysRequest
 
 public typealias TCreateReadOnlySessionResponse = V1ActivityResponse
 
-public typealias TCreateReadOnlySessionBody = V1CreateReadOnlySessionRequest
+/**
+ * POST `/public/v1/submit/create_read_only_session`
+ */
+@Serializable
+public class TCreateReadOnlySessionBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+)
+
+public typealias TCreateReadOnlySessionRequest = V1CreateReadOnlySessionRequest
 
 public typealias TCreateReadWriteSessionResponse = V1ActivityResponse
 
-public typealias TCreateReadWriteSessionBody = V1CreateReadWriteSessionRequest
+/**
+ * POST `/public/v1/submit/create_read_write_session`
+ */
+@Serializable
+public class TCreateReadWriteSessionBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val targetPublicKey: String,
+  public val userId: String? = null,
+  public val apiKeyName: String? = null,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+)
+
+public typealias TCreateReadWriteSessionRequest = V1CreateReadWriteSessionRequest
 
 public typealias TCreateSmartContractInterfaceResponse = V1ActivityResponse
 
-public typealias TCreateSmartContractInterfaceBody = V1CreateSmartContractInterfaceRequest
+/**
+ * POST `/public/v1/submit/create_smart_contract_interface`
+ */
+@Serializable
+public class TCreateSmartContractInterfaceBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val smartContractAddress: String,
+  public val smartContractInterface: String,
+  public val type: V1SmartContractInterfaceType,
+  public val label: String,
+  public val notes: String? = null,
+)
+
+public typealias TCreateSmartContractInterfaceRequest = V1CreateSmartContractInterfaceRequest
 
 public typealias TCreateSubOrganizationResponse = V1ActivityResponse
 
-public typealias TCreateSubOrganizationBody = V1CreateSubOrganizationRequest
+/**
+ * POST `/public/v1/submit/create_sub_organization`
+ */
+@Serializable
+public class TCreateSubOrganizationBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val subOrganizationName: String,
+  public val rootUsers: List<V1RootUserParamsV4>,
+  public val rootQuorumThreshold: Int,
+  public val wallet: V1WalletParams? = null,
+  public val disableEmailRecovery: Boolean? = null,
+  public val disableEmailAuth: Boolean? = null,
+  public val disableSmsAuth: Boolean? = null,
+  public val disableOtpEmailAuth: Boolean? = null,
+  public val verificationToken: String? = null,
+)
+
+public typealias TCreateSubOrganizationRequest = V1CreateSubOrganizationRequest
 
 public typealias TCreateUserTagResponse = V1ActivityResponse
 
-public typealias TCreateUserTagBody = V1CreateUserTagRequest
+/**
+ * POST `/public/v1/submit/create_user_tag`
+ */
+@Serializable
+public class TCreateUserTagBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userTagName: String,
+  public val userIds: List<String>,
+)
+
+public typealias TCreateUserTagRequest = V1CreateUserTagRequest
 
 public typealias TCreateUsersResponse = V1ActivityResponse
 
-public typealias TCreateUsersBody = V1CreateUsersRequest
+/**
+ * POST `/public/v1/submit/create_users`
+ */
+@Serializable
+public class TCreateUsersBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val users: List<V1UserParamsV3>,
+)
+
+public typealias TCreateUsersRequest = V1CreateUsersRequest
 
 public typealias TCreateWalletResponse = V1ActivityResponse
 
-public typealias TCreateWalletBody = V1CreateWalletRequest
+/**
+ * POST `/public/v1/submit/create_wallet`
+ */
+@Serializable
+public class TCreateWalletBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val walletName: String,
+  public val accounts: List<V1WalletAccountParams>,
+  public val mnemonicLength: Int? = null,
+)
+
+public typealias TCreateWalletRequest = V1CreateWalletRequest
 
 public typealias TCreateWalletAccountsResponse = V1ActivityResponse
 
-public typealias TCreateWalletAccountsBody = V1CreateWalletAccountsRequest
+/**
+ * POST `/public/v1/submit/create_wallet_accounts`
+ */
+@Serializable
+public class TCreateWalletAccountsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val walletId: String,
+  public val accounts: List<V1WalletAccountParams>,
+)
+
+public typealias TCreateWalletAccountsRequest = V1CreateWalletAccountsRequest
 
 public typealias TDeleteApiKeysResponse = V1ActivityResponse
 
-public typealias TDeleteApiKeysBody = V1DeleteApiKeysRequest
+/**
+ * POST `/public/v1/submit/delete_api_keys`
+ */
+@Serializable
+public class TDeleteApiKeysBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val apiKeyIds: List<String>,
+)
+
+public typealias TDeleteApiKeysRequest = V1DeleteApiKeysRequest
 
 public typealias TDeleteAuthenticatorsResponse = V1ActivityResponse
 
-public typealias TDeleteAuthenticatorsBody = V1DeleteAuthenticatorsRequest
+/**
+ * POST `/public/v1/submit/delete_authenticators`
+ */
+@Serializable
+public class TDeleteAuthenticatorsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val authenticatorIds: List<String>,
+)
+
+public typealias TDeleteAuthenticatorsRequest = V1DeleteAuthenticatorsRequest
 
 public typealias TDeleteInvitationResponse = V1ActivityResponse
 
-public typealias TDeleteInvitationBody = V1DeleteInvitationRequest
+/**
+ * POST `/public/v1/submit/delete_invitation`
+ */
+@Serializable
+public class TDeleteInvitationBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val invitationId: String,
+)
+
+public typealias TDeleteInvitationRequest = V1DeleteInvitationRequest
 
 public typealias TDeleteOauth2CredentialResponse = V1ActivityResponse
 
-public typealias TDeleteOauth2CredentialBody = V1DeleteOauth2CredentialRequest
+/**
+ * POST `/public/v1/submit/delete_oauth2_credential`
+ */
+@Serializable
+public class TDeleteOauth2CredentialBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val oauth2CredentialId: String,
+)
+
+public typealias TDeleteOauth2CredentialRequest = V1DeleteOauth2CredentialRequest
 
 public typealias TDeleteOauthProvidersResponse = V1ActivityResponse
 
-public typealias TDeleteOauthProvidersBody = V1DeleteOauthProvidersRequest
+/**
+ * POST `/public/v1/submit/delete_oauth_providers`
+ */
+@Serializable
+public class TDeleteOauthProvidersBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val providerIds: List<String>,
+)
+
+public typealias TDeleteOauthProvidersRequest = V1DeleteOauthProvidersRequest
 
 public typealias TDeletePolicyResponse = V1ActivityResponse
 
-public typealias TDeletePolicyBody = V1DeletePolicyRequest
+/**
+ * POST `/public/v1/submit/delete_policy`
+ */
+@Serializable
+public class TDeletePolicyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val policyId: String,
+)
+
+public typealias TDeletePolicyRequest = V1DeletePolicyRequest
 
 public typealias TDeletePrivateKeyTagsResponse = V1ActivityResponse
 
-public typealias TDeletePrivateKeyTagsBody = V1DeletePrivateKeyTagsRequest
+/**
+ * POST `/public/v1/submit/delete_private_key_tags`
+ */
+@Serializable
+public class TDeletePrivateKeyTagsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeyTagIds: List<String>,
+)
+
+public typealias TDeletePrivateKeyTagsRequest = V1DeletePrivateKeyTagsRequest
 
 public typealias TDeletePrivateKeysResponse = V1ActivityResponse
 
-public typealias TDeletePrivateKeysBody = V1DeletePrivateKeysRequest
+/**
+ * POST `/public/v1/submit/delete_private_keys`
+ */
+@Serializable
+public class TDeletePrivateKeysBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeyIds: List<String>,
+  public val deleteWithoutExport: Boolean? = null,
+)
+
+public typealias TDeletePrivateKeysRequest = V1DeletePrivateKeysRequest
 
 public typealias TDeleteSmartContractInterfaceResponse = V1ActivityResponse
 
-public typealias TDeleteSmartContractInterfaceBody = V1DeleteSmartContractInterfaceRequest
+/**
+ * POST `/public/v1/submit/delete_smart_contract_interface`
+ */
+@Serializable
+public class TDeleteSmartContractInterfaceBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val smartContractInterfaceId: String,
+)
+
+public typealias TDeleteSmartContractInterfaceRequest = V1DeleteSmartContractInterfaceRequest
 
 public typealias TDeleteSubOrganizationResponse = V1ActivityResponse
 
-public typealias TDeleteSubOrganizationBody = V1DeleteSubOrganizationRequest
+/**
+ * POST `/public/v1/submit/delete_sub_organization`
+ */
+@Serializable
+public class TDeleteSubOrganizationBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val deleteWithoutExport: Boolean? = null,
+)
+
+public typealias TDeleteSubOrganizationRequest = V1DeleteSubOrganizationRequest
 
 public typealias TDeleteUserTagsResponse = V1ActivityResponse
 
-public typealias TDeleteUserTagsBody = V1DeleteUserTagsRequest
+/**
+ * POST `/public/v1/submit/delete_user_tags`
+ */
+@Serializable
+public class TDeleteUserTagsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userTagIds: List<String>,
+)
+
+public typealias TDeleteUserTagsRequest = V1DeleteUserTagsRequest
 
 public typealias TDeleteUsersResponse = V1ActivityResponse
 
-public typealias TDeleteUsersBody = V1DeleteUsersRequest
+/**
+ * POST `/public/v1/submit/delete_users`
+ */
+@Serializable
+public class TDeleteUsersBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userIds: List<String>,
+)
+
+public typealias TDeleteUsersRequest = V1DeleteUsersRequest
 
 public typealias TDeleteWalletsResponse = V1ActivityResponse
 
-public typealias TDeleteWalletsBody = V1DeleteWalletsRequest
+/**
+ * POST `/public/v1/submit/delete_wallets`
+ */
+@Serializable
+public class TDeleteWalletsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val walletIds: List<String>,
+  public val deleteWithoutExport: Boolean? = null,
+)
+
+public typealias TDeleteWalletsRequest = V1DeleteWalletsRequest
 
 public typealias TEmailAuthResponse = V1ActivityResponse
 
-public typealias TEmailAuthBody = V1EmailAuthRequest
+/**
+ * POST `/public/v1/submit/email_auth`
+ */
+@Serializable
+public class TEmailAuthBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val email: String,
+  public val targetPublicKey: String,
+  public val apiKeyName: String? = null,
+  public val expirationSeconds: String? = null,
+  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val invalidateExisting: Boolean? = null,
+  public val sendFromEmailAddress: String? = null,
+  public val sendFromEmailSenderName: String? = null,
+  public val replyToEmailAddress: String? = null,
+)
+
+public typealias TEmailAuthRequest = V1EmailAuthRequest
 
 public typealias TExportPrivateKeyResponse = V1ActivityResponse
 
-public typealias TExportPrivateKeyBody = V1ExportPrivateKeyRequest
+/**
+ * POST `/public/v1/submit/export_private_key`
+ */
+@Serializable
+public class TExportPrivateKeyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeyId: String,
+  public val targetPublicKey: String,
+)
+
+public typealias TExportPrivateKeyRequest = V1ExportPrivateKeyRequest
 
 public typealias TExportWalletResponse = V1ActivityResponse
 
-public typealias TExportWalletBody = V1ExportWalletRequest
+/**
+ * POST `/public/v1/submit/export_wallet`
+ */
+@Serializable
+public class TExportWalletBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val walletId: String,
+  public val targetPublicKey: String,
+  public val language: V1MnemonicLanguage? = null,
+)
+
+public typealias TExportWalletRequest = V1ExportWalletRequest
 
 public typealias TExportWalletAccountResponse = V1ActivityResponse
 
-public typealias TExportWalletAccountBody = V1ExportWalletAccountRequest
+/**
+ * POST `/public/v1/submit/export_wallet_account`
+ */
+@Serializable
+public class TExportWalletAccountBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val address: String,
+  public val targetPublicKey: String,
+)
+
+public typealias TExportWalletAccountRequest = V1ExportWalletAccountRequest
 
 public typealias TImportPrivateKeyResponse = V1ActivityResponse
 
-public typealias TImportPrivateKeyBody = V1ImportPrivateKeyRequest
+/**
+ * POST `/public/v1/submit/import_private_key`
+ */
+@Serializable
+public class TImportPrivateKeyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val privateKeyName: String,
+  public val encryptedBundle: String,
+  public val curve: V1Curve,
+  public val addressFormats: List<V1AddressFormat>,
+)
+
+public typealias TImportPrivateKeyRequest = V1ImportPrivateKeyRequest
 
 public typealias TImportWalletResponse = V1ActivityResponse
 
-public typealias TImportWalletBody = V1ImportWalletRequest
+/**
+ * POST `/public/v1/submit/import_wallet`
+ */
+@Serializable
+public class TImportWalletBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val walletName: String,
+  public val encryptedBundle: String,
+  public val accounts: List<V1WalletAccountParams>,
+)
+
+public typealias TImportWalletRequest = V1ImportWalletRequest
 
 public typealias TInitFiatOnRampResponse = V1ActivityResponse
 
-public typealias TInitFiatOnRampBody = V1InitFiatOnRampRequest
+/**
+ * POST `/public/v1/submit/init_fiat_on_ramp`
+ */
+@Serializable
+public class TInitFiatOnRampBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val onrampProvider: V1FiatOnRampProvider,
+  public val walletAddress: String,
+  public val network: V1FiatOnRampBlockchainNetwork,
+  public val cryptoCurrencyCode: V1FiatOnRampCryptoCurrency,
+  public val fiatCurrencyCode: V1FiatOnRampCurrency? = null,
+  public val fiatCurrencyAmount: String? = null,
+  public val paymentMethod: V1FiatOnRampPaymentMethod? = null,
+  public val countryCode: String? = null,
+  public val countrySubdivisionCode: String? = null,
+  public val sandboxMode: Boolean? = null,
+  public val urlForSignature: String? = null,
+)
+
+public typealias TInitFiatOnRampRequest = V1InitFiatOnRampRequest
 
 public typealias TInitImportPrivateKeyResponse = V1ActivityResponse
 
-public typealias TInitImportPrivateKeyBody = V1InitImportPrivateKeyRequest
+/**
+ * POST `/public/v1/submit/init_import_private_key`
+ */
+@Serializable
+public class TInitImportPrivateKeyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+)
+
+public typealias TInitImportPrivateKeyRequest = V1InitImportPrivateKeyRequest
 
 public typealias TInitImportWalletResponse = V1ActivityResponse
 
-public typealias TInitImportWalletBody = V1InitImportWalletRequest
+/**
+ * POST `/public/v1/submit/init_import_wallet`
+ */
+@Serializable
+public class TInitImportWalletBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+)
+
+public typealias TInitImportWalletRequest = V1InitImportWalletRequest
 
 public typealias TInitOtpResponse = V1ActivityResponse
 
-public typealias TInitOtpBody = V1InitOtpRequest
+/**
+ * POST `/public/v1/submit/init_otp`
+ */
+@Serializable
+public class TInitOtpBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val otpType: String,
+  public val contact: String,
+  public val otpLength: Int? = null,
+  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val smsCustomization: V1SmsCustomizationParams? = null,
+  public val userIdentifier: String? = null,
+  public val sendFromEmailAddress: String? = null,
+  public val alphanumeric: Boolean? = null,
+  public val sendFromEmailSenderName: String? = null,
+  public val expirationSeconds: String? = null,
+  public val replyToEmailAddress: String? = null,
+)
+
+public typealias TInitOtpRequest = V1InitOtpRequest
 
 public typealias TInitOtpAuthResponse = V1ActivityResponse
 
-public typealias TInitOtpAuthBody = V1InitOtpAuthRequest
+/**
+ * POST `/public/v1/submit/init_otp_auth`
+ */
+@Serializable
+public class TInitOtpAuthBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val otpType: String,
+  public val contact: String,
+  public val otpLength: Int? = null,
+  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val smsCustomization: V1SmsCustomizationParams? = null,
+  public val userIdentifier: String? = null,
+  public val sendFromEmailAddress: String? = null,
+  public val alphanumeric: Boolean? = null,
+  public val sendFromEmailSenderName: String? = null,
+  public val replyToEmailAddress: String? = null,
+)
+
+public typealias TInitOtpAuthRequest = V1InitOtpAuthRequest
 
 public typealias TInitUserEmailRecoveryResponse = V1ActivityResponse
 
-public typealias TInitUserEmailRecoveryBody = V1InitUserEmailRecoveryRequest
+/**
+ * POST `/public/v1/submit/init_user_email_recovery`
+ */
+@Serializable
+public class TInitUserEmailRecoveryBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val email: String,
+  public val targetPublicKey: String,
+  public val expirationSeconds: String? = null,
+  public val emailCustomization: V1EmailCustomizationParams? = null,
+)
+
+public typealias TInitUserEmailRecoveryRequest = V1InitUserEmailRecoveryRequest
 
 public typealias TOauthResponse = V1ActivityResponse
 
-public typealias TOauthBody = V1OauthRequest
+/**
+ * POST `/public/v1/submit/oauth`
+ */
+@Serializable
+public class TOauthBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val oidcToken: String,
+  public val targetPublicKey: String,
+  public val apiKeyName: String? = null,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+)
+
+public typealias TOauthRequest = V1OauthRequest
 
 public typealias TOauth2AuthenticateResponse = V1ActivityResponse
 
-public typealias TOauth2AuthenticateBody = V1Oauth2AuthenticateRequest
+/**
+ * POST `/public/v1/submit/oauth2_authenticate`
+ */
+@Serializable
+public class TOauth2AuthenticateBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val oauth2CredentialId: String,
+  public val authCode: String,
+  public val redirectUri: String,
+  public val codeVerifier: String,
+  public val nonce: String? = null,
+)
+
+public typealias TOauth2AuthenticateRequest = V1Oauth2AuthenticateRequest
 
 public typealias TOauthLoginResponse = V1ActivityResponse
 
-public typealias TOauthLoginBody = V1OauthLoginRequest
+/**
+ * POST `/public/v1/submit/oauth_login`
+ */
+@Serializable
+public class TOauthLoginBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val oidcToken: String,
+  public val publicKey: String,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+)
+
+public typealias TOauthLoginRequest = V1OauthLoginRequest
 
 public typealias TOtpAuthResponse = V1ActivityResponse
 
-public typealias TOtpAuthBody = V1OtpAuthRequest
+/**
+ * POST `/public/v1/submit/otp_auth`
+ */
+@Serializable
+public class TOtpAuthBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val otpId: String,
+  public val otpCode: String,
+  public val targetPublicKey: String,
+  public val apiKeyName: String? = null,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+)
+
+public typealias TOtpAuthRequest = V1OtpAuthRequest
 
 public typealias TOtpLoginResponse = V1ActivityResponse
 
-public typealias TOtpLoginBody = V1OtpLoginRequest
+/**
+ * POST `/public/v1/submit/otp_login`
+ */
+@Serializable
+public class TOtpLoginBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val verificationToken: String,
+  public val publicKey: String,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+  public val clientSignature: String? = null,
+)
+
+public typealias TOtpLoginRequest = V1OtpLoginRequest
 
 public typealias TRecoverUserResponse = V1ActivityResponse
 
-public typealias TRecoverUserBody = V1RecoverUserRequest
+/**
+ * POST `/public/v1/submit/recover_user`
+ */
+@Serializable
+public class TRecoverUserBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val authenticator: V1AuthenticatorParamsV2,
+  public val userId: String,
+)
+
+public typealias TRecoverUserRequest = V1RecoverUserRequest
 
 public typealias TRejectActivityResponse = V1ActivityResponse
 
-public typealias TRejectActivityBody = V1RejectActivityRequest
+/**
+ * POST `/public/v1/submit/reject_activity`
+ */
+@Serializable
+public class TRejectActivityBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val fingerprint: String,
+)
+
+public typealias TRejectActivityRequest = V1RejectActivityRequest
 
 public typealias TRemoveOrganizationFeatureResponse = V1ActivityResponse
 
-public typealias TRemoveOrganizationFeatureBody = V1RemoveOrganizationFeatureRequest
+/**
+ * POST `/public/v1/submit/remove_organization_feature`
+ */
+@Serializable
+public class TRemoveOrganizationFeatureBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val name: V1FeatureName,
+)
+
+public typealias TRemoveOrganizationFeatureRequest = V1RemoveOrganizationFeatureRequest
 
 public typealias TSetOrganizationFeatureResponse = V1ActivityResponse
 
-public typealias TSetOrganizationFeatureBody = V1SetOrganizationFeatureRequest
+/**
+ * POST `/public/v1/submit/set_organization_feature`
+ */
+@Serializable
+public class TSetOrganizationFeatureBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val name: V1FeatureName,
+  public val `value`: String,
+)
+
+public typealias TSetOrganizationFeatureRequest = V1SetOrganizationFeatureRequest
 
 public typealias TSignRawPayloadResponse = V1ActivityResponse
 
-public typealias TSignRawPayloadBody = V1SignRawPayloadRequest
+/**
+ * POST `/public/v1/submit/sign_raw_payload`
+ */
+@Serializable
+public class TSignRawPayloadBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val signWith: String,
+  public val payload: String,
+  public val encoding: V1PayloadEncoding,
+  public val hashFunction: V1HashFunction,
+)
+
+public typealias TSignRawPayloadRequest = V1SignRawPayloadRequest
 
 public typealias TSignRawPayloadsResponse = V1ActivityResponse
 
-public typealias TSignRawPayloadsBody = V1SignRawPayloadsRequest
+/**
+ * POST `/public/v1/submit/sign_raw_payloads`
+ */
+@Serializable
+public class TSignRawPayloadsBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val signWith: String,
+  public val payloads: List<String>,
+  public val encoding: V1PayloadEncoding,
+  public val hashFunction: V1HashFunction,
+)
+
+public typealias TSignRawPayloadsRequest = V1SignRawPayloadsRequest
 
 public typealias TSignTransactionResponse = V1ActivityResponse
 
-public typealias TSignTransactionBody = V1SignTransactionRequest
+/**
+ * POST `/public/v1/submit/sign_transaction`
+ */
+@Serializable
+public class TSignTransactionBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val signWith: String,
+  public val unsignedTransaction: String,
+  public val type: V1TransactionType,
+)
+
+public typealias TSignTransactionRequest = V1SignTransactionRequest
 
 public typealias TStampLoginResponse = V1ActivityResponse
 
-public typealias TStampLoginBody = V1StampLoginRequest
+/**
+ * POST `/public/v1/submit/stamp_login`
+ */
+@Serializable
+public class TStampLoginBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val publicKey: String,
+  public val expirationSeconds: String? = null,
+  public val invalidateExisting: Boolean? = null,
+)
+
+public typealias TStampLoginRequest = V1StampLoginRequest
 
 public typealias TUpdateOauth2CredentialResponse = V1ActivityResponse
 
-public typealias TUpdateOauth2CredentialBody = V1UpdateOauth2CredentialRequest
+/**
+ * POST `/public/v1/submit/update_oauth2_credential`
+ */
+@Serializable
+public class TUpdateOauth2CredentialBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val oauth2CredentialId: String,
+  public val provider: V1Oauth2Provider,
+  public val clientId: String,
+  public val encryptedClientSecret: String,
+)
+
+public typealias TUpdateOauth2CredentialRequest = V1UpdateOauth2CredentialRequest
 
 public typealias TUpdatePolicyResponse = V1ActivityResponse
 
-public typealias TUpdatePolicyBody = V1UpdatePolicyRequest
+/**
+ * POST `/public/v1/submit/update_policy`
+ */
+@Serializable
+public class TUpdatePolicyBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val policyId: String,
+  public val policyName: String? = null,
+  public val policyEffect: V1Effect? = null,
+  public val policyCondition: String? = null,
+  public val policyConsensus: String? = null,
+  public val policyNotes: String? = null,
+)
+
+public typealias TUpdatePolicyRequest = V1UpdatePolicyRequest
 
 public typealias TUpdatePrivateKeyTagResponse = V1ActivityResponse
 
-public typealias TUpdatePrivateKeyTagBody = V1UpdatePrivateKeyTagRequest
+/**
+ * POST `/public/v1/submit/update_private_key_tag`
+ */
+@Serializable
+public class TUpdatePrivateKeyTagBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val privateKeyTagId: String,
+  public val newPrivateKeyTagName: String? = null,
+  public val addPrivateKeyIds: List<String>,
+  public val removePrivateKeyIds: List<String>,
+)
+
+public typealias TUpdatePrivateKeyTagRequest = V1UpdatePrivateKeyTagRequest
 
 public typealias TUpdateRootQuorumResponse = V1ActivityResponse
 
-public typealias TUpdateRootQuorumBody = V1UpdateRootQuorumRequest
+/**
+ * POST `/public/v1/submit/update_root_quorum`
+ */
+@Serializable
+public class TUpdateRootQuorumBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val threshold: Int,
+  public val userIds: List<String>,
+)
+
+public typealias TUpdateRootQuorumRequest = V1UpdateRootQuorumRequest
 
 public typealias TUpdateUserResponse = V1ActivityResponse
 
-public typealias TUpdateUserBody = V1UpdateUserRequest
+/**
+ * POST `/public/v1/submit/update_user`
+ */
+@Serializable
+public class TUpdateUserBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val userName: String? = null,
+  public val userEmail: String? = null,
+  public val userTagIds: List<String>? = null,
+  public val userPhoneNumber: String? = null,
+)
+
+public typealias TUpdateUserRequest = V1UpdateUserRequest
 
 public typealias TUpdateUserEmailResponse = V1ActivityResponse
 
-public typealias TUpdateUserEmailBody = V1UpdateUserEmailRequest
+/**
+ * POST `/public/v1/submit/update_user_email`
+ */
+@Serializable
+public class TUpdateUserEmailBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val userEmail: String,
+  public val verificationToken: String? = null,
+)
+
+public typealias TUpdateUserEmailRequest = V1UpdateUserEmailRequest
 
 public typealias TUpdateUserNameResponse = V1ActivityResponse
 
-public typealias TUpdateUserNameBody = V1UpdateUserNameRequest
+/**
+ * POST `/public/v1/submit/update_user_name`
+ */
+@Serializable
+public class TUpdateUserNameBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val userName: String,
+)
+
+public typealias TUpdateUserNameRequest = V1UpdateUserNameRequest
 
 public typealias TUpdateUserPhoneNumberResponse = V1ActivityResponse
 
-public typealias TUpdateUserPhoneNumberBody = V1UpdateUserPhoneNumberRequest
+/**
+ * POST `/public/v1/submit/update_user_phone_number`
+ */
+@Serializable
+public class TUpdateUserPhoneNumberBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userId: String,
+  public val userPhoneNumber: String,
+  public val verificationToken: String? = null,
+)
+
+public typealias TUpdateUserPhoneNumberRequest = V1UpdateUserPhoneNumberRequest
 
 public typealias TUpdateUserTagResponse = V1ActivityResponse
 
-public typealias TUpdateUserTagBody = V1UpdateUserTagRequest
+/**
+ * POST `/public/v1/submit/update_user_tag`
+ */
+@Serializable
+public class TUpdateUserTagBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val userTagId: String,
+  public val newUserTagName: String? = null,
+  public val addUserIds: List<String>,
+  public val removeUserIds: List<String>,
+)
+
+public typealias TUpdateUserTagRequest = V1UpdateUserTagRequest
 
 public typealias TUpdateWalletResponse = V1ActivityResponse
 
-public typealias TUpdateWalletBody = V1UpdateWalletRequest
+/**
+ * POST `/public/v1/submit/update_wallet`
+ */
+@Serializable
+public class TUpdateWalletBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val walletId: String,
+  public val walletName: String? = null,
+)
+
+public typealias TUpdateWalletRequest = V1UpdateWalletRequest
 
 public typealias TVerifyOtpResponse = V1ActivityResponse
 
-public typealias TVerifyOtpBody = V1VerifyOtpRequest
+/**
+ * POST `/public/v1/submit/verify_otp`
+ */
+@Serializable
+public class TVerifyOtpBody(
+  public val organizationId: String,
+  public val timestampMs: String? = null,
+  public val otpId: String,
+  public val otpCode: String,
+  public val expirationSeconds: String? = null,
+  public val publicKey: String? = null,
+)
+
+public typealias TVerifyOtpRequest = V1VerifyOtpRequest
 
 public typealias TNOOPCodegenAnchorResponse = V1NOOPCodegenAnchorResponse
 
@@ -579,34 +1501,52 @@ public typealias TTestRateLimitsResponse = V1TestRateLimitsResponse
 
 public typealias TTestRateLimitsBody = V1TestRateLimitsRequest
 
+public typealias TTestRateLimitsRequest = V1TestRateLimitsRequest
+
 public typealias ProxyTGetAccountResponse = ProxyV1GetAccountResponse
 
 public typealias ProxyTGetAccountBody = ProxyV1GetAccountRequest
+
+public typealias ProxyTGetAccountRequest = ProxyV1GetAccountRequest
 
 public typealias ProxyTOAuth2AuthenticateResponse = ProxyV1OAuth2AuthenticateResponse
 
 public typealias ProxyTOAuth2AuthenticateBody = ProxyV1OAuth2AuthenticateRequest
 
+public typealias ProxyTOAuth2AuthenticateRequest = ProxyV1OAuth2AuthenticateRequest
+
 public typealias ProxyTOAuthLoginResponse = ProxyV1OAuthLoginResponse
 
 public typealias ProxyTOAuthLoginBody = ProxyV1OAuthLoginRequest
+
+public typealias ProxyTOAuthLoginRequest = ProxyV1OAuthLoginRequest
 
 public typealias ProxyTInitOtpResponse = ProxyV1InitOtpResponse
 
 public typealias ProxyTInitOtpBody = ProxyV1InitOtpRequest
 
+public typealias ProxyTInitOtpRequest = ProxyV1InitOtpRequest
+
 public typealias ProxyTOtpLoginResponse = ProxyV1OtpLoginResponse
 
 public typealias ProxyTOtpLoginBody = ProxyV1OtpLoginRequest
+
+public typealias ProxyTOtpLoginRequest = ProxyV1OtpLoginRequest
 
 public typealias ProxyTVerifyOtpResponse = ProxyV1VerifyOtpResponse
 
 public typealias ProxyTVerifyOtpBody = ProxyV1VerifyOtpRequest
 
+public typealias ProxyTVerifyOtpRequest = ProxyV1VerifyOtpRequest
+
 public typealias ProxyTSignupResponse = ProxyV1SignupResponse
 
 public typealias ProxyTSignupBody = ProxyV1SignupRequest
 
+public typealias ProxyTSignupRequest = ProxyV1SignupRequest
+
 public typealias ProxyTGetWalletKitConfigResponse = ProxyV1GetWalletKitConfigResponse
 
 public typealias ProxyTGetWalletKitConfigBody = ProxyV1GetWalletKitConfigRequest
+
+public typealias ProxyTGetWalletKitConfigRequest = ProxyV1GetWalletKitConfigRequest

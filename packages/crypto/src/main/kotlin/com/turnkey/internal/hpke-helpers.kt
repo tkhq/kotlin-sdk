@@ -4,7 +4,6 @@ import com.turnkey.utils.TurnkeyConstants.hpkeInfo
 import com.turnkey.encoding.decodeHex
 import com.turnkey.encoding.toHexString
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bitcoinj.core.Base58
 import org.bouncycastle.asn1.nist.NISTNamedCurves

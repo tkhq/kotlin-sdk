@@ -30,7 +30,7 @@ import kotlinx.serialization.Contextual
 data class ProxyV1GetAccountResponse (
 
     @SerialName(value = "organizationId")
-    val organizationId: kotlin.String
+    val organizationId: kotlin.String? = null
 
 ) {
 

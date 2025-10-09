@@ -41,6 +41,7 @@ val proxySpec: String = file("$projectDir/openapi/auth_proxy.swagger.json").abso
 val out: String = file("$projectDir/src/main/kotlin").absolutePath
 val publicCfgFile: String = file("$projectDir/openapi/public_models.yaml").absolutePath
 val proxyCfgFile: String = file("$projectDir/openapi/proxy_models.yaml").absolutePath
+
 val codegen = tasks.register<JavaExec>("codegen") {
     dependsOn(openApiGenerateModels)
     group = "codegen"
@@ -121,11 +122,13 @@ val openApiGenerateModels = tasks.register("openApiGenerateModels") {
     dependsOn(openApiGeneratePublicModels, openApiGenerateProxyModels)
 }
 
-tasks.matching { it.name.startsWith("compile") && it.name.endsWith("Kotlin") }
-    .configureEach { dependsOn(codegen) }
+codegen.configure { shouldRunAfter(openApiGenerateModels) }
 
-tasks.matching { it.name.startsWith("compile") && it.name.endsWith("Kotlin") }
-    .configureEach { dependsOn(tasks.named("openApiGenerateModels")) }
+tasks.register("regenerateHttpClient") {
+    group = "codegen"
+    description = "Generate models + client"
+    dependsOn(openApiGenerateModels, codegen)
+}
 
 kotlin {
     jvmToolchain(24)

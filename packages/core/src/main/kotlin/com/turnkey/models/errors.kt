@@ -23,6 +23,15 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data class FailedToCreateSession(val e: Throwable): TurnkeyKotlinError("Failed to create session from jwt", e)
     data class KeyAlreadyExists(val sessionKey: String) : TurnkeyKotlinError("Session key $sessionKey already exists")
     data class KeyNotFound(val sessionKey: String) : TurnkeyKotlinError("Session key $sessionKey not found")
-    data object ClientNotInitialized : TurnkeyKotlinError("The Turnkey Client has not been initialized")
+    data object ClientNotInitialized : TurnkeyKotlinError("The Turnkey Client has not been initialized") {
+        private fun readResolve(): Any = ClientNotInitialized
+    }
+
     data class FailedToSetSelectedSession(val e: Throwable): TurnkeyKotlinError("Failed to set selected session", e)
+    data object InvalidSession: TurnkeyKotlinError("Invalid session") {
+        private fun readResolve(): Any = InvalidSession
+    }
+
+    data class InvalidResponse(val s: String): TurnkeyKotlinError(s)
+    data class FailedToRefreshSession(val t: Throwable) : TurnkeyKotlinError("Error refreshing session", t)
 }

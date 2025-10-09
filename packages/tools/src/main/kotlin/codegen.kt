@@ -1,5 +1,6 @@
 import com.squareup.kotlinpoet.*
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.parser.core.models.ParseOptions
 import io.swagger.v3.parser.converter.SwaggerConverter
 import java.nio.file.Files
@@ -9,6 +10,65 @@ import utils.*   // expects MAP, STRING, kotlinTypeFromSchema, etc.
 
 /** One spec input + an optional prefix applied to operation/type names. */
 data class SpecCfg(val path: Path, val prefix: String)
+
+object VersionedActivityTypes {
+    val map: Map<String, String> = mapOf(
+        "ACTIVITY_TYPE_CREATE_AUTHENTICATORS" to "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
+        "ACTIVITY_TYPE_CREATE_API_KEYS" to "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
+        "ACTIVITY_TYPE_CREATE_POLICY" to "ACTIVITY_TYPE_CREATE_POLICY_V3",
+        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS" to "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION" to "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+        "ACTIVITY_TYPE_CREATE_USERS" to "ACTIVITY_TYPE_CREATE_USERS_V3",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD" to "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+        "ACTIVITY_TYPE_SIGN_TRANSACTION" to "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+        "ACTIVITY_TYPE_EMAIL_AUTH" to "ACTIVITY_TYPE_EMAIL_AUTH_V2",
+        "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION" to "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
+        "ACTIVITY_TYPE_UPDATE_POLICY" to "ACTIVITY_TYPE_UPDATE_POLICY_V2",
+        "ACTIVITY_TYPE_INIT_OTP_AUTH" to "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+    )
+
+    /** Fallbacks to the input if there’s no versioned entry. */
+    fun resolve(type: String): String = map[type] ?: type
+}
+
+private fun Schema<*>.refName(): String? = this.`$ref`?.substringAfterLast("/")
+
+private fun flattenAllOf(
+    schema: Schema<*>,
+    components: Map<String, Schema<*>>,
+): Pair<Map<String, Schema<*>>, Set<String>> {
+    val props = linkedMapOf<String, Schema<*>>()
+    val required = linkedSetOf<String>()
+
+    fun absorb(s: Schema<*>) {
+        s.properties?.forEach { (k, v) -> props[k] = v as Schema<*> }
+        s.required?.forEach { required += it }
+    }
+
+    if (schema.allOf?.isNotEmpty() == true) {
+        schema.allOf.forEach { part ->
+            val resolved = part.refName()?.let { components[it] } ?: part
+            absorb(resolved)
+        }
+    } else {
+        absorb(schema)
+    }
+    return props to required
+}
+
+/** Pick latest Intent name by suffix V<digits>, fall back to exact if no versions. */
+private fun latestIntentName(base: String, schemas: Map<String, Schema<*>>?): String? {
+    if (schemas == null) return null
+    if (schemas.containsKey(base)) return base
+    val re = Regex("^${Regex.escape(base)}V(\\d+)$")
+    return schemas.keys
+        .mapNotNull { k ->
+            re.matchEntire(k)?.groupValues?.getOrNull(1)?.toIntOrNull()?.let { v -> k to v }
+        }
+        .maxByOrNull { it.second }
+        ?.first
+}
+
 
 /** Entry */
 fun main(args: Array<String>) {
@@ -36,11 +96,11 @@ fun main(args: Array<String>) {
     }
     require(specs.isNotEmpty()) { "At least one --spec is required (use: --spec path [--prefix Prefix])" }
 
-    val outRoot      = Path.of(arg("--out"))
-    val pkg          = arg("--pkg")
-    val modelPkg     = arg("--modelPkg")
-    val clientClass  = arg("--class", "TurnkeyClient")
-    val typesPkg     = arg("--typesPkg", pkg)
+    val outRoot = Path.of(arg("--out"))
+    val pkg = arg("--pkg")
+    val modelPkg = arg("--modelPkg")
+    val clientClass = arg("--class", "TurnkeyClient")
+    val typesPkg = arg("--typesPkg", pkg)
     val clientVersionHdr = arg("--clientVersion", "kotlin-sdk/0.1.0")
 
     specs.forEach { require(Files.exists(it.path)) { "Spec not found: ${it.path}" } }
@@ -73,12 +133,14 @@ private fun generateClientFile(
     clientVersionHdr: String,
 ) {
     val stamperClass = ClassName("com.turnkey.stamper", "Stamper")
-    val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyAuthProxyErrors")
+    val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyHttpErrors")
     val okHttpClient = ClassName("okhttp3", "OkHttpClient")
-    val requestCls   = ClassName("okhttp3", "Request")
-    val toMediaType  = MemberName("okhttp3.MediaType.Companion", "toMediaType")
-    val toReqBody    = MemberName("okhttp3.RequestBody.Companion", "toRequestBody")
-    val jsonCls      = ClassName("kotlinx.serialization.json", "Json")
+    val requestCls = ClassName("okhttp3", "Request")
+    val toMediaType = MemberName("okhttp3.MediaType.Companion", "toMediaType")
+    val toReqBody = MemberName("okhttp3.RequestBody.Companion", "toRequestBody")
+    val jsonCls = ClassName("kotlinx.serialization.json", "Json")
+    val jsonObject = MemberName("kotlinx.serialization.json", "jsonObject")
+    val jsonPrimitive = MemberName("kotlinx.serialization.json", "jsonPrimitive")
 
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
@@ -89,7 +151,7 @@ private fun generateClientFile(
                 .defaultValue("null")
                 .build()
         )
-        .addParameter("stamper", stamperClass)
+        .addParameter("stamper", stamperClass.copy(nullable = true))
         .addParameter("http", okHttpClient)
         .addParameter(
             ParameterSpec.builder("authProxyUrl", nullableStringT)
@@ -108,7 +170,7 @@ private fun generateClientFile(
                 .build()
         )
         .addProperty(
-            PropertySpec.builder("stamper", stamperClass, KModifier.PRIVATE)
+            PropertySpec.builder("stamper", stamperClass.copy(nullable = true), KModifier.PRIVATE)
                 .initializer("%N", "stamper")
                 .build()
         )
@@ -144,7 +206,8 @@ private fun generateClientFile(
                 if (op == null) return@forEach
                 val rawId = op.operationId?.takeIf { it.isNotBlank() } ?: return@forEach
                 val opId = rawId.substringAfter("_")
-                val methodName = if (isProxy) opPrefix.lowercase() + opId else opId.replaceFirstChar { it.lowercaseChar() }
+                val methodName =
+                    if (isProxy) opPrefix.lowercase() + opId else opId.replaceFirstChar { it.lowercaseChar() }
 
                 // Resolve request & response schema refs
                 val reqSchemaRef = if (method == "post")
@@ -181,61 +244,130 @@ private fun generateClientFile(
                     .apply {
                         // URL from correct base
                         addStatement("val url = %L", "\"$$baseVarName$path\"")
+                        val kind = classifyOperation(methodName, path)
 
-                        if (method == "post") {
-                            if (bodyDto != null) {
-                                // ----- POST WITH JSON BODY -----
-                                addParameter("input", bodyDto)
-                                if (isProxy) addStatement("if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId", errorClass)
-                                addStatement("val bodyJson = json.encodeToString(%T.serializer(), input)", bodyDto)
+                        if (kind == OperationKind.Query) {
+                            // ----- POST WITH JSON BODY -----
+                            addParameter("input", bodyDto!!)
+                            if (isProxy) addStatement(
+                                "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId",
+                                errorClass
+                            ) else addStatement(
+                                "if (stamper == null) throw %T.StamperNotInitialized", errorClass
+                            )
+                            addStatement(
+                                "val bodyJson = json.encodeToString(%T.serializer(), input)",
+                                bodyDto
+                            )
 
-                                if (isProxy) {
-                                    addStatement(
-                                        "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
-                                        requestCls, toReqBody, "application/json", toMediaType,
-                                        "X-Auth-Proxy-Config-ID", "authProxyConfigId",
-                                        "X-Client-Version", clientVersionHdr
-                                    )
-                                } else {
-                                    addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
-                                    addStatement(
-                                        "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
-                                        requestCls, toReqBody, "application/json", toMediaType,
-                                        "X-Client-Version", clientVersionHdr
-                                    )
-                                }
-                            } else {
-                                // ----- POST WITH NO BODY (noop / anchor / ping) -----
-                                addStatement("val bodyJson = %S", "{}")
-
-                                if (isProxy) {
-                                    addStatement(
-                                        "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
-                                        requestCls, toReqBody, "application/json", toMediaType,
-                                        "X-Auth-Proxy-Config-ID", "authProxyConfigId",
-                                        "X-Client-Version", clientVersionHdr
-                                    )
-                                } else {
-                                    addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
-                                    addStatement(
-                                        "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
-                                        requestCls, toReqBody, "application/json", toMediaType,
-                                        "X-Client-Version", clientVersionHdr
-                                    )
-                                }
-                            }
-                        } else {
                             if (isProxy) {
                                 addStatement(
-                                    "val req = %T.Builder().url(url).get().header(%S, %N).header(%S, %S).build()",
-                                    requestCls,
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Auth-Proxy-Config-ID", "authProxyConfigId",
                                     "X-Client-Version", clientVersionHdr
                                 )
                             } else {
+                                addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
                                 addStatement(
-                                    "val req = %T.Builder().url(url).get().header(%S, %S).build()",
-                                    requestCls,
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
+                                    "X-Client-Version", clientVersionHdr
+                                )
+                            }
+                        } else if (kind == OperationKind.Activity || kind == OperationKind.ActivityDecision) {
+                            // ----- POST WITH JSON BODY -----
+                            addParameter("input", bodyDto!!)
+                            if (isProxy) addStatement(
+                                "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId",
+                                errorClass
+                            ) else addStatement(
+                                "if (stamper == null) throw %T.StamperNotInitialized",
+                                errorClass
+                            )
+
+                            if (isProxy) {
+                                // proxy unchanged
+                                addStatement(
+                                    "val bodyJson = json.encodeToString(%T.serializer(), input)",
+                                    bodyDto
+                                )
+                                addStatement(
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
+                                    "X-Auth-Proxy-Config-ID", "authProxyConfigId",
+                                    "X-Client-Version", clientVersionHdr
+                                )
+                            } else {
+                                // ------ PUBLIC: build activity envelope ------
+                                addStatement(
+                                    "val inputElem = json.encodeToJsonElement(%T.serializer(), input)",
+                                    bodyDto
+                                )
+                                addStatement("val obj = inputElem.%M", jsonObject)
+
+                                // extract organizationId and timestampMs if present
+                                addStatement("val orgIdElem = obj[%S]", "organizationId")
+                                addStatement("val tsElem = obj[%S]", "timestampMs")
+
+                                // parameters = all fields except organizationId/timestampMs
+                                addStatement(
+                                    "val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != %S && k != %S) put(k, v) } }",
+                                    "organizationId",
+                                    "timestampMs"
+                                )
+
+                                // timestamp fallback to now
+                                addStatement(
+                                    "val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()",
+                                    jsonPrimitive
+                                )
+
+                                // type = ACTIVITY_TYPE_<OP_ID in SNAKE>
+                                val snake = rawId.substringAfter("_").toScreamingSnake()
+                                val versioned = VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                addStatement("val activityType = %S", versioned)
+
+                                // compose final body
+                                addStatement(
+                                    "val bodyObj = kotlinx.serialization.json.buildJsonObject { " +
+                                            "put(%S, params); " +                                        // parameters
+                                            "orgIdElem?.let { put(%S, it) }; " +                          // organizationId (optional)
+                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(ts)); " +    // timestampMs
+                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(activityType)) " + // type
+                                            "}",
+                                    "parameters", "organizationId", "timestampMs", "type"
+                                )
+                                addStatement("val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)")
+
+                                // stamp & request
+                                addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
+                                addStatement(
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
+                                    "X-Client-Version", clientVersionHdr
+                                )
+                            }
+                        } else {
+                            // ----- POST WITH NO BODY (noop / anchor / ping) -----
+                            addStatement(
+                                "if (stamper == null) throw %T.StamperNotInitialized",
+                                errorClass
+                            )
+                            addStatement("val bodyJson = %S", "{}")
+
+                            if (isProxy) {
+                                addStatement(
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
+                                    "X-Auth-Proxy-Config-ID", "authProxyConfigId",
+                                    "X-Client-Version", clientVersionHdr
+                                )
+                            } else {
+                                addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
+                                addStatement(
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Client-Version", clientVersionHdr
                                 )
                             }
@@ -244,14 +376,20 @@ private fun generateClientFile(
                         addStatement("val call = http.newCall(req)")
                         beginControlFlow("call.execute().use { resp ->")
                         beginControlFlow("if (!resp.isSuccessful)")
-                        addStatement("throw RuntimeException(%P + resp.code)", "HTTP error from $path: ")
+                        addStatement(
+                            "throw RuntimeException(%P + resp.code)",
+                            "HTTP error from $path: "
+                        )
                         endControlFlow()
-                        addStatement("val text = resp.body.string()")
+                        addStatement("val text = resp.body?.string() ?: throw RuntimeException(%P)", "Empty response body from $path")
 
                         if (respType == UNIT) {
                             addStatement("return Unit")
                         } else {
-                            addStatement("return json.decodeFromString(%T.serializer(), text)", respType)
+                            addStatement(
+                                "return json.decodeFromString(%T.serializer(), text)",
+                                respType
+                            )
                         }
                         endControlFlow()
                     }
@@ -259,36 +397,91 @@ private fun generateClientFile(
                 typeBuilder.addFunction(funSpec)
 
                 if (!isProxy) {
-                    val tStampCls     = ClassName(typesPkg, "TStamp")
+                    val tStampCls = ClassName(typesPkg, "TStamp")
                     val tSignedReqCls = ClassName(typesPkg, "TSignedRequest")
-                    val stampFunName  = "stamp" + methodName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                    val stampFunName = "stamp" + methodName.capitalizeLeading()
 
                     val stampFunSpec = FunSpec.builder(stampFunName)
                         .addModifiers(KModifier.SUSPEND)
                         .returns(tSignedReqCls)
                         .apply {
+                            addStatement(
+                                "if (stamper == null) throw %T.StamperNotInitialized",
+                                errorClass
+                            )
                             // Build URL from the correct base (public or proxy base, but we only expose stamp for public)
                             addStatement("val url = %L", "\"$$baseVarName$path\"")
+                            val kind = classifyOperation(methodName, path)
 
-                            if (method == "post") {
+                            if (kind == OperationKind.Query) {
                                 if (bodyDto != null) {
                                     // POST with JSON body
                                     addParameter("input", bodyDto)
-                                    addStatement("val bodyJson = json.encodeToString(%T.serializer(), input)", bodyDto)
+                                    addStatement(
+                                        "val bodyJson = json.encodeToString(%T.serializer(), input)",
+                                        bodyDto
+                                    )
                                 } else {
                                     // POST with no body (noop)
                                     addStatement("val bodyJson = %S", "{}")
                                 }
                                 addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
-                            } else {
-                                // GET: if your stamp expects a digest of the body, decide what to sign.
-                                // Here we stamp an empty string; adjust if you prefer to stamp the URL or query.
+                            } else if (kind == OperationKind.Activity || kind == OperationKind.ActivityDecision) {
+                                addParameter("input", bodyDto!!)
+                                // ------ PUBLIC: build activity envelope ------
+                                addStatement(
+                                    "val inputElem = json.encodeToJsonElement(%T.serializer(), input)",
+                                    bodyDto
+                                )
+                                addStatement("val obj = inputElem.%M", jsonObject)
+
+                                // extract organizationId and timestampMs if present
+                                addStatement("val orgIdElem = obj[%S]", "organizationId")
+                                addStatement("val tsElem = obj[%S]", "timestampMs")
+
+                                // parameters = all fields except organizationId/timestampMs
+                                addStatement(
+                                    "val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != %S && k != %S) put(k, v) } }",
+                                    "organizationId",
+                                    "timestampMs"
+                                )
+
+                                // timestamp fallback to now
+                                addStatement(
+                                    "val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()",
+                                    jsonPrimitive
+                                )
+
+                                // type = ACTIVITY_TYPE_<OP_ID in SNAKE>
+                                val snake = rawId.substringAfter("_").toScreamingSnake()
+                                val versioned = VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                addStatement("val activityType = %S", versioned)
+
+                                // compose final body
+                                addStatement(
+                                    "val bodyObj = kotlinx.serialization.json.buildJsonObject { " +
+                                            "put(%S, params); " +                                        // parameters
+                                            "orgIdElem?.let { put(%S, it) }; " +                          // organizationId (optional)
+                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(ts)); " +    // timestampMs
+                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(activityType)) " + // type
+                                            "}",
+                                    "parameters", "organizationId", "timestampMs", "type"
+                                )
+                                addStatement("val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)")
+                                addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
+                            } else if (kind == OperationKind.Noop) {
                                 addStatement("val bodyJson = %S", "")
                                 addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
                             }
 
-                            addStatement("val stamp = %T(stampHeaderName = hName, stampHeaderValue = hValue)", tStampCls)
-                            addStatement("return %T(body = bodyJson, stamp = stamp, url = url)", tSignedReqCls)
+                            addStatement(
+                                "val stamp = %T(stampHeaderName = hName, stampHeaderValue = hValue)",
+                                tStampCls
+                            )
+                            addStatement(
+                                "return %T(body = bodyJson, stamp = stamp, url = url)",
+                                tSignedReqCls
+                            )
                         }
                         .build()
 
@@ -325,7 +518,8 @@ private fun generateEmptyModelsIfMissing(
         val serializable = ClassName("kotlinx.serialization", "Serializable")
 
         openAPI.components?.schemas.orEmpty().forEach { (schemaName, schema) ->
-            val isObject = (schema.type == "object" || (schema.type == null && schema.`$ref` == null))
+            val isObject =
+                (schema.type == "object" || (schema.type == null && schema.`$ref` == null))
             val isEmpty =
                 isObject &&
                         schema.properties.isNullOrEmpty() &&
@@ -336,7 +530,7 @@ private fun generateEmptyModelsIfMissing(
 
             if (!isEmpty) return@forEach
 
-            val simpleName = modelPrefix + schemaName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            val simpleName = modelPrefix + schemaName.capitalizeLeading()
             val obj = TypeSpec.objectBuilder(simpleName)
                 .addAnnotation(serializable)
                 .addKdoc("Empty schema placeholder for `%L`.\n", schemaName)
@@ -429,23 +623,123 @@ private fun generateTypesFile(
                 // ----- Response alias -----
                 val respRef = op.responses["200"]?.content?.get("application/json")?.schema?.`$ref`
                 val respTypeName: TypeName = respRef?.substringAfterLast("/")?.let { schema ->
-                    ClassName(modelPkg, (opPrefix.ifBlank { "" }) + schema.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() })
+                    ClassName(modelPkg, (opPrefix.ifBlank { "" }) + schema.capitalizeLeading())
                 } ?: UNIT
 
                 fileBuilder.addTypeAlias(
-                    TypeAliasSpec.builder("${opPrefix}T${rawId.substringAfter("_")}Response", respTypeName).build()
+                    TypeAliasSpec.builder(
+                        "${opPrefix}T${rawId.substringAfter("_")}Response",
+                        respTypeName
+                    ).build()
                 )
 
-                // ----- Body alias (POST only) -----
-                val bodyRef = if (method == "post")
-                    op.requestBody?.content?.get("application/json")?.schema?.`$ref` else null
-                val bodyType = bodyRef?.substringAfterLast("/")?.let { schema ->
-                    ClassName(modelPkg, (opPrefix.ifBlank { "" }) + schema.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() })
+                // ----- Body as inline Intent fields + optional organizationId (POST only) -----
+                if (method == "post") {
+                    val requestRef =
+                        op.requestBody?.content?.get("application/json")?.schema?.`$ref`
+                    val requestSchemaName = requestRef?.substringAfterLast("/")
+
+                    if (requestSchemaName != null) {
+                        val schemas = openAPI.components?.schemas.orEmpty()
+                        val requestSchema = schemas[requestSchemaName]
+
+                        // Request.parameters.$ref -> Intent base
+                        val parametersSchemaRef =
+                            requestSchema?.properties?.get("parameters")?.refName()
+                        val intentSchema = parametersSchemaRef?.let { schemas[it] }
+
+                        if (intentSchema != null) {
+                            // Flatten intent properties/required
+                            val (intentProps, intentRequired) = flattenAllOf(intentSchema, schemas)
+
+                            // Build **Body** class = inline intent props + optional organizationId (non-proxy only)
+                            val bodyClassName = "${opPrefix}T${rawId.substringAfter("_")}Body"
+                            val cls = TypeSpec.classBuilder(bodyClassName)
+                                .addAnnotation(kotlinx.serialization.Serializable::class)
+                                .apply { addKDocT(this) }
+
+                            val ctor = FunSpec.constructorBuilder()
+
+                            // Non-proxy specs get optional orgId
+                            if (opPrefix.isBlank()) {
+                                val t = String::class.asTypeName().copy(nullable = true)
+                                ctor.addParameter(
+                                    ParameterSpec.builder("organizationId", String::class)
+                                        .build()
+                                )
+                                ctor.addParameter(
+                                    ParameterSpec.builder("timestampMs", t)
+                                        .defaultValue("null")
+                                        .build()
+                                )
+                                cls.addProperty(
+                                    PropertySpec.builder("organizationId", String::class)
+                                        .initializer("organizationId")
+                                        .build()
+                                )
+                                cls.addProperty(
+                                    PropertySpec.builder("timestampMs", t)
+                                        .initializer("timestampMs")
+                                        .build()
+                                )
+                            }
+
+                            // Inline **all** intent properties directly into Body
+                            intentProps.forEach { (propName, propSchema) ->
+                                val isRequired = propName in intentRequired
+                                val ktType = kotlinTypeFromSchema(propSchema, modelPkg, opPrefix)
+                                val finalType =
+                                    if (isRequired) ktType else ktType.copy(nullable = true)
+
+                                // constructor param
+                                val paramBuilder = ParameterSpec.builder(propName, finalType)
+                                if (!isRequired) paramBuilder.defaultValue("null")
+                                ctor.addParameter(paramBuilder.build())
+
+                                // property
+                                cls.addProperty(
+                                    PropertySpec.builder(propName, finalType)
+                                        .initializer(propName)
+                                        .build()
+                                )
+                            }
+
+                            cls.primaryConstructor(ctor.build())
+                            fileBuilder.addType(cls.build())
+                        } else {
+                            val bodyRef =
+                                op.requestBody?.content?.get("application/json")?.schema?.`$ref`
+                            val bodyType = bodyRef?.substringAfterLast("/")?.let { schema ->
+                                ClassName(
+                                    modelPkg,
+                                    (opPrefix.ifBlank { "" }) + schema.capitalizeLeading()
+                                )
+                            }
+                            val hasBody = bodyType != null
+                            if (hasBody) {
+                                fileBuilder.addTypeAlias(
+                                    TypeAliasSpec.builder(
+                                        "${opPrefix}T${rawId.substringAfter("_")}Body",
+                                        bodyType
+                                    ).build()
+                                )
+                            }
+                        }
+                    }
                 }
-                val hasBody = bodyType != null
-                if (hasBody) {
+
+                //----- Request type alias -----
+                val bodyRef = op.requestBody?.content?.get("application/json")?.schema?.`$ref`
+                val requestType = bodyRef?.substringAfterLast("/")?.let { schema ->
+                    ClassName(modelPkg, (opPrefix.ifBlank { "" }) + schema.capitalizeLeading())
+                }
+                val hasRequest = requestType != null
+                if (hasRequest) {
                     fileBuilder.addTypeAlias(
-                        TypeAliasSpec.builder("${opPrefix}T${rawId.substringAfter("_")}Body", bodyType).build()
+                        TypeAliasSpec.builder(
+                            "${opPrefix}T${rawId.substringAfter("_")}Request",
+                            requestType
+                        ).build()
                     )
                 }
 
@@ -464,7 +758,9 @@ private fun generateTypesFile(
                         ctor.addParameter(ParameterSpec.builder(name, finalType).apply {
                             if (!required) defaultValue("null")
                         }.build())
-                        cls.addProperty(PropertySpec.builder(name, finalType).initializer(name).build())
+                        cls.addProperty(
+                            PropertySpec.builder(name, finalType).initializer(name).build()
+                        )
                     }
                     cls.primaryConstructor(ctor.build())
                     fileBuilder.addType(cls.build())
@@ -474,7 +770,8 @@ private fun generateTypesFile(
                 val pathParams = op.parameters?.filter { it.`in` == "path" }.orEmpty()
                 val hasSubstitution = pathParams.isNotEmpty()
                 if (hasSubstitution) {
-                    val cls = TypeSpec.classBuilder("${opPrefix}T${rawId.substringAfter("_")}Substitution")
+                    val cls =
+                        TypeSpec.classBuilder("${opPrefix}T${rawId.substringAfter("_")}Substitution")
                     addKDocT(cls)
                     val ctor = FunSpec.constructorBuilder()
                     pathParams.forEach { p ->
