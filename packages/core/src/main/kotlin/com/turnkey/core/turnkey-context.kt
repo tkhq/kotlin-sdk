@@ -37,10 +37,11 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import com.turnkey.models.*
 import com.turnkey.crypto.generateP256KeyPair
+import com.turnkey.http.TStampLoginBody
 import com.turnkey.stamper.Stamper
 import okhttp3.OkHttpClient
 
-class TurnkeyContext (
+class TurnkeyContext(
     val appContext: Context,
     val config: TurnkeyConfig
 ) {
@@ -58,8 +59,7 @@ class TurnkeyContext (
 
     val okHttpClient = OkHttpClient()
 
-//    Internal state
-// ---- Expiry scheduling using coroutines
+    //    Internal state
     private val expiryJobs = ConcurrentHashMap<String, Job>()
     private val timerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -72,46 +72,95 @@ class TurnkeyContext (
     }
 
     suspend fun init() {
-        SessionRegistryStore.purgeExpiredSessions(this.appContext)
-        PendingKeysStore.purge(this.appContext)
+        withContext(Dispatchers.IO) {
+            SessionRegistryStore.purgeExpiredSessions(appContext)
+            PendingKeysStore.purge(appContext)
+        }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                // purge when app enters foreground
-                PendingKeysStore.purge(appContext)
-                SessionRegistryStore.purgeExpiredSessions(appContext)
-            }
-        })
+        withContext(Dispatchers.Main) {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+                override fun onStart(owner: LifecycleOwner) {
+                    // Don’t block main; do purges on IO
+                    CoroutineScope(Dispatchers.IO).launch {
+                        PendingKeysStore.purge(appContext)
+                        SessionRegistryStore.purgeExpiredSessions(appContext)
+                    }
+                }
+            })
+
+            rescheduleAllSessionExpiries(appContext)
+            restoreSelectedSession(appContext)
+        }
     }
 
     /**
      * Attempt to restore a previously selected session.
      * @return true if a valid selected session exists; false otherwise (and clears selection).
      */
-    suspend fun restoreSelectedSession(context: Context): Boolean = withContext(Dispatchers.IO) {
+    suspend fun restoreSelectedSession(context: Context) = withContext(Dispatchers.IO) {
         try {
-            val sessionKey = SelectedSessionStore.load(context, null) ?: run {
+            val sessionKey = SelectedSessionStore.load(context, null)
+            if (sessionKey == null) {
                 SelectedSessionStore.delete(context, null)
-                return@withContext false
+                // update state
+                _selectedSessionKey.value = null
+                _authState.value = AuthState.unauthenticated
+                _client.value = TurnkeyClient(
+                    apiBaseUrl = config.apiBaseUrl,
+                    authProxyUrl = config.authProxyBaseUrl,
+                    authProxyConfigId = config.authProxyConfigId,
+                    stamper = null,
+                    http = OkHttpClient()
+                )
+                return@withContext
             }
 
-            val exists = JwtSessionStore.load(context, sessionKey) != null
-            if (!exists) {
-                // Selected session expired/missing → clear selection
+            val dto = JwtSessionStore.load(context, sessionKey)
+            if (dto == null) {
+                // Selected session missing/expired → clear and set unauthenticated
                 SelectedSessionStore.delete(context, null)
-                return@withContext false
+                _selectedSessionKey.value = null
+                _authState.value = AuthState.unauthenticated
+                _client.value = TurnkeyClient(
+                    apiBaseUrl = config.apiBaseUrl,
+                    authProxyUrl = config.authProxyBaseUrl,
+                    authProxyConfigId = config.authProxyConfigId,
+                    stamper = null,
+                    http = OkHttpClient()
+                )
+                return@withContext
             }
 
-            // Schedule timers for it (if not already)
-            JwtSessionStore.load(context, sessionKey)?.let { dto ->
-                scheduleExpiryTimer(sessionKey, dto.exp)
+            scheduleExpiryTimer(sessionKey, dto.exp)
+            _selectedSessionKey.value = sessionKey
+            _authState.value = AuthState.authenticated
+
+            runCatching { setSelectedSession(sessionKey) }.onFailure {
+                _selectedSessionKey.value = null
+                _authState.value = AuthState.unauthenticated
+                _client.value = TurnkeyClient(
+                    apiBaseUrl = config.apiBaseUrl,
+                    authProxyUrl = config.authProxyBaseUrl,
+                    authProxyConfigId = config.authProxyConfigId,
+                    stamper = null,
+                    http = OkHttpClient()
+                )
             }
 
-            true
         } catch (_: Throwable) {
-            false
+            // On any error, fall back to unauthenticated
+            _selectedSessionKey.value = null
+            _authState.value = AuthState.unauthenticated
+            _client.value = TurnkeyClient(
+                apiBaseUrl = config.apiBaseUrl,
+                authProxyUrl = config.authProxyBaseUrl,
+                authProxyConfigId = config.authProxyConfigId,
+                stamper = null,
+                http = OkHttpClient()
+            )
         }
     }
+
 
     /**
      * Recreate expiry timers for all stored sessions (e.g., after process restart).
@@ -167,10 +216,8 @@ class TurnkeyContext (
             val dur = AutoRefreshStore.durationSeconds(appContext, sessionKey)
             if (dur != null) {
                 try {
-                    // TODO: FINISH THIS
-                    // Example hook: TurnkeyProvider.refreshSession(...)
-                    // TurnkeyProvider.shared.refreshSession(expirationSeconds = dur, sessionKey = sessionKey)
-                    clearSession(sessionKey)
+                    val refreshDeferred = async { refreshSession(dur, sessionKey) }
+                    refreshDeferred.await()
                 } catch (_: Throwable) {
                     clearSession(sessionKey)
                 }
@@ -267,7 +314,7 @@ class TurnkeyContext (
         }
         // Run user + wallets in parallel
         val userDeferred = async { client.getUser(TGetUserBody(organizationId, userId)) }
-        val walletsDeferred = async { client.getWallets(TGetWalletsBody(organizationId))}
+        val walletsDeferred = async { client.getWallets(TGetWalletsBody(organizationId)) }
 
         val userResp = userDeferred.await()
         val walletsResp = walletsDeferred.await()
@@ -275,18 +322,29 @@ class TurnkeyContext (
         val user = userResp.user
         val wallets = walletsResp.wallets
 
-        val walletAccountsDeferred = async { Helpers.fetchAllWalletAccountsWithCursor(client, organizationId) }
+        val walletAccountsDeferred =
+            async { Helpers.fetchAllWalletAccountsWithCursor(client, organizationId) }
         val walletAccountsResp = walletAccountsDeferred.await()
 
         val detailedWallets = Helpers.mapAccountsToWallet(walletAccountsResp, wallets)
 
-        return@coroutineScope SessionUser(id = user.userId, userName = user.userName, email = user.userEmail, phoneNumber = user.userPhoneNumber, organizationId = organizationId, wallets = detailedWallets)
+        return@coroutineScope SessionUser(
+            id = user.userId,
+            userName = user.userName,
+            email = user.userEmail,
+            phoneNumber = user.userPhoneNumber,
+            organizationId = organizationId,
+            wallets = detailedWallets
+        )
     }
 
     suspend fun clearSession(sessionKey: String? = null) {
         val key = sessionKey ?: selectedSessionKey.value ?: return
 
-        try { purgeStoredSession(appContext, sessionKey = key, keepAutoRefresh = false) } catch (_: Throwable) {}
+        try {
+            purgeStoredSession(appContext, sessionKey = key, keepAutoRefresh = false)
+        } catch (_: Throwable) {
+        }
 
         // If we cleared the selected session, reset in-memory state
         if (selectedSessionKey.value == key) {
@@ -299,10 +357,10 @@ class TurnkeyContext (
     }
 
     fun createKeyPair(): String {
-        val (pubKey, privKey) = generateP256KeyPair()
-        KeyPairStore.save(appContext, privKey, pubKey)
-        PendingKeysStore.add(appContext, pubKey)
-        return pubKey
+        val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
+        KeyPairStore.save(appContext, privKey, pubKeyCompressed)
+        PendingKeysStore.add(appContext, pubKeyCompressed)
+        return pubKeyCompressed
     }
 
     suspend fun createSession(
@@ -319,7 +377,8 @@ class TurnkeyContext (
             }
 
             // Ensure no existing session under same key
-            if (JwtSessionStore.load(appContext, sessionKey) != null) {
+            val existingKey = JwtSessionStore.load(appContext, sessionKey)
+            if (existingKey != null) {
                 throw TurnkeyKotlinError.KeyAlreadyExists(sessionKey)
             }
 
@@ -336,7 +395,7 @@ class TurnkeyContext (
                 setSelectedSession(sessionKey)
             }
 
-            withContext(kotlinx.coroutines.Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 _authState.value = AuthState.authenticated
             }
         } catch (error: Throwable) {
@@ -346,20 +405,21 @@ class TurnkeyContext (
 
     suspend fun setSelectedSession(sessionKey: String): TurnkeyClient {
         try {
-            if (client.value == null) throw TurnkeyKotlinError.ClientNotInitialized
-            val dto = JwtSessionStore.load(appContext, sessionKey) ?: throw TurnkeyKotlinError.KeyNotFound(sessionKey)
+            val dto = JwtSessionStore.load(appContext, sessionKey)
+                ?: throw TurnkeyKotlinError.KeyNotFound(sessionKey)
+            println("DTO: $dto")
 
             val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
             val cli = TurnkeyClient(
-                apiBaseUrl    = config.apiBaseUrl,
-                stamper       = Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
-                http          = okHttpClient,
-                authProxyUrl  = config.authProxyBaseUrl,
+                apiBaseUrl = config.apiBaseUrl,
+                stamper = Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
+                http = okHttpClient,
+                authProxyUrl = config.authProxyBaseUrl,
                 authProxyConfigId = config.authProxyConfigId
             )
 
             val fetched = fetchSessionUser(
-                client = client.value!!,
+                client = cli,
                 organizationId = dto.organizationId,
                 userId = dto.userId
             )
@@ -374,6 +434,83 @@ class TurnkeyContext (
             return cli
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSetSelectedSession(t)
+        }
+    }
+
+    @Throws(TurnkeyKotlinError::class)
+    suspend fun refreshSession(
+        expirationSeconds: String = Session.DEFAULT_EXPIRATION_SECONDS,
+        sessionKey: String? = null,
+        invalidateExisting: Boolean = false
+    ) {
+        val targetKey = sessionKey ?: selectedSessionKey.value ?: Session.DEFAULT_SESSION_KEY
+
+        // Use current client if this is the selected session; else build one from stored material
+        val (clientToUse, orgId) = if (targetKey == selectedSessionKey.value) {
+            val curClient = client.value ?: throw TurnkeyKotlinError.InvalidSession
+            val curUser = user.value ?: throw TurnkeyKotlinError.InvalidSession
+            curClient to curUser.organizationId
+        } else {
+            val dto =
+                JwtSessionStore.load(appContext, targetKey) ?: throw TurnkeyKotlinError.KeyNotFound(
+                    targetKey
+                )
+            val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
+            val cli = TurnkeyClient(
+                apiBaseUrl = config.apiBaseUrl,
+                stamper = Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
+                http = okHttpClient,
+                authProxyUrl = config.authProxyBaseUrl,
+                authProxyConfigId = config.authProxyConfigId
+            )
+            cli to dto.organizationId
+        }
+
+        // Generate a fresh ephemeral key (public is used to log in)
+        val newPublicKey = createKeyPair()
+
+        try {
+            // Call the “stamp login” endpoint (shape may vary with your generator)
+            // If your client expects an input DTO, construct it here instead.
+            val resp = clientToUse.stampLogin(
+                TStampLoginBody(
+                    organizationId = orgId,
+                    publicKey = newPublicKey,
+                    expirationSeconds = expirationSeconds,
+                    invalidateExisting = invalidateExisting
+                )
+            )
+
+            // Pull the JWT out from the response payload (update this path to match your DTOs)
+            val jwt = resp
+                .activity
+                .result
+                .stampLoginResult
+                ?.session
+                ?: throw TurnkeyKotlinError.InvalidResponse("Session not found in stampLogin response.")
+
+            // Swap the stored session contents (preserve auto-refresh duration)
+            updateSession(appContext, jwt = jwt, sessionKey = targetKey)
+
+            // If this was the selected session, replace the client in memory
+            if (targetKey == selectedSessionKey.value) {
+                val updated = JwtSessionStore.load(appContext, targetKey)!!
+                val privHex = KeyPairStore.getPrivateHex(appContext, updated.publicKey)
+
+                val newClient = TurnkeyClient(
+                    apiBaseUrl = config.apiBaseUrl,
+                    stamper = Stamper(apiPublicKey = updated.publicKey, apiPrivateKey = privHex),
+                    http = okHttpClient,
+                    authProxyUrl = config.authProxyBaseUrl,
+                    authProxyConfigId = config.authProxyConfigId
+                )
+
+                withContext(Dispatchers.Main) {
+                    _client.value = newClient
+                }
+            }
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToRefreshSession(t)
         }
     }
 }

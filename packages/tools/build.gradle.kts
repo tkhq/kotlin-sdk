@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(libs.swagger.parser)                  // reads Swagger 2.0 & OAS3
     implementation(libs.squareup.kotlinpoet)             // generates Kotlin source
+    implementation(libs.kotlinx.serialization.json)
 }
 
 application {

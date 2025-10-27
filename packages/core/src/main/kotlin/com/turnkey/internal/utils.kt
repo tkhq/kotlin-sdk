@@ -3,9 +3,9 @@ package com.turnkey.internal
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.http.TGetWalletAccountsBody
 import com.turnkey.http.TurnkeyClient
-import com.turnkey.http.model.V1Pagination
-import com.turnkey.http.model.V1Wallet
-import com.turnkey.http.model.V1WalletAccount
+import com.turnkey.http.V1Pagination
+import com.turnkey.http.V1Wallet
+import com.turnkey.http.V1WalletAccount
 import com.turnkey.models.SessionUser
 import com.turnkey.models.StorageError
 import kotlinx.coroutines.async

@@ -6,22 +6,14 @@ import org.bouncycastle.asn1.DERSequence
 import com.turnkey.encoding.decodeHex
 import com.turnkey.utils.ApiKeyStampError
 import java.math.BigInteger
-import org.bouncycastle.asn1.nist.NISTNamedCurves
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters
 import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
-import org.bouncycastle.math.ec.ECPoint
 import com.turnkey.encoding.toBase64Url
 import org.bouncycastle.crypto.params.ECDomainParameters
 import java.security.MessageDigest
 
-private object P256 {
-    private val x9 = NISTNamedCurves.getByName("P-256")
-    val curve = x9.curve
-    val g: ECPoint = x9.g
-    val n: BigInteger = x9.n
-}
 
 object ApiKeyStamper {
     @Throws(ApiKeyStampError::class)
@@ -40,24 +32,24 @@ object ApiKeyStamper {
         }
         if (dBytes.size != 32) throw ApiKeyStampError.InvalidPrivateKey
         val d = BigInteger(1, dBytes)
-        if (d <= BigInteger.ZERO || d >= P256.n) throw ApiKeyStampError.InvalidPrivateKey
+        if (d <= BigInteger.ZERO || d >= P256.domain.n) throw ApiKeyStampError.InvalidPrivateKey
 
         // derive compressed public key from scalar; compare to expected
-        val q = P256.g.multiply(d).normalize()
+        val q = P256.domain.g.multiply(d).normalize()
         val derivedCompressedHex = q.getEncoded(true).toHexString()
         if (!derivedCompressedHex.equals(publicKeyHex.lowercase(), ignoreCase = true)) {
             throw ApiKeyStampError.MismatchedPublicKey(publicKeyHex, derivedCompressedHex)
         }
 
         // ECDSA(sign) over the provided digest (no pre-hash) with RFC6979(HMAC-SHA256), low-S enforced
-        val priv = ECPrivateKeyParameters(d, ECDomainParameters(P256.curve, P256.g, P256.n))
+        val priv = ECPrivateKeyParameters(d, ECDomainParameters(P256.domain.curve, P256.domain.g, P256.domain.n))
         val signer = ECDSASigner(HMacDSAKCalculator(SHA256Digest()))
         signer.init(true, priv)
 
         val (rRaw, sRaw) = signer.generateSignature(payloadSha256).let { it[0] to it[1] }
 
         // low-S canonicalization
-        val s = if (sRaw > P256.n.shiftRight(1)) P256.n.subtract(sRaw) else sRaw
+        val s = if (sRaw > P256.domain.n.shiftRight(1)) P256.domain.n.subtract(sRaw) else sRaw
 
         val derSig = DERSequence(ASN1EncodableVector().apply {
             add(ASN1Integer(rRaw))

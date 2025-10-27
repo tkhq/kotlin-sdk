@@ -26,6 +26,7 @@ android {
 dependencies {
     implementation(project(":packages:encoding"))
     implementation(project(":packages:passkey"))
+    implementation(project(":packages:crypto"))
 
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
     implementation(libs.bcprov.jdk15to18)
