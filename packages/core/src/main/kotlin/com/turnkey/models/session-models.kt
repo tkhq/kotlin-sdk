@@ -1,9 +1,9 @@
 package com.turnkey.models
 
-import com.turnkey.http.model.Externaldatav1Timestamp
-import com.turnkey.http.model.V1AddressFormat
-import com.turnkey.http.model.V1Curve
-import com.turnkey.http.model.V1PathFormat
+import com.turnkey.http.Externaldatav1Timestamp
+import com.turnkey.http.V1AddressFormat
+import com.turnkey.http.V1Curve
+import com.turnkey.http.V1PathFormat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

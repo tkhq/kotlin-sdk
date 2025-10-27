@@ -1,6 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/authCardRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:minHeight="232dp">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Login or signup"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/acEmailInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/orText2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/acEmailInput"
+            android:layout_width="match_parent"
+            android:hint="Email"
+            android:layout_height="52dp"
+            android:background="@color/transparent"
+            android:paddingStart="0dp"
+            android:paddingLeft="0dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="40dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp"
+            android:textColorLink="#140F0F"
+            android:textSize="20sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="Send otp code"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="4dp"
+        app:icon="@drawable/baseline_arrow_forward_12"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/acEmailInputLayout"
+        app:layout_constraintEnd_toEndOf="@+id/acEmailInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/acEmailInputLayout"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/dividerStart"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="12dp"
+        app:dividerColor="@color/material_dynamic_neutral90"
+        app:layout_constraintBottom_toBottomOf="@id/orText"
+        app:layout_constraintEnd_toStartOf="@id/orText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/orText" />
+
+    <TextView
+        android:id="@+id/orText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="or"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/acEmailInputLayout" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/dividerEnd"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="20dp"
+        app:dividerColor="@color/material_dynamic_neutral90"
+        app:layout_constraintBottom_toBottomOf="@id/orText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/orText"
+        app:layout_constraintTop_toTopOf="@id/orText"
+        app:layout_constraintVertical_bias="0.555" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/acLoginWithPasskeyButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Log in with passkey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/orText"
+        app:backgroundTint="?attr/colorPrimary"
+        android:textColor="?attr/colorOnPrimary"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/acSignUpWithPasskeyButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Sign up with passkey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/acLoginWithPasskeyButton"
+        style="?attr/materialButtonStyle"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/acGoogleOAuthButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Continue with Google"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:icon="@drawable/logosgoogleicon"
+        app:iconSize="20dp"
+        app:iconGravity="textStart"
+        app:iconPadding="12dp"
+        />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/dividerStart2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="12dp"
+        app:dividerColor="@color/material_dynamic_neutral90"
+        app:layout_constraintBottom_toBottomOf="@id/orText2"
+        app:layout_constraintEnd_toStartOf="@id/orText2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/orText2" />
+
+    <TextView
+        android:id="@+id/orText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="or"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/acGoogleOAuthButton" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/dividerEnd2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="20dp"
+        app:dividerColor="@color/material_dynamic_neutral90"
+        app:layout_constraintBottom_toBottomOf="@id/orText2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/orText2"
+        app:layout_constraintTop_toTopOf="@id/orText2"
+        app:layout_constraintVertical_bias="0.555" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

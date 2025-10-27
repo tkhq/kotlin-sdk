@@ -1,11 +1,14 @@
 package utils
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.Schema
-import kotlin.collections.forEach
+import kotlinx.serialization.Serializable
+import java.nio.file.Path
 
 private val STRING = ClassName("kotlin", "String")
 private val INT    = ClassName("kotlin", "Int")
@@ -21,7 +24,8 @@ enum class OperationKind {
     Activity,          // default
     ActivityDecision,  // approveActivity / rejectActivity
     Noop,              // noop / anchor / ping
-    Query              // get*/list*/test* or HTTP GET
+    Query,             // get*/list*/test* or HTTP GET
+    Proxy              // proxy
 }
 
 /** Very small mapper: OpenAPI param schema → Kotlin type. */
@@ -70,10 +74,15 @@ fun String.toScreamingSnake(): String =
 
 fun classifyOperation(
     methodName: String,
-    path: String? = null
+    path: String? = null,
+    prefix: String? = null
 ): OperationKind {
     val id = methodName.trim()
     val lower = id.lowercase()
+
+    if (prefix?.lowercase() == "proxy") {
+        return OperationKind.Proxy
+    }
 
     // Activity decision endpoints
     if (id == "approveActivity" || id == "rejectActivity") {
@@ -81,15 +90,15 @@ fun classifyOperation(
     }
 
     // NOOPs – allow detection by name or path hint
-    if (lower.startsWith("noop") || path?.contains("/noop", ignoreCase = true) == true) {
+    if (lower.startsWith("noop") || lower.startsWith("tnoop") || path?.contains("/noop", ignoreCase = true) == true) {
         return OperationKind.Noop
     }
 
     // Queries – GETs or method-name prefixes: get*/list*/test*
-    if (methodName.startsWith("get", ignoreCase = true) ||
-        lower.startsWith("get") ||
-        lower.startsWith("list") ||
-        lower.startsWith("test")
+    if (methodName.startsWith("get") || methodName.startsWith("tget", ignoreCase = true) ||
+        lower.startsWith("get") || lower.startsWith("tget") ||
+        lower.startsWith("list") || lower.startsWith("tlist") ||
+        lower.startsWith("test") || lower.startsWith("ttest")
     ) {
         return OperationKind.Query
     }
@@ -97,3 +106,38 @@ fun classifyOperation(
     // Default
     return OperationKind.Activity
 }
+
+private fun isValidIdentifier(name: String): Boolean =
+    Regex("^[A-Za-z_][A-Za-z0-9_]*$").matches(name)
+
+fun sanitizeFieldName(key: String): String {
+    if (isValidIdentifier(key)) return key
+    var s = key.replace(Regex("[^A-Za-z0-9_]"), "")
+    if (s.isEmpty()) s = "field"
+    if (!Regex("^[A-Za-z_]").containsMatchIn(s)) s = "_$s"
+    return s
+}
+
+fun sanitizeEnumEntry(raw: String): String {
+    var v = raw.trim().lowercase().replace(Regex("[^a-z0-9]+"), "_")
+    v = v.replace(Regex("^_+|_+$"), "")
+    if (v.isEmpty()) v = "value"
+    if (Regex("^\\d").containsMatchIn(v)) v = "_$v"
+    return v
+}
+
+fun sanitizeTypeName(raw: String): String {
+    val base = raw.replace(".", "")
+    return if (base.isEmpty()) "Type" else base.replaceFirstChar { it.uppercaseChar() }
+}
+
+fun ucFirst(s: String): String =
+    if (s.isEmpty()) s else s[0].uppercaseChar() + s.substring(1)
+
+fun TypeSpec.Builder.addSerializableAnnotations(): TypeSpec.Builder {
+    addAnnotation(AnnotationSpec.builder(Serializable::class).build())
+    return this
+}
+
+/** One spec input + an optional prefix applied to operation/type names. */
+data class SpecCfg(val path: Path, val prefix: String)

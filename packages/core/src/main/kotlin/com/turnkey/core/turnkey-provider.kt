@@ -20,7 +20,7 @@ object TurnkeyCore {
 
         scope.launch {
             try {
-                ctx.init()              // this is suspend, so run it here
+                ctx.init()
                 (ready as CompletableDeferred).complete(Unit)
             } catch (t: Throwable) {
                 (ready as CompletableDeferred).completeExceptionally(t)

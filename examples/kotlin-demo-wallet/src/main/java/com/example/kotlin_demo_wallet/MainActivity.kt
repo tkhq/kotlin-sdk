@@ -2,32 +2,25 @@ package com.example.kotlin_demo_wallet
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.kotlin_demo_wallet.databinding.ActivityMainBinding
-import com.google.android.material.textfield.TextInputEditText
+import com.example.kotlin_demo_wallet.ui.auth.AuthBottomSheet
 import com.turnkey.core.TurnkeyCore
+import com.turnkey.http.ProxyTInitOtpBody
 import com.turnkey.http.TCreateWalletBody
-import com.turnkey.http.TGetWalletAccountsBody
-import com.turnkey.http.TGetWhoamiBody
+import com.turnkey.http.TGetWalletAccountBody
 import com.turnkey.http.TSignRawPayloadBody
-import com.turnkey.http.TSignRawPayloadsBody
-import com.turnkey.http.TSignRawPayloadsRequest
-import com.turnkey.http.model.ProxyV1InitOtpRequest
-import com.turnkey.http.model.V1AddressFormat
-import com.turnkey.http.model.V1Curve
-import com.turnkey.http.model.V1GetWalletAccountRequest
-import com.turnkey.http.model.V1GetWalletAccountsRequest
-import com.turnkey.http.model.V1HashFunction
-import com.turnkey.http.model.V1PathFormat
-import com.turnkey.http.model.V1PayloadEncoding
-import com.turnkey.http.model.V1WalletAccountParams
+import com.turnkey.http.V1AddressFormat
+import com.turnkey.http.V1Curve
+import com.turnkey.http.V1GetWalletAccountRequest
+import com.turnkey.http.V1HashFunction
+import com.turnkey.http.V1PathFormat
+import com.turnkey.http.V1PayloadEncoding
+import com.turnkey.http.V1WalletAccountParams
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,9 +80,8 @@ class MainActivity : AppCompatActivity() {
         binding.loginButton.setOnClickListener {
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    println(TurnkeyCore.ctx.client.value)
                     val response = TurnkeyCore.ctx.client.value?.proxyInitOtp(
-                        ProxyV1InitOtpRequest(
+                        ProxyTInitOtpBody(
                             otpType = "OTP_TYPE_EMAIL",
                             contact = email
                         )
@@ -144,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                         ))
 
                         val walletAccount = TurnkeyCore.ctx.client.value!!.getWalletAccount(
-                            V1GetWalletAccountRequest(
+                            TGetWalletAccountBody(
                                 organizationId = TurnkeyCore.ctx.user.value!!.organizationId,
                                 walletId = walletRes.activity.result.createWalletResult!!.walletId,
                                 address = walletRes.activity.result.createWalletResult!!.addresses[0],
@@ -168,6 +160,11 @@ class MainActivity : AppCompatActivity() {
                     binding.signMessageButton.isEnabled = true
                 }
             }
+        }
+
+        binding.authComponentButton.setOnClickListener {
+            AuthBottomSheet.newInstance()
+                .show(supportFragmentManager, "auth")
         }
     }
 }

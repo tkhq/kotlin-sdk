@@ -45,9 +45,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.okhttp)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -55,4 +55,5 @@ dependencies {
     implementation(project(":packages:http"))
     implementation(project(":packages:stamper"))
     implementation(project(":packages:core"))
+    implementation(project(":packages:passkey"))
 }

@@ -1,9 +1,9 @@
 package com.example.kotlin_demo_wallet.utils
 
-import com.turnkey.http.model.ProxyV1ApiKeyCurve
-import com.turnkey.http.model.ProxyV1Attestation
-import com.turnkey.http.model.ProxyV1OauthProviderParams
-import com.turnkey.http.model.ProxyV1WalletAccountParams
+import com.turnkey.http.V1ApiKeyCurve
+import com.turnkey.http.V1Attestation
+import com.turnkey.http.V1OauthProviderParams
+import com.turnkey.http.V1WalletAccountParams
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,14 +27,14 @@ data class CreateSubOrgParams(
     /** custom wallets to create during sub-org creation time */
     val customWallet: CustomWallet? = null,
     /** list of oauth providers */
-    val oauthProviders: List<ProxyV1OauthProviderParams>? = null,
+    val oauthProviders: List<V1OauthProviderParams>? = null,
 )
 
 @Serializable
 data class CreateSubOrgAuthenticator(
     val authenticatorName: String? = null,
     val challenge: String,
-    val attestation: ProxyV1Attestation,
+    val attestation: V1Attestation,
 )
 
 @Serializable
@@ -46,7 +46,7 @@ data class CreateSubOrgApiKey(
     /** expiration in seconds */
     val expirationSeconds: String? = null,
     /** curve type */
-    val curveType: ProxyV1ApiKeyCurve? = null,
+    val curveType: V1ApiKeyCurve? = null,
 )
 
 @Serializable
@@ -54,6 +54,6 @@ data class CustomWallet(
     /** name of the wallet created */
     val walletName: String,
     /** list of wallet accounts to create */
-    val walletAccounts: List<ProxyV1WalletAccountParams>,
+    val walletAccounts: List<V1WalletAccountParams>,
 )
 

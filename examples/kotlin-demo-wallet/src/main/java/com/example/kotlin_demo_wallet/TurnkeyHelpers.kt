@@ -1,16 +1,19 @@
 package com.example.kotlin_demo_wallet
 
+import android.app.Activity
 import com.example.kotlin_demo_wallet.utils.CreateSubOrgParams
 import com.example.kotlin_demo_wallet.utils.buildSignUpBody
 import com.turnkey.core.TurnkeyCore
-import com.turnkey.http.model.ProxyV1GetAccountRequest
-import com.turnkey.http.model.ProxyV1OtpLoginRequest
-import com.turnkey.http.model.ProxyV1VerifyOtpRequest
+import com.turnkey.http.ProxyTGetAccountBody
+import com.turnkey.http.ProxyTOtpLoginBody
+import com.turnkey.http.ProxyTVerifyOtpBody
 import com.turnkey.internal.storage.keys.KeyPairStore
 import com.turnkey.models.Session
+import com.turnkey.passkey.PasskeyUser
+import com.turnkey.passkey.RelyingParty
+import com.turnkey.passkey.createPasskey
 import com.turnkey.stamper.Stamper
 import okhttp3.OkHttpClient
-
 
 object TurnkeyHelpers {
     val otpTypeToFilterType: Map<String, String> = mapOf(
@@ -21,7 +24,7 @@ object TurnkeyHelpers {
     data class VerifyOtpResult(val verificationToken: String, val subOrganizationId: String?)
     suspend fun verifyOtp (contact: String, otpCode: String, otpId: String, otpType: String): VerifyOtpResult {
         try {
-            val response = TurnkeyCore.ctx.client.value?.proxyVerifyOtp(ProxyV1VerifyOtpRequest(
+            val response = TurnkeyCore.ctx.client.value?.proxyVerifyOtp(ProxyTVerifyOtpBody(
                 otpId = otpId,
                 otpCode = otpCode
             ))
@@ -31,7 +34,7 @@ object TurnkeyHelpers {
 
             val filterType = otpTypeToFilterType[otpType]
             if (filterType.isNullOrBlank()) throw RuntimeException("Invalid OTP type")
-            val accountRes = TurnkeyCore.ctx.client.value?.proxyGetAccount(ProxyV1GetAccountRequest(
+            val accountRes = TurnkeyCore.ctx.client.value?.proxyGetAccount(ProxyTGetAccountBody(
                 filterType = filterType,
                 filterValue = contact
             ))
@@ -61,7 +64,7 @@ object TurnkeyHelpers {
                 http = OkHttpClient(),
                 apiBaseUrl = "http://192.168.0.158:8081",
                 authProxyUrl = "http://192.168.0.158:8090",
-                authProxyConfigId = "ce093cf1-ee16-42cf-b989-cdade4eaf8ed",
+                authProxyConfigId = "9012433f-97e1-4c06-99ea-d4b282614649",
                 stamper = stamper
             )
 
@@ -79,12 +82,12 @@ object TurnkeyHelpers {
             http = OkHttpClient(),
             apiBaseUrl = "http://192.168.0.158:8081",
             authProxyUrl = "http://192.168.0.158:8090",
-            authProxyConfigId = "ce093cf1-ee16-42cf-b989-cdade4eaf8ed",
+            authProxyConfigId = "9012433f-97e1-4c06-99ea-d4b282614649",
             stamper = null
         )
 
         try {
-            val res = apiKeyClient.proxyOtpLogin(ProxyV1OtpLoginRequest(
+            val res = apiKeyClient.proxyOtpLogin(ProxyTOtpLoginBody(
                 verificationToken,
                 publicKey
             ))
@@ -114,5 +117,23 @@ object TurnkeyHelpers {
         } catch (e: Throwable) {
             throw RuntimeException("Error completing OTP", e)
         }
+    }
+
+    data class LoginWithPasskeyResult(val sessionToken: String)
+    suspend fun loginWithPasskey(activity: Activity) {
+        val res = createPasskey(
+            activity = activity,
+            user = PasskeyUser(
+                "hello",
+                "Passkey",
+                "Passkey"
+            ),
+            rp = RelyingParty(
+                id = "https://bb687dc33333.ngrok-free.app/ethankonk.github.io/",
+                name = "kotlin_demo_app"
+            )
+        )
+
+        println(res)
     }
 }

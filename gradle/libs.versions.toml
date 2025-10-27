@@ -8,6 +8,7 @@ lib_bcprov-jdk15to18 = "1.82"
 lib_junit-bom = "5.13.4"
 lib_androidx = "1.5.0"
 lifecycle-common = "2.9.4"
+material3 = "1.4.0"
 okhttp = "5.1.0"
 kotlin-gradle-plugin = "2.2.20"
 jetbrains-kotlin-jvm = "2.2.20"
@@ -29,6 +30,7 @@ navigation-ui-ktx = "2.6.0"
 [libraries]
 androidx-lifecycle-common = { module = "androidx.lifecycle:lifecycle-common", version.ref = "lifecycle-common" }
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle-common" }
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }

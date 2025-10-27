@@ -13,7 +13,7 @@ class App : Application() {
             config = TurnkeyConfig(
                 apiBaseUrl = "http://192.168.0.158:8081",
                 authProxyBaseUrl = "http://192.168.0.158:8090",
-                authProxyConfigId = "ce093cf1-ee16-42cf-b989-cdade4eaf8ed",
+                authProxyConfigId = "9012433f-97e1-4c06-99ea-d4b282614649",
             )
         )
 

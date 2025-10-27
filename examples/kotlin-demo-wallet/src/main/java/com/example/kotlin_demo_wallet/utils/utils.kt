@@ -1,18 +1,18 @@
 package com.example.kotlin_demo_wallet.utils
 
 import com.turnkey.http.ProxyTSignupBody
-import com.turnkey.http.model.ProxyV1ApiKeyParamsV2
-import com.turnkey.http.model.ProxyV1AuthenticatorParamsV2
-import com.turnkey.http.model.ProxyV1WalletParams
+import com.turnkey.http.V1ApiKeyParamsV2
+import com.turnkey.http.V1AuthenticatorParamsV2
+import com.turnkey.http.V1WalletParams
 
 fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupBody {
     val now = System.currentTimeMillis()
 
-    val authenticators: List<ProxyV1AuthenticatorParamsV2> =
+    val authenticators: List<V1AuthenticatorParamsV2> =
         createSubOrgParams.authenticators
             ?.takeIf { it.isNotEmpty() }
             ?.map { a ->
-                ProxyV1AuthenticatorParamsV2(
+                V1AuthenticatorParamsV2(
                     authenticatorName = a.authenticatorName ?: "A Passkey",
                     challenge = a.challenge,
                     attestation = a.attestation
@@ -20,11 +20,11 @@ fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupBody {
             }
             ?: emptyList()
 
-    val apiKeys: List<ProxyV1ApiKeyParamsV2> =
+    val apiKeys: List<V1ApiKeyParamsV2> =
         createSubOrgParams.apiKeys
             ?.filter { it.curveType != null }
             ?.map { k ->
-                ProxyV1ApiKeyParamsV2(
+                V1ApiKeyParamsV2(
                     apiKeyName = k.apiKeyName ?: "api-key-$now",
                     publicKey = k.publicKey,
                     expirationSeconds = k.expirationSeconds ?: "900",
@@ -39,8 +39,8 @@ fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupBody {
 
     val subOrgName = createSubOrgParams.subOrgName ?: "sub-org-$now"
 
-    val customWallet: ProxyV1WalletParams? = createSubOrgParams.customWallet?.let {
-        ProxyV1WalletParams(walletName = it.walletName, accounts = it.walletAccounts)
+    val customWallet: V1WalletParams? = createSubOrgParams.customWallet?.let {
+        V1WalletParams(walletName = it.walletName, accounts = it.walletAccounts)
     }
 
     return ProxyTSignupBody(
