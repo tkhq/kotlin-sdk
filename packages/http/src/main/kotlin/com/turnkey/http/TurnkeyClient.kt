@@ -1,8 +1,18 @@
+@file:Suppress(
+  "unused",
+  "UNUSED_PARAMETER",
+  "UNUSED_VARIABLE",
+  "RedundantVisibilityModifier",
+  "MemberVisibilityCanBePrivate",
+  "RedundantSuspendModifier",
+)
+
 package com.turnkey.http
 
 import com.turnkey.http.utils.TurnkeyHttpErrors
 import com.turnkey.stamper.Stamper
 import kotlin.String
+import kotlin.Suppress
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -41,7 +51,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_activity: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_activity""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetActivityResponse.serializer(), text)
     }
   }
@@ -69,7 +79,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_api_key: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_api_key""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetApiKeyResponse.serializer(), text)
     }
   }
@@ -97,7 +107,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_api_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_api_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetApiKeysResponse.serializer(), text)
     }
   }
@@ -125,7 +135,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_attestation: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_attestation""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetAttestationDocumentResponse.serializer(), text)
     }
   }
@@ -153,7 +163,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_authenticator: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_authenticator""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetAuthenticatorResponse.serializer(), text)
     }
   }
@@ -181,7 +191,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_authenticators: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_authenticators""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -209,7 +219,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_boot_proof: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_boot_proof""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetBootProofResponse.serializer(), text)
     }
   }
@@ -237,7 +247,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_latest_boot_proof: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_latest_boot_proof""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetLatestBootProofResponse.serializer(), text)
     }
   }
@@ -265,7 +275,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_oauth2_credential: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_oauth2_credential""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -293,7 +303,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_oauth_providers: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_oauth_providers""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetOauthProvidersResponse.serializer(), text)
     }
   }
@@ -321,7 +331,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_organization: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_organization""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetOrganizationResponse.serializer(), text)
     }
   }
@@ -349,7 +359,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_organization_configs: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_organization_configs""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetOrganizationConfigsResponse.serializer(), text)
     }
   }
@@ -377,7 +387,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_policy: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_policy""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetPolicyResponse.serializer(), text)
     }
   }
@@ -405,7 +415,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_policy_evaluations: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_policy_evaluations""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetPolicyEvaluationsResponse.serializer(), text)
     }
   }
@@ -433,7 +443,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_private_key: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_private_key""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetPrivateKeyResponse.serializer(), text)
     }
   }
@@ -461,7 +471,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_smart_contract_interface: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_smart_contract_interface""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -489,7 +499,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_user: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_user""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetUserResponse.serializer(), text)
     }
   }
@@ -517,7 +527,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetWalletResponse.serializer(), text)
     }
   }
@@ -545,7 +555,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/get_wallet_account: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/get_wallet_account""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetWalletAccountResponse.serializer(), text)
     }
   }
@@ -573,7 +583,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_activities: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_activities""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetActivitiesResponse.serializer(), text)
     }
   }
@@ -601,7 +611,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_app_proofs: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_app_proofs""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetAppProofsResponse.serializer(), text)
     }
   }
@@ -629,7 +639,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_oauth2_credentials: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_oauth2_credentials""")
+      val text = resp.body.string()
       return json.decodeFromString(TListOauth2CredentialsResponse.serializer(), text)
     }
   }
@@ -657,7 +667,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_policies: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_policies""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetPoliciesResponse.serializer(), text)
     }
   }
@@ -685,7 +695,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_private_key_tags: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_private_key_tags""")
+      val text = resp.body.string()
       return json.decodeFromString(TListPrivateKeyTagsResponse.serializer(), text)
     }
   }
@@ -713,7 +723,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_private_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_private_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetPrivateKeysResponse.serializer(), text)
     }
   }
@@ -741,7 +751,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_smart_contract_interfaces: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_smart_contract_interfaces""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetSmartContractInterfacesResponse.serializer(), text)
     }
   }
@@ -769,7 +779,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_suborgs: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_suborgs""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetSubOrgIdsResponse.serializer(), text)
     }
   }
@@ -797,7 +807,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_user_tags: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_user_tags""")
+      val text = resp.body.string()
       return json.decodeFromString(TListUserTagsResponse.serializer(), text)
     }
   }
@@ -825,7 +835,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_users: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_users""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetUsersResponse.serializer(), text)
     }
   }
@@ -853,7 +863,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_verified_suborgs: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_verified_suborgs""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetVerifiedSubOrgIdsResponse.serializer(), text)
     }
   }
@@ -881,7 +891,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_wallet_accounts: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_wallet_accounts""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetWalletAccountsResponse.serializer(), text)
     }
   }
@@ -909,7 +919,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/list_wallets: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/list_wallets""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetWalletsResponse.serializer(), text)
     }
   }
@@ -937,7 +947,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/query/whoami: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/query/whoami""")
+      val text = resp.body.string()
       return json.decodeFromString(TGetWhoamiResponse.serializer(), text)
     }
   }
@@ -973,7 +983,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/approve_activity: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/approve_activity""")
+      val text = resp.body.string()
       return json.decodeFromString(TApproveActivityResponse.serializer(), text)
     }
   }
@@ -1017,7 +1027,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_api_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_api_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateApiKeysResponse.serializer(), text)
     }
   }
@@ -1061,7 +1071,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_api_only_users: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_api_only_users""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateApiOnlyUsersResponse.serializer(), text)
     }
   }
@@ -1105,7 +1115,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_authenticators: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_authenticators""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -1149,7 +1159,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_invitations: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_invitations""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateInvitationsResponse.serializer(), text)
     }
   }
@@ -1193,7 +1203,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth2_credential: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_oauth2_credential""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -1237,7 +1247,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth_providers: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_oauth_providers""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateOauthProvidersResponse.serializer(), text)
     }
   }
@@ -1281,7 +1291,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_policies: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_policies""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreatePoliciesResponse.serializer(), text)
     }
   }
@@ -1325,7 +1335,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_policy: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_policy""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreatePolicyResponse.serializer(), text)
     }
   }
@@ -1369,7 +1379,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_private_key_tag: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_private_key_tag""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreatePrivateKeyTagResponse.serializer(), text)
     }
   }
@@ -1413,7 +1423,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_private_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_private_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreatePrivateKeysResponse.serializer(), text)
     }
   }
@@ -1457,7 +1467,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_read_only_session: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_read_only_session""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateReadOnlySessionResponse.serializer(), text)
     }
   }
@@ -1501,7 +1511,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_read_write_session: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_read_write_session""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateReadWriteSessionResponse.serializer(), text)
     }
   }
@@ -1545,7 +1555,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_smart_contract_interface: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_smart_contract_interface""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -1589,7 +1599,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_sub_organization: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_sub_organization""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateSubOrganizationResponse.serializer(), text)
     }
   }
@@ -1633,7 +1643,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_user_tag: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_user_tag""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateUserTagResponse.serializer(), text)
     }
   }
@@ -1677,7 +1687,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_users: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_users""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateUsersResponse.serializer(), text)
     }
   }
@@ -1721,7 +1731,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateWalletResponse.serializer(), text)
     }
   }
@@ -1765,7 +1775,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet_accounts: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/create_wallet_accounts""")
+      val text = resp.body.string()
       return json.decodeFromString(TCreateWalletAccountsResponse.serializer(), text)
     }
   }
@@ -1809,7 +1819,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_api_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_api_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteApiKeysResponse.serializer(), text)
     }
   }
@@ -1853,7 +1863,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_authenticators: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_authenticators""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -1897,7 +1907,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_invitation: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_invitation""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteInvitationResponse.serializer(), text)
     }
   }
@@ -1941,7 +1951,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth2_credential: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_oauth2_credential""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -1985,7 +1995,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth_providers: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_oauth_providers""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteOauthProvidersResponse.serializer(), text)
     }
   }
@@ -2029,7 +2039,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_policy: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_policy""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeletePolicyResponse.serializer(), text)
     }
   }
@@ -2073,7 +2083,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_key_tags: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_private_key_tags""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeletePrivateKeyTagsResponse.serializer(), text)
     }
   }
@@ -2117,7 +2127,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_keys: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_private_keys""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeletePrivateKeysResponse.serializer(), text)
     }
   }
@@ -2161,7 +2171,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_smart_contract_interface: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_smart_contract_interface""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -2205,7 +2215,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_sub_organization: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_sub_organization""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteSubOrganizationResponse.serializer(), text)
     }
   }
@@ -2249,7 +2259,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_user_tags: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_user_tags""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteUserTagsResponse.serializer(), text)
     }
   }
@@ -2293,7 +2303,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_users: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_users""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteUsersResponse.serializer(), text)
     }
   }
@@ -2337,7 +2347,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_wallets: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/delete_wallets""")
+      val text = resp.body.string()
       return json.decodeFromString(TDeleteWalletsResponse.serializer(), text)
     }
   }
@@ -2381,7 +2391,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/email_auth: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/email_auth""")
+      val text = resp.body.string()
       return json.decodeFromString(TEmailAuthResponse.serializer(), text)
     }
   }
@@ -2425,7 +2435,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/export_private_key: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/export_private_key""")
+      val text = resp.body.string()
       return json.decodeFromString(TExportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2469,7 +2479,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/export_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TExportWalletResponse.serializer(), text)
     }
   }
@@ -2513,7 +2523,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet_account: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/export_wallet_account""")
+      val text = resp.body.string()
       return json.decodeFromString(TExportWalletAccountResponse.serializer(), text)
     }
   }
@@ -2557,7 +2567,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/import_private_key: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/import_private_key""")
+      val text = resp.body.string()
       return json.decodeFromString(TImportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2601,7 +2611,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/import_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/import_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TImportWalletResponse.serializer(), text)
     }
   }
@@ -2645,7 +2655,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_fiat_on_ramp: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_fiat_on_ramp""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitFiatOnRampResponse.serializer(), text)
     }
   }
@@ -2689,7 +2699,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_import_private_key: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_import_private_key""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitImportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2733,7 +2743,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_import_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_import_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitImportWalletResponse.serializer(), text)
     }
   }
@@ -2777,7 +2787,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_otp: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_otp""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitOtpResponse.serializer(), text)
     }
   }
@@ -2821,7 +2831,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_otp_auth: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_otp_auth""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitOtpAuthResponse.serializer(), text)
     }
   }
@@ -2865,7 +2875,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/init_user_email_recovery: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/init_user_email_recovery""")
+      val text = resp.body.string()
       return json.decodeFromString(TInitUserEmailRecoveryResponse.serializer(), text)
     }
   }
@@ -2909,7 +2919,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/oauth""")
+      val text = resp.body.string()
       return json.decodeFromString(TOauthResponse.serializer(), text)
     }
   }
@@ -2953,7 +2963,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth2_authenticate: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/oauth2_authenticate""")
+      val text = resp.body.string()
       return json.decodeFromString(TOauth2AuthenticateResponse.serializer(), text)
     }
   }
@@ -2997,7 +3007,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth_login: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/oauth_login""")
+      val text = resp.body.string()
       return json.decodeFromString(TOauthLoginResponse.serializer(), text)
     }
   }
@@ -3041,7 +3051,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/otp_auth: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/otp_auth""")
+      val text = resp.body.string()
       return json.decodeFromString(TOtpAuthResponse.serializer(), text)
     }
   }
@@ -3085,7 +3095,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/otp_login: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/otp_login""")
+      val text = resp.body.string()
       return json.decodeFromString(TOtpLoginResponse.serializer(), text)
     }
   }
@@ -3129,7 +3139,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/recover_user: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/recover_user""")
+      val text = resp.body.string()
       return json.decodeFromString(TRecoverUserResponse.serializer(), text)
     }
   }
@@ -3173,7 +3183,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/reject_activity: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/reject_activity""")
+      val text = resp.body.string()
       return json.decodeFromString(TRejectActivityResponse.serializer(), text)
     }
   }
@@ -3217,7 +3227,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/remove_organization_feature: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/remove_organization_feature""")
+      val text = resp.body.string()
       return json.decodeFromString(TRemoveOrganizationFeatureResponse.serializer(), text)
     }
   }
@@ -3261,7 +3271,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/set_organization_feature: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/set_organization_feature""")
+      val text = resp.body.string()
       return json.decodeFromString(TSetOrganizationFeatureResponse.serializer(), text)
     }
   }
@@ -3305,7 +3315,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payload: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/sign_raw_payload""")
+      val text = resp.body.string()
       return json.decodeFromString(TSignRawPayloadResponse.serializer(), text)
     }
   }
@@ -3349,7 +3359,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payloads: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/sign_raw_payloads""")
+      val text = resp.body.string()
       return json.decodeFromString(TSignRawPayloadsResponse.serializer(), text)
     }
   }
@@ -3393,7 +3403,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_transaction: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/sign_transaction""")
+      val text = resp.body.string()
       return json.decodeFromString(TSignTransactionResponse.serializer(), text)
     }
   }
@@ -3437,7 +3447,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/stamp_login: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/stamp_login""")
+      val text = resp.body.string()
       return json.decodeFromString(TStampLoginResponse.serializer(), text)
     }
   }
@@ -3481,7 +3491,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_oauth2_credential: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_oauth2_credential""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -3525,7 +3535,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_policy: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_policy""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdatePolicyResponse.serializer(), text)
     }
   }
@@ -3569,7 +3579,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_private_key_tag: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_private_key_tag""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdatePrivateKeyTagResponse.serializer(), text)
     }
   }
@@ -3613,7 +3623,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_root_quorum: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_root_quorum""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateRootQuorumResponse.serializer(), text)
     }
   }
@@ -3657,7 +3667,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_user""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateUserResponse.serializer(), text)
     }
   }
@@ -3701,7 +3711,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_email: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_user_email""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateUserEmailResponse.serializer(), text)
     }
   }
@@ -3745,7 +3755,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_name: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_user_name""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateUserNameResponse.serializer(), text)
     }
   }
@@ -3789,7 +3799,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_phone_number: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_user_phone_number""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateUserPhoneNumberResponse.serializer(), text)
     }
   }
@@ -3833,7 +3843,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_tag: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_user_tag""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateUserTagResponse.serializer(), text)
     }
   }
@@ -3877,7 +3887,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/update_wallet: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/update_wallet""")
+      val text = resp.body.string()
       return json.decodeFromString(TUpdateWalletResponse.serializer(), text)
     }
   }
@@ -3921,7 +3931,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /public/v1/submit/verify_otp: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /public/v1/submit/verify_otp""")
+      val text = resp.body.string()
       return json.decodeFromString(TVerifyOtpResponse.serializer(), text)
     }
   }
@@ -3957,7 +3967,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /tkhq/api/v1/noop-codegen-anchor: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /tkhq/api/v1/noop-codegen-anchor""")
+      val text = resp.body.string()
       return json.decodeFromString(TNOOPCodegenAnchorResponse.serializer(), text)
     }
   }
@@ -3985,7 +3995,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /tkhq/api/v1/test_rate_limits: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /tkhq/api/v1/test_rate_limits""")
+      val text = resp.body.string()
       return json.decodeFromString(TTestRateLimitsResponse.serializer(), text)
     }
   }
@@ -4012,7 +4022,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/account: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/account""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTGetAccountResponse.serializer(), text)
     }
   }
@@ -4030,7 +4040,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/oauth2_authenticate: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/oauth2_authenticate""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTOAuth2AuthenticateResponse.serializer(), text)
     }
   }
@@ -4048,7 +4058,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/oauth_login: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/oauth_login""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTOAuthLoginResponse.serializer(), text)
     }
   }
@@ -4066,7 +4076,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/otp_init: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/otp_init""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTInitOtpResponse.serializer(), text)
     }
   }
@@ -4084,7 +4094,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/otp_login: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/otp_login""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTOtpLoginResponse.serializer(), text)
     }
   }
@@ -4102,7 +4112,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/otp_verify: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/otp_verify""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTVerifyOtpResponse.serializer(), text)
     }
   }
@@ -4120,7 +4130,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/signup: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/signup""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTSignupResponse.serializer(), text)
     }
   }
@@ -4138,7 +4148,7 @@ public class TurnkeyClient(
       if (!resp.isSuccessful) {
         throw RuntimeException("""HTTP error from /v1/wallet_kit_config: """ + resp.code)
       }
-      val text = resp.body?.string() ?: throw RuntimeException("""Empty response body from /v1/wallet_kit_config""")
+      val text = resp.body.string()
       return json.decodeFromString(ProxyTGetWalletKitConfigResponse.serializer(), text)
     }
   }
