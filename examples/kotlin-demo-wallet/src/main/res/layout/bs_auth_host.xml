@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sheet_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+    <!-- Your step fragments render here; they can stay wrap_content -->
+    <FrameLayout
+        android:id="@+id/sheet_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Optional: give a little breathing room above the bottom edge -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+</LinearLayout>

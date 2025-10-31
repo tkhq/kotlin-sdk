@@ -57,7 +57,6 @@ class PasskeyOperationRunner(
             throw PasskeyError.RegistrationFailed(e)
         }
 
-        // Parse to your attestation model
         service.handleRegistrationResult(createResp as CreatePublicKeyCredentialResponse)
     }
 

@@ -1,24 +1,22 @@
 package com.turnkey.passkey
 
 import android.app.Activity
+import androidx.fragment.app.Fragment
 import com.turnkey.internal.PasskeyOperationRunner
+import com.turnkey.internal.PasskeyRequestBuilder
+import com.turnkey.types.V1Attestation
 import kotlinx.serialization.Serializable
 
-data class PasskeyUser (
+data class PasskeyUser(
     val id: String,
     val name: String,
     val displayName: String,
 )
 
-data class RelyingParty (
-    val id: String,
-    val name: String,
-)
-
 @Serializable
-data class PasskeyRegistrationResult (
+data class PasskeyRegistrationResult(
     val challenge: String,
-    val attestation: Attestation
+    val attestation: V1Attestation
 )
 
 /**
@@ -26,19 +24,20 @@ data class PasskeyRegistrationResult (
  *
  * @param activity Activity to present Credential Manager UI (anchor analogue).
  * @param user PasskeyUser (id/name/displayName). Only `id` & `name` are used in JSON.
- * @param rp RelyingParty (id = domain, name = display name).
+ * @param rpId rpId for passkey creation
  * @param excludeCredentials Optional list of credential IDs (raw bytes) to exclude.
  */
-public suspend fun createPasskey(
+suspend fun createPasskey(
     activity: Activity,
     user: PasskeyUser,
-    rp: RelyingParty,
-    excludeCredentials: List<ByteArray> = emptyList(),
+    rpId: String,
+    excludeCredentials: List<ByteArray>? = emptyList(),
 ): PasskeyRegistrationResult {
-    val service = com.turnkey.internal.PasskeyRequestBuilder(
-        rpId = rp.id,
+    val service = PasskeyRequestBuilder(
+        rpId = rpId,
         activity = activity
     )
+    val excludeCredentials = excludeCredentials ?: emptyList()
     val runner = PasskeyOperationRunner(activity = activity, service = service)
     return runner.register(
         user = user,
@@ -46,14 +45,22 @@ public suspend fun createPasskey(
     )
 }
 
-public class PasskeyStamper(
+suspend fun createPasskey(
+    fragment: Fragment,
+    user: PasskeyUser,
+    rpId: String,
+    excludeCredentials: List<ByteArray> = emptyList()
+): PasskeyRegistrationResult =
+    createPasskey(fragment.requireActivity(), user, rpId, excludeCredentials)
+
+class PasskeyStamper(
     private val activity: Activity,
     rpId: String
 ) {
     private val session: PasskeyOperationRunner
 
     init {
-        val service = com.turnkey.internal.PasskeyRequestBuilder(
+        val service = PasskeyRequestBuilder(
             rpId = rpId,
             activity = activity
         )
@@ -66,7 +73,7 @@ public class PasskeyStamper(
      * @param challenge Raw challenge bytes.
      * @param allowedCredentials Optional allow list of credential IDs (raw bytes).
      */
-    public suspend fun assert(
+    suspend fun assert(
         challenge: ByteArray,
         allowedCredentials: List<ByteArray>? = null,
     ): AssertionResult {

@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.turnkey.internal.storage.keys.KeyPairStore
 import com.turnkey.internal.storage.primitives.LocalStore
+import com.turnkey.models.Session
 import com.turnkey.models.StorageError
 import com.turnkey.models.Storage
-import com.turnkey.models.TurnkeySession
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -70,7 +70,7 @@ object SessionRegistryStore {
         try {
             val sessionKeys = all(context)
             val selectedSessionKey = try {
-                SelectedSessionStore.load(context, null)
+                SelectedSessionStore.load(context)
             } catch (_: Throwable) {
                 null
             }
@@ -78,7 +78,7 @@ object SessionRegistryStore {
             val nowSec = System.currentTimeMillis() / 1000L
 
             sessionKeys.forEach { sk ->
-                val sess: TurnkeySession? = try {
+                val sess: Session? = try {
                     JwtSessionStore.load(context, sk)
                 } catch (e: Throwable) {
                     Log.w("SessionRegistryStore", "Failed to load session for $sk: $e")
@@ -95,7 +95,7 @@ object SessionRegistryStore {
                     return@forEach
                 }
 
-                if (sess.exp <= nowSec) {
+                if (sess.expiry <= nowSec) {
                     // Expired → clean up everything
                     try {
                         JwtSessionStore.delete(context, sk)
@@ -123,7 +123,7 @@ object SessionRegistryStore {
 
                     if (selectedSessionKey == sk) {
                         try {
-                            SelectedSessionStore.delete(context, null)
+                            SelectedSessionStore.delete(context)
                         } catch (e: Throwable) {
                             Log.w("SessionRegistryStore", "Failed to clear selected session: $e")
                         }

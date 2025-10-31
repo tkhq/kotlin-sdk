@@ -10,6 +10,7 @@ import utils.classifyOperation
 import utils.sanitizeEnumEntry
 import utils.sanitizeFieldName
 import utils.SpecCfg
+import utils.VersionedActivityTypes
 import utils.sanitizeTypeName
 import utils.ucFirst
 

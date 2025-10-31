@@ -1,170 +1,95 @@
 package com.example.kotlin_demo_wallet
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doOnTextChanged
+import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.kotlin_demo_wallet.databinding.ActivityMainBinding
 import com.example.kotlin_demo_wallet.ui.auth.AuthBottomSheet
-import com.turnkey.core.TurnkeyCore
-import com.turnkey.http.ProxyTInitOtpBody
-import com.turnkey.http.TCreateWalletBody
-import com.turnkey.http.TGetWalletAccountBody
-import com.turnkey.http.TSignRawPayloadBody
-import com.turnkey.http.V1AddressFormat
-import com.turnkey.http.V1Curve
-import com.turnkey.http.V1GetWalletAccountRequest
-import com.turnkey.http.V1HashFunction
-import com.turnkey.http.V1PathFormat
-import com.turnkey.http.V1PayloadEncoding
-import com.turnkey.http.V1WalletAccountParams
-import kotlinx.coroutines.Dispatchers
+import com.example.kotlin_demo_wallet.ui.dashboard.DashboardFragment
+import com.turnkey.core.TurnkeyContext
+import com.turnkey.models.AuthState
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity() {
 
+private fun Group.setVisible(visible: Boolean) {
+    this.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
+}
+private fun android.view.View.setVisible(visible: Boolean) {
+    this.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
+}
+
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var otpId: String
-    private var email: String = ""
-    private var otpCode: String = ""
+    private var dashboardAttached = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.tvSessionKey.text = TurnkeyCore.ctx.selectedSessionKey.value
-        binding.tvAuthState.text = TurnkeyCore.ctx.authState.value.toString()
+        binding.authComponentButton.setOnClickListener {
+            AuthBottomSheet.newInstance().show(supportFragmentManager, "auth")
+        }
+        binding.clearAllSessions.setOnClickListener {
+            lifecycleScope.launch { TurnkeyContext.clearAllSessions() }
+        }
+        binding.logoutButton.setOnClickListener {
+            lifecycleScope.launch { TurnkeyContext.clearSession() }
+        }
 
-        // Wait until TurnkeyCore is initialized
         lifecycleScope.launch {
-            TurnkeyCore.ready.await()
-
-            val ctx = TurnkeyCore.ctx
-
-            // Immediately show current values (optional)
-            binding.tvAuthState.text = ctx.authState.value.toString()
-            binding.tvSessionKey.text = ctx.selectedSessionKey.value.orEmpty()
-
-            // Collect updates while Activity is STARTED
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    ctx.authState.collect { state ->
+                    TurnkeyContext.authState.collect { state ->
                         binding.tvAuthState.text = state.toString()
+                        render(state)
                     }
                 }
                 launch {
-                    ctx.selectedSessionKey.collect { key ->
+                    TurnkeyContext.selectedSessionKey.collect { key ->
                         binding.tvSessionKey.text = key.orEmpty()
                     }
                 }
             }
         }
+    }
 
-        // Inputs
-        binding.otpCodeTextInput.doOnTextChanged { text, _, _, _ ->
-            otpCode = text?.toString().orEmpty()
-        }
-        binding.emailTextInput.doOnTextChanged { text, _, _, _ ->
-            email = text?.toString().orEmpty()
-        }
-
-        // Start OTP
-        binding.loginButton.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val response = TurnkeyCore.ctx.client.value?.proxyInitOtp(
-                        ProxyTInitOtpBody(
-                            otpType = "OTP_TYPE_EMAIL",
-                            contact = email
-                        )
-                    )
-                    otpId = response!!.otpId
-                    Log.d("MainActivity", "initOtp ok: $otpId")
-                } catch (t: Throwable) {
-                    Log.e("MainActivity", "initOtp failed", t)
+    private fun render(state: AuthState) {
+        when (state) {
+            AuthState.loading -> {
+                binding.progress.setVisible(true)
+                binding.groupUnauthed.setVisible(false)
+                binding.groupAuthed.setVisible(false)
+            }
+            AuthState.unauthenticated -> {
+                binding.progress.setVisible(false)
+                binding.groupUnauthed.setVisible(true)
+                binding.groupAuthed.setVisible(false)
+                if (dashboardAttached) {
+                    supportFragmentManager.findFragmentByTag("dashboard")
+                        ?.let { supportFragmentManager.beginTransaction().remove(it).commitNowAllowingStateLoss() }
+                    dashboardAttached = false
                 }
             }
-        }
-
-        binding.verifyOtpButton.setOnClickListener {
-            lifecycleScope.launch {
-                binding.verifyOtpButton.isEnabled = false
-                try {
-                    withContext(Dispatchers.IO) {
-                        TurnkeyHelpers.completeOtp(
-                            contact = email,
-                            otpType = "OTP_TYPE_EMAIL",
-                            otpCode = otpCode,
-                            otpId = otpId
-                        )
-                    }
-                } catch (e: Throwable) {
-                    Log.e("MainActivity", "verifyOtp failed", e)
-                    binding.tvAuthState.text = "error"
-                } finally {
-                    binding.verifyOtpButton.isEnabled = true
-                }
+            AuthState.authenticated -> {
+                binding.progress.setVisible(false)
+                binding.groupUnauthed.setVisible(false)
+                binding.groupAuthed.setVisible(true)
+                attachDashboardIfNeeded()
             }
         }
+    }
 
-        binding.signMessageButton.setOnClickListener {
-            lifecycleScope.launch {
-                binding.signMessageButton.isEnabled = false
-                try {
-                    withContext(Dispatchers.IO) {
-                        val accounts: List<V1WalletAccountParams> = listOf(
-                            V1WalletAccountParams(
-                                curve = V1Curve.CURVE_SECP256K1,
-                                pathFormat = V1PathFormat.PATH_FORMAT_BIP32,
-                                path = "m/44'/60'/0'/0/0",
-                                addressFormat = V1AddressFormat.ADDRESS_FORMAT_ETHEREUM
-                            )
-                        )
-
-                        val walletRes = TurnkeyCore.ctx.client.value!!.createWallet(TCreateWalletBody(
-                            organizationId = TurnkeyCore.ctx.user.value!!.organizationId,
-                            walletName = "Wallet 11",
-                            accounts = accounts
-                        ))
-
-                        val walletAccount = TurnkeyCore.ctx.client.value!!.getWalletAccount(
-                            TGetWalletAccountBody(
-                                organizationId = TurnkeyCore.ctx.user.value!!.organizationId,
-                                walletId = walletRes.activity.result.createWalletResult!!.walletId,
-                                address = walletRes.activity.result.createWalletResult!!.addresses[0],
-                            ))
-
-                        val payloadHex = "Hello"
-                            .toByteArray(Charsets.UTF_8)
-                            .joinToString("") { "%02x".format(it) }
-                        val res = TurnkeyCore.ctx.client.value!!.signRawPayload(TSignRawPayloadBody(
-                            organizationId = TurnkeyCore.ctx.user.value!!.organizationId,
-                            signWith = walletAccount.account.address,
-                            payload = payloadHex,
-                            encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
-                            hashFunction = V1HashFunction.HASH_FUNCTION_KECCAK256
-                        ))
-                        println(res)
-                    }
-                } catch (e: Throwable) {
-                    Log.e(TAG, "Sign message failed", e)
-                } finally {
-                    binding.signMessageButton.isEnabled = true
-                }
-            }
-        }
-
-        binding.authComponentButton.setOnClickListener {
-            AuthBottomSheet.newInstance()
-                .show(supportFragmentManager, "auth")
-        }
+    private fun attachDashboardIfNeeded() {
+        if (dashboardAttached) return
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.dashboardContainer, DashboardFragment(), "dashboard")
+            .commitNowAllowingStateLoss()
+        dashboardAttached = true
     }
 }

@@ -224,8 +224,8 @@ fun decryptExportBundle(
     exportBundle: String,
     organizationId: String,
     embeddedPrivateKey: ECPrivateKey,
-    dangerouslyOverrideSignerPublicKey: String?,
-    keyFormat: KeyFormat,
+    dangerouslyOverrideSignerPublicKey: String? = null,
+    keyFormat: KeyFormat? = null,
     returnMnemonic: Boolean
 ): String {
     // Parse outer JSON

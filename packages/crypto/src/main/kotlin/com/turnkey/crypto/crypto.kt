@@ -87,8 +87,8 @@ fun decryptExportBundle(
     exportBundle: String,
     organizationId: String,
     embeddedPrivateKey: String,
-    dangerouslyOverrideSignerPublicKey: String?,
-    keyFormat: KeyFormat,
+    dangerouslyOverrideSignerPublicKey: String? = null,
+    keyFormat: KeyFormat? = null,
     returnMnemonic: Boolean = false,
 ): String {
     val keyBytes = try {

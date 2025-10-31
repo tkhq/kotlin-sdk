@@ -10,9 +10,9 @@ import androidx.credentials.CreatePublicKeyCredentialResponse
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.passkey.PasskeyRegistrationResult
 import com.turnkey.passkey.AssertionResult
-import com.turnkey.passkey.Attestation
+import com.turnkey.types.V1Attestation
+import com.turnkey.types.V1AuthenticatorTransport
 import com.turnkey.utils.PasskeyError
-import com.turnkey.passkey.Transport
 import com.turnkey.utils.buildCreatePublicKeyOptionsJson
 import com.turnkey.utils.buildGetPublicKeyOptionsJson
 import kotlinx.serialization.SerialName
@@ -58,8 +58,8 @@ private data class PublicKeyCredentialAuthJson(
     data class Response(
         @SerialName("clientDataJSON") val clientDataJSON_b64url: String,
         @SerialName("authenticatorData") val authenticatorData_b64url: String,
-        val signature_b64url: String,
-        val userHandle_b64url: String? = null
+        @SerialName("signature") val signature_b64url: String,
+        @SerialName("userHandle") val userHandle_b64url: String? = null
     )
 }
 
@@ -120,7 +120,7 @@ class PasskeyRequestBuilder(
         return GetCredentialRequest(listOf(option))
     }
 
-    /** Parse **registration** result (Create) into your attestation form. */
+    /** Parse **registration** result (Create) into an attestation form. */
     @Throws(PasskeyError::class)
     fun handleRegistrationResult(credential: CreatePublicKeyCredentialResponse): PasskeyRegistrationResult {
         val regJson = credential.registrationResponseJson
@@ -133,7 +133,7 @@ class PasskeyRequestBuilder(
 
         // Extract challenge string from clientDataJSON
         val clientDataJsonUtf8 = try {
-            val bytes = com.turnkey.encoding.decodeBase64Url(resp.clientDataJSON_b64url)
+            val bytes = decodeBase64Url(resp.clientDataJSON_b64url)
             String(bytes, Charsets.UTF_8)
         } catch (e: Throwable) {
             throw PasskeyError.DecodeFailed(e)
@@ -141,7 +141,6 @@ class PasskeyRequestBuilder(
         val challenge = try {
             json.decodeFromString(ClientData.serializer(), clientDataJsonUtf8).challenge
         } catch (e: Throwable) {
-            // If clientDataJSON is already a JSON string literal (rare), try a lax parse:
             val elem = json.parseToJsonElement(clientDataJsonUtf8)
             elem.jsonObject["challenge"]?.jsonPrimitive?.content
                 ?: throw PasskeyError.DecodeFailed(e)
@@ -149,18 +148,18 @@ class PasskeyRequestBuilder(
 
         val transports = resp.transports?.mapNotNull {
             when (it.lowercase()) {
-                "hybrid" -> Transport.hybrid
-                "internal" -> Transport.internalTransport
-                "usb" -> Transport.usb
-                "nfc" -> Transport.nfc
-                "ble" -> Transport.ble
+                "hybrid" -> V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_HYBRID
+                "internal" -> V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_INTERNAL
+                "usb" -> V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_USB
+                "nfc" -> V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_NFC
+                "ble" -> V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_BLE
                 else -> null
             }
-        } ?: listOf(Transport.hybrid)
+        } ?: listOf(V1AuthenticatorTransport.AUTHENTICATOR_TRANSPORT_HYBRID)
 
         val credId = (parsed.id ?: parsed.rawId).orEmpty()
-        val attestation = Attestation(
-            credentialId = credId, // Android’s id/rawId are already base64url
+        val attestation = V1Attestation(
+            credentialId = credId,
             clientDataJson = resp.clientDataJSON_b64url,
             attestationObject = attObjB64,
             transports = transports
@@ -173,33 +172,39 @@ class PasskeyRequestBuilder(
     fun handleAssertionResult(credential: PublicKeyCredential): AssertionResult {
         val authJson = credential.authenticationResponseJson
 
-        val parsed = try { json.decodeFromString(PublicKeyCredentialAuthJson.serializer(), authJson) }
-        catch (e: Throwable) { throw PasskeyError.DecodeFailed(e) }
+        val parsed = try {
+            json.decodeFromString(PublicKeyCredentialAuthJson.serializer(), authJson)
+        } catch (e: Throwable) {
+            throw PasskeyError.DecodeFailed(e)
+        }
 
-        val resp = parsed.response ?: throw PasskeyError.DecodeFailed(IllegalStateException("Missing response"))
+        val resp = parsed.response
+            ?: throw PasskeyError.DecodeFailed(IllegalStateException("Missing response"))
 
+        // These fields are already base64url in CM JSON; decode to bytes here.
         val authenticatorData = try { decodeBase64Url(resp.authenticatorData_b64url) }
         catch (e: Throwable) { throw PasskeyError.DecodeFailed(e) }
 
         val signature = try { decodeBase64Url(resp.signature_b64url) }
         catch (e: Throwable) { throw PasskeyError.DecodeFailed(e) }
 
+        val clientDataBytes = try { decodeBase64Url(resp.clientDataJSON_b64url) }
+        catch (e: Throwable) { throw PasskeyError.DecodeFailed(e) }
+
         val userHandle = resp.userHandle_b64url?.let {
             try { decodeBase64Url(it) } catch (_: Throwable) { null }
         }
 
-        val clientDataJsonUtf8 = try {
-            val bytes = decodeBase64Url(resp.clientDataJSON_b64url)
-            String(bytes, Charsets.UTF_8)
-        } catch (_: Throwable) {
-            // Some OEMs may already return plain text; keep as-is
-            resp.clientDataJSON_b64url
-        }
+        // Prefer rawId (base64url) → bytes. Fallback to id if rawId missing.
+        val credIdB64 = parsed.rawId ?: parsed.id
+        ?: throw PasskeyError.DecodeFailed(IllegalStateException("Missing credential id"))
+        val credentialId = try { decodeBase64Url(credIdB64) }
+        catch (e: Throwable) { throw PasskeyError.DecodeFailed(e) }
 
         return AssertionResult(
             authenticatorData = authenticatorData,
-            clientDataJson = clientDataJsonUtf8,
-            credentialId = (parsed.id ?: parsed.rawId).orEmpty(),
+            clientDataBytes = clientDataBytes,
+            credentialId = credentialId,
             signature = signature,
             userHandle = userHandle
         )
