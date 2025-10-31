@@ -10,7 +10,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class AuthBottomSheet : BottomSheetDialogFragment() {
-
     companion object { fun newInstance() = AuthBottomSheet() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

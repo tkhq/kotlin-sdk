@@ -26,7 +26,7 @@ class AuthSheetViewModel : ViewModel() {
             otpType = OtpType.OTP_TYPE_EMAIL,
             contact = contact
         )
-        _otpId.value = res
+        _otpId.value = res.otpId
         _contact.value = contact
         true
     } catch (t: Throwable) {

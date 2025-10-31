@@ -1,5 +1,8 @@
 package com.turnkey.models
 
+import com.turnkey.types.V1HashFunction
+import com.turnkey.types.V1PayloadEncoding
+
 data class TurnkeyConfig(
     val organizationId: String,
     val apiBaseUrl: String? = null,
@@ -83,4 +86,9 @@ data class OAuthConfig(
     val xClientId: String? = null,
     /** Client ID for Discord OAuth. */
     val discordClientId: String? = null,
+)
+
+data class Defaults(
+    val encoding: V1PayloadEncoding,
+    val hashFunction: V1HashFunction
 )

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="OrSeparatorView">
+        <attr name="labelText" format="string" />
+        <attr name="dividerColor" format="color|reference" />
+        <attr name="startMargin" format="dimension" />
+        <attr name="endMargin" format="dimension" />
+        <attr name="labelTopMargin" format="dimension" />
+        <attr name="dividerThickness" format="dimension" />
+    </declare-styleable>
+</resources>

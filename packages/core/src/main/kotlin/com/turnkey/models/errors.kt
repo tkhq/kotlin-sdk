@@ -49,6 +49,8 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data class FailedToHandleAppleOAuth(val t: Throwable) : TurnkeyKotlinError("Failed to handle apple OAuth", t)
     data class FailedToHandleXOAuth(val t: Throwable) : TurnkeyKotlinError("Failed to handle X OAuth", t)
     data class FailedToHandleDiscordOAuth(val t: Throwable) : TurnkeyKotlinError("Failed to handle discord OAuth", t)
+    data class FailedToImportWallet(val t: Throwable) : TurnkeyKotlinError("Failed to import wallet", t)
+    data class FailedToExportWallet(val t: Throwable) : TurnkeyKotlinError("Failed to export wallet", t)
     data class SignUpFailed(val s: String) : TurnkeyKotlinError("Sign up failed: $s")
     data object MissingRpId : TurnkeyKotlinError("Missing rpId, please pass an rpId through the function params or set it in the config") {
         private fun readResolve(): Any = MissingRpId
@@ -57,4 +59,6 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
         private fun readResolve(): Any = NoSessionsFound
     }
     data class MissingConfigParam(val s: String) : TurnkeyKotlinError("Missing config param: $s")
+    data class FailedToSignMessage(val t: Throwable) : TurnkeyKotlinError("Failed to sign message", t)
+    data class InvalidMessage (val s: String) : TurnkeyKotlinError("Invalid sign message payload: $s")
 }

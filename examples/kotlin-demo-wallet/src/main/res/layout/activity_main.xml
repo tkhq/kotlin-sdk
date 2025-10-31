@@ -8,15 +8,37 @@
     android:paddingTop="?attr/actionBarSize">
 
     <!-- Unauthed view(s) -->
-    <Button
-        android:id="@+id/authComponentButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/unauthedButtons"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Open Auth Component"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/authComponentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Auth Component"
+            app:layout_constraintBottom_toTopOf="@id/clearAllSessions"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/clearAllSessions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear All Sessions"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 
     <!-- “Dashboard” area for authed users -->
     <TextView
@@ -24,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="0dp"
         android:text="AuthState"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -39,14 +61,16 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Put your dashboard fragment/container here if you want -->
+
     <FrameLayout
         android:id="@+id/dashboardContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/tvAuthState"
         app:layout_constraintBottom_toTopOf="@+id/logoutButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tvAuthState" />
 
     <Button
         android:id="@+id/logoutButton"
@@ -63,7 +87,7 @@
         android:id="@+id/groupUnauthed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="authComponentButton" />
+        app:constraint_referenced_ids="unauthedButtons" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupAuthed"

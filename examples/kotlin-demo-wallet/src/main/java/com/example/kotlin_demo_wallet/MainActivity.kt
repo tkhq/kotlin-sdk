@@ -35,6 +35,9 @@ class MainActivity : AppCompatActivity() {
         binding.authComponentButton.setOnClickListener {
             AuthBottomSheet.newInstance().show(supportFragmentManager, "auth")
         }
+        binding.clearAllSessions.setOnClickListener {
+            lifecycleScope.launch { TurnkeyContext.clearAllSessions() }
+        }
         binding.logoutButton.setOnClickListener {
             lifecycleScope.launch { TurnkeyContext.clearSession() }
         }

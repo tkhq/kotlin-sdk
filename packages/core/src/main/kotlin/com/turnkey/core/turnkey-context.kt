@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.turnkey.crypto.decryptExportBundle
 import com.turnkey.http.TurnkeyClient
 import com.turnkey.internal.Helpers
 import com.turnkey.internal.JwtDecoder
@@ -40,6 +41,8 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import com.turnkey.models.*
 import com.turnkey.crypto.generateP256KeyPair
+import com.turnkey.encoding.hexToBytesOrNull
+import com.turnkey.internal.encryptWalletToBundle
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
 import com.turnkey.passkey.createPasskey
@@ -53,18 +56,26 @@ import com.turnkey.types.ProxyTOAuthLoginBody
 import com.turnkey.types.ProxyTOtpLoginBody
 import com.turnkey.types.ProxyTVerifyOtpBody
 import com.turnkey.types.TCreateWalletBody
+import com.turnkey.types.TExportWalletBody
 import com.turnkey.types.TGetUserBody
 import com.turnkey.types.TGetWalletAccountsBody
 import com.turnkey.types.TGetWalletsBody
+import com.turnkey.types.TImportWalletBody
+import com.turnkey.types.TInitImportWalletBody
 import com.turnkey.types.TSignRawPayloadBody
 import com.turnkey.types.TStampLoginBody
+import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1CreateWalletResult
+import com.turnkey.types.V1ExportWalletResult
 import com.turnkey.types.V1HashFunction
+import com.turnkey.types.V1ImportWalletResult
 import com.turnkey.types.V1Oauth2Provider
 import com.turnkey.types.V1PayloadEncoding
+import com.turnkey.types.V1SignRawPayloadResult
 import com.turnkey.types.V1SignRawPayloadsResult
 import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
+import com.turnkey.utils.KeyFormat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -73,7 +84,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
+import okio.Utf8
+import java.nio.charset.StandardCharsets
 import java.util.Date
+import java.util.HexFormat
 import java.util.UUID
 
 object TurnkeyContext {
@@ -288,10 +302,7 @@ object TurnkeyContext {
         }
     }
 
-    /**
-     * Attempt to restore a previously selected session.
-     * @return true if a valid selected session exists; false otherwise (and clears selection).
-     */
+
     /**
      * Attempt to restore a previously selected session.
      * @return true if a valid selected session exists; false otherwise (and clears selection).
@@ -463,7 +474,7 @@ object TurnkeyContext {
     suspend fun updateSession(
         context: Context,
         jwt: String,
-        sessionKey: String = Storage.SELECTED_SESSION_KEY
+        sessionKey: String = SessionStorage.DEFAULT_SESSION_KEY
     ) = withContext(Dispatchers.IO) {
         // Ensure a session already exists under this key
         val exists = JwtSessionStore.load(context, sessionKey) != null
@@ -481,8 +492,7 @@ object TurnkeyContext {
         val organizationId =
             session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
         val userId = session.value?.userId ?: throw TurnkeyKotlinError.InvalidSession
-        val userDeferred = async { client.getUser(TGetUserBody(organizationId, userId)) }
-        val res = userDeferred.await()
+        val res = client.getUser(TGetUserBody(organizationId, userId))
         _user.value = res.user
     }
 
@@ -517,7 +527,9 @@ object TurnkeyContext {
 
     suspend fun clearAllSessions() {
         val keys = SessionRegistryStore.all(appContext)
-        println(keys)
+        for (k in keys) {
+            clearSession(k)
+        }
     }
 
     fun createKeyPair(): String {
@@ -704,7 +716,7 @@ object TurnkeyContext {
         invalidateExisting: Boolean? = false,
         sessionKey: String? = null,
         organizationId: String? = null,
-    ): String {
+    ): LoginWithOAuthResult {
         try {
             val res = client.proxyOAuthLogin(
                 ProxyTOAuthLoginBody(
@@ -714,9 +726,9 @@ object TurnkeyContext {
                     organizationId = organizationId
                 )
             )
-            val session = res.session
-            createSession(session, sessionKey)
-            return session
+            val sessionJwt = res.session
+            createSession(sessionJwt, sessionKey)
+            return LoginWithOAuthResult(sessionJwt = sessionJwt)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToLoginWithOAuth(t)
         }
@@ -728,7 +740,7 @@ object TurnkeyContext {
         providerName: String,
         createSubOrgParams: CreateSubOrgParams? = null,
         sessionKey: String? = null
-    ): String {
+    ): SignUpWithOAuthResult {
         val overrideParams = OAuthOverrideParams(
             providerName,
             oidcToken
@@ -755,7 +767,7 @@ object TurnkeyContext {
                 sessionKey = sessionKey
             )
 
-            return loginRes
+            return SignUpWithOAuthResult(sessionJwt = loginRes.sessionJwt)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSignUpWithOAuth(t)
         }
@@ -768,7 +780,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         invalidateExisting: Boolean? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
-    ): String {
+    ): LoginOrSignUpWithOAuthResult {
         try {
             val accountRes = client.proxyGetAccount(
                 input = ProxyTGetAccountBody(
@@ -785,7 +797,7 @@ object TurnkeyContext {
                     createSubOrgParams,
                     sessionKey,
                 )
-                return signUpRes
+                return LoginOrSignUpWithOAuthResult(sessionJwt = signUpRes.sessionJwt)
             } else {
                 val loginRes = loginWithOAuth(
                     oidcToken,
@@ -793,7 +805,7 @@ object TurnkeyContext {
                     invalidateExisting,
                     sessionKey
                 )
-                return loginRes
+                return LoginOrSignUpWithOAuthResult(sessionJwt = loginRes.sessionJwt)
             }
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToLoginOrSignUpWithOAuth(t)
@@ -808,8 +820,8 @@ object TurnkeyContext {
         publicKey: String? = null,
         invalidateExisting: Boolean? = false,
         rpId: String? = null,
-    ): String {
-        val sessionKey = sessionKey ?: Storage.SELECTED_SESSION_KEY
+    ): LoginWithPasskeyResult {
+        val sessionKey = sessionKey ?: SessionStorage.DEFAULT_SESSION_KEY
         val rpId = rpId ?: config.authConfig?.rpId ?: throw TurnkeyKotlinError.MissingRpId
         val organizationId = organizationId ?: config.organizationId
         val generatedPublicKey: String?
@@ -838,10 +850,11 @@ object TurnkeyContext {
                 ?: throw TurnkeyKotlinError.InvalidResponse("No session token returned from stampLogin")
 
             createSession(sessionToken, sessionKey)
-            return sessionToken
+            return LoginWithPasskeyResult(sessionJwt = sessionToken)
         } catch (t: Throwable) {
-            deleteUnusedKeyPairs()
             throw TurnkeyKotlinError.FailedToLoginWithPasskey(t)
+        } finally {
+            deleteUnusedKeyPairs()
         }
     }
 
@@ -853,8 +866,8 @@ object TurnkeyContext {
         createSubOrgParams: CreateSubOrgParams? = null,
         invalidateExisting: Boolean? = null,
         rpId: String? = null
-    ): String {
-        val sessionKey = sessionKey ?: Storage.SELECTED_SESSION_KEY
+    ): SignUpWithPasskeyResult {
+        val sessionKey = sessionKey ?: SessionStorage.DEFAULT_SESSION_KEY
         val rpId = rpId ?: config.authConfig?.rpId ?: throw TurnkeyKotlinError.MissingRpId
         val generatedPublicKey: String?
         var temporaryPublicKey: String?
@@ -874,7 +887,6 @@ object TurnkeyContext {
                 ),
                 rpId = rpId,
             )
-            println("here $passkey")
 
             val encodedChallenge = passkey.challenge
             val attestation = passkey.attestation
@@ -912,24 +924,25 @@ object TurnkeyContext {
                 ?: throw TurnkeyKotlinError.InvalidResponse("No session token returned from stampLogin")
 
             createSession(sessionToken, sessionKey)
-            return sessionToken
+            return SignUpWithPasskeyResult(sessionJwt = sessionToken)
         } catch (t: Throwable) {
-            deleteUnusedKeyPairs()
             throw TurnkeyKotlinError.FailedToSignUpWithPasskey(t)
+        } finally {
+            deleteUnusedKeyPairs()
         }
     }
 
     suspend fun initOtp(
         otpType: OtpType,
         contact: String
-    ): String {
+    ): InitOtpResult {
         val res = client.proxyInitOtp(
             ProxyTInitOtpBody(
                 contact = contact,
                 otpType = otpType.name
             )
         )
-        return res.otpId
+        return InitOtpResult(otpId = res.otpId)
     }
 
     suspend fun verifyOtp(
@@ -966,7 +979,7 @@ object TurnkeyContext {
         invalidateExisting: Boolean? = false,
         publicKey: String? = null,
         sessionKey: String? = null,
-    ): String {
+    ): LoginWithOtpResult {
         var generatedPublicKey: String?
 
         try {
@@ -983,7 +996,7 @@ object TurnkeyContext {
 
             createSession(res.session, sessionKey)
 
-            return res.session
+            return LoginWithOtpResult(sessionJwt = res.session)
         } catch (t: Throwable) {
             deleteUnusedKeyPairs()
             throw TurnkeyKotlinError.FailedToLoginWithOtp(t)
@@ -998,7 +1011,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
         invalidateExisting: Boolean? = false
-    ): String {
+    ): SignUpWithOtpResult {
         val overrideParams = OtpOverrireParams(
             otpType = otpType,
             contact = contact,
@@ -1023,7 +1036,7 @@ object TurnkeyContext {
                 publicKey = publicKey
             )
 
-            return loginRes
+            return SignUpWithOtpResult(sessionJwt = loginRes.sessionJwt)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSignUpWithOtp(t)
         }
@@ -1038,7 +1051,7 @@ object TurnkeyContext {
         invalidateExisting: Boolean? = false,
         sessionKey: String? = null,
         createSubOrgParams: CreateSubOrgParams? = null
-    ): String {
+    ): LoginOrSignUpWithOtpResult {
         try {
             val verifyRes = verifyOtp(
                 otpCode = otpCode,
@@ -1057,7 +1070,7 @@ object TurnkeyContext {
                     invalidateExisting = invalidateExisting
                 )
 
-                return signUpRes
+                return LoginOrSignUpWithOtpResult(sessionJwt = signUpRes.sessionJwt)
             } else {
                 val loginRes = loginWithOtp(
                     verificationToken = verifyRes.verificationToken,
@@ -1066,14 +1079,13 @@ object TurnkeyContext {
                     publicKey = publicKey,
                     sessionKey = sessionKey
                 )
-                return loginRes
+                return LoginOrSignUpWithOtpResult(sessionJwt = loginRes.sessionJwt)
             }
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToLoginOrSignUpWithOtp(t)
         }
     }
 
-    // TODO: DO THIS
     suspend fun handleGoogleOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1141,7 +1153,6 @@ object TurnkeyContext {
         }
     }
 
-    // TODO: DO THIS
     suspend fun handleAppleOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1212,7 +1223,6 @@ object TurnkeyContext {
     // TODO: DO THIS LATER
     suspend fun handleFacebookOAuth() {}
 
-    // TODO: DO THIS
     suspend fun handleXOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1239,7 +1249,6 @@ object TurnkeyContext {
             ?: "$scheme://"
 
         val challengePair = Helpers.generateChallengePair()
-        println(challengePair.codeChallenge)
 
         val state = "provider=twitter&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
 
@@ -1301,7 +1310,6 @@ object TurnkeyContext {
         }
     }
 
-    // TODO: DO THIS
     suspend fun handleDiscordOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1435,6 +1443,109 @@ object TurnkeyContext {
                 ?: throw TurnkeyKotlinError.InvalidResponse("No result returned from SignRawPayload")
         } catch (e: Throwable) {
             throw TurnkeyKotlinError.FailedToSignRawPayload(e)
+        }
+    }
+
+    suspend fun signMessage(
+        signWith: String,
+        addressFormat: V1AddressFormat,
+        message: String,
+        encoding: V1PayloadEncoding? = null,
+        hashFunction: V1HashFunction? = null,
+        addEthereumPrefix: Boolean? = null
+    ): V1SignRawPayloadResult {
+        val defaults = Helpers.defaultsFor(addressFormat)
+        val finalEncoding = encoding ?: defaults.encoding
+        val finalHash = hashFunction ?: defaults.hashFunction
+
+        var messageBytes = message.toByteArray(StandardCharsets.UTF_8)
+        if (addressFormat == V1AddressFormat.ADDRESS_FORMAT_ETHEREUM) {
+            val shouldPrefix = addEthereumPrefix ?: true
+            if (shouldPrefix) messageBytes = Helpers.ethereumPrefixed(messageBytes)
+        }
+
+        val payload = Helpers.encodeMessageBytes(messageBytes, finalEncoding)
+
+        try {
+            val res = client.signRawPayload(
+                TSignRawPayloadBody(
+                    organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession,
+                    encoding = finalEncoding,
+                    hashFunction = finalHash,
+                    payload = payload,
+                    signWith = signWith
+                )
+            )
+            return res.activity.result.signRawPayloadResult ?: throw TurnkeyKotlinError.InvalidResponse("Invalid sign raw payload result")
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToSignMessage(t)
+        }
+    }
+
+    suspend fun importWallet(
+        walletName: String,
+        mnemonic: String,
+        accounts: List<V1WalletAccountParams>
+    ): V1ImportWalletResult {
+        val organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
+        val userId = session.value?.userId ?: throw TurnkeyKotlinError.InvalidSession
+        try {
+            val initRes = client.initImportWallet(TInitImportWalletBody(
+                organizationId = organizationId,
+                userId = userId
+            ))
+
+            val importBundle = initRes.activity.result.initImportWalletResult?.importBundle ?: throw TurnkeyKotlinError.InvalidResponse("No import bundle returned from initImportWallet")
+
+            val encrypted = encryptWalletToBundle(
+                mnemonic = mnemonic,
+                importBundle = importBundle,
+                userId = userId,
+                organizationId = organizationId,
+                null
+            )
+
+            val res = client.importWallet(TImportWalletBody(
+                organizationId = organizationId,
+                accounts = accounts,
+                encryptedBundle = encrypted,
+                userId = userId,
+                walletName = walletName
+            ))
+
+            val result = res.activity.result.importWalletResult ?: throw TurnkeyKotlinError.InvalidResponse("No result found from importWallet")
+            refreshWallets()
+            return result
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToImportWallet(t)
+        }
+    }
+
+    suspend fun exportWallet(
+        walletId: String,
+    ): ExportWalletResult {
+        val (targetPublicKey, _, embeddedPriv) = generateP256KeyPair()
+        val organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
+
+        try {
+            val res = client.exportWallet(TExportWalletBody(
+                organizationId = organizationId,
+                targetPublicKey = targetPublicKey,
+                walletId = walletId
+            ))
+
+            val bundle = res.activity.result.exportWalletResult?.exportBundle ?: throw TurnkeyKotlinError.InvalidResponse("No export bundle returned from exportWallet")
+
+            val mnemonicPhrase = decryptExportBundle(
+                exportBundle = bundle,
+                organizationId = organizationId,
+                embeddedPrivateKey = embeddedPriv,
+                dangerouslyOverrideSignerPublicKey = null,
+                returnMnemonic = true
+                )
+            return ExportWalletResult(mnemonicPhrase = mnemonicPhrase)
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToExportWallet(t)
         }
     }
 }

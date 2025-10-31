@@ -31,8 +31,14 @@ import kotlinx.serialization.json.Json
 import androidx.core.net.toUri
 import com.turnkey.encoding.toBase64Url
 import com.turnkey.models.ChallengePair
+import com.turnkey.models.Defaults
+import com.turnkey.types.V1AddressFormat
+import com.turnkey.types.V1HashFunction
+import com.turnkey.types.V1PayloadEncoding
+import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Locale
 
 object JwtDecoder {
     /**
@@ -109,7 +115,7 @@ object Helpers {
 
         // Seed known wallets (no accounts yet)
         for (w in wallets) {
-            nameByWallet.putIfAbsent(w.walletId, w.walletId)
+            nameByWallet.putIfAbsent(w.walletId, w.walletName)
             accountsByWallet.putIfAbsent(w.walletId, mutableListOf())
         }
 
@@ -286,4 +292,93 @@ object Helpers {
         MessageDigest.getInstance("SHA-256").digest(data)
 
     private val SECURE_RANDOM: SecureRandom by lazy { SecureRandom() }
+
+    fun defaultsFor(addressFormat: V1AddressFormat): Defaults = when (addressFormat) {
+
+        // Un/Compressed pubkeys
+        V1AddressFormat.ADDRESS_FORMAT_UNCOMPRESSED,
+        V1AddressFormat.ADDRESS_FORMAT_COMPRESSED ->
+            Defaults(
+                encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
+                hashFunction = V1HashFunction.HASH_FUNCTION_SHA256
+            )
+
+        // Ethereum
+        V1AddressFormat.ADDRESS_FORMAT_ETHEREUM ->
+            Defaults(
+                encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
+                hashFunction = V1HashFunction.HASH_FUNCTION_KECCAK256
+            )
+
+        // Hex encoding, hash not applicable
+        V1AddressFormat.ADDRESS_FORMAT_SOLANA,
+        V1AddressFormat.ADDRESS_FORMAT_SUI,
+        V1AddressFormat.ADDRESS_FORMAT_APTOS,
+        V1AddressFormat.ADDRESS_FORMAT_TON_V3R2,
+        V1AddressFormat.ADDRESS_FORMAT_TON_V4R2,
+        V1AddressFormat.ADDRESS_FORMAT_TON_V5R1,
+        V1AddressFormat.ADDRESS_FORMAT_XLM ->
+            Defaults(
+                encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
+                hashFunction = V1HashFunction.HASH_FUNCTION_NOT_APPLICABLE
+            )
+
+        // Cosmos-family (incl. Sei): text + sha256
+        V1AddressFormat.ADDRESS_FORMAT_COSMOS,
+        V1AddressFormat.ADDRESS_FORMAT_SEI ->
+            Defaults(
+                encoding = V1PayloadEncoding.PAYLOAD_ENCODING_TEXT_UTF8,
+                hashFunction = V1HashFunction.HASH_FUNCTION_SHA256
+            )
+
+        // Tron, Bitcoin variants, Doge, XRP: hex + sha256
+        V1AddressFormat.ADDRESS_FORMAT_TRON,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH,
+        V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR,
+        V1AddressFormat.ADDRESS_FORMAT_DOGE_MAINNET,
+        V1AddressFormat.ADDRESS_FORMAT_DOGE_TESTNET,
+        V1AddressFormat.ADDRESS_FORMAT_XRP ->
+            Defaults(
+                encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
+                hashFunction = V1HashFunction.HASH_FUNCTION_SHA256
+            )
+    }
+
+    /** "\u0019Ethereum Signed Message:\n" + decimal length + message bytes */
+    fun ethereumPrefixed(message: ByteArray): ByteArray {
+        val prefix = "\u0019Ethereum Signed Message:\n${message.size}"
+        val prefixBytes = prefix.toByteArray(StandardCharsets.UTF_8)
+        // concat prefixBytes + message
+        return ByteArray(prefixBytes.size + message.size).also {
+            System.arraycopy(prefixBytes, 0, it, 0, prefixBytes.size)
+            System.arraycopy(message, 0, it, prefixBytes.size, message.size)
+        }
+    }
+
+    /** Encode raw bytes either as 0x-prefixed lowercase hex, or as UTF-8 text. */
+    fun encodeMessageBytes(bytes: ByteArray, encoding: V1PayloadEncoding): String {
+        return if (encoding == V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL) {
+            "0x" + bytes.joinToString("") { b -> "%02x".format(Locale.ROOT, b) }
+        } else {
+            String(bytes, StandardCharsets.UTF_8)
+        }
+    }
 }

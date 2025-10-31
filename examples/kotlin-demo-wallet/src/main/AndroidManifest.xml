@@ -17,10 +17,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <data
-                    android:scheme="https"
-                    android:host="a30cb8ee6b7f.ngrok-free.app"
-                    android:pathPrefix="/" />
             </intent-filter>
         </activity>
         <activity

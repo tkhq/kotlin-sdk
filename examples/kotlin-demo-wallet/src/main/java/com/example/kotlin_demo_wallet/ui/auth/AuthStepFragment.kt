@@ -15,6 +15,7 @@ import com.google.android.material.transition.MaterialSharedAxis
 import com.turnkey.core.TurnkeyContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AuthStepFragment : Fragment(R.layout.component_auth_card) {
 
@@ -41,7 +42,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                     TurnkeyContext.handleGoogleOAuth(
                         activity = requireActivity(),
                     )
-                    (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                    withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {
                     Log.e("AuthStepFragment", "Failed to handle Google OAuth", t)
                 }
@@ -54,7 +55,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                     TurnkeyContext.handleAppleOAuth(
                         activity = requireActivity(),
                     )
-                    (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                    withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {
                     Log.e("AuthStepFragment", "Failed to handle Apple OAuth", t)
                 }
@@ -67,7 +68,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                     TurnkeyContext.handleXOAuth(
                         activity = requireActivity(),
                     )
-                    (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                    withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {
                     Log.e("AuthStepFragment", "Failed to handle X OAuth", t)
                 }
@@ -80,7 +81,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                     TurnkeyContext.handleDiscordOAuth(
                         activity = requireActivity(),
                     )
-                    (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                    withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {
                     Log.e("AuthStepFragment", "Failed to handle Discord OAuth", t)
                 }
@@ -93,7 +94,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                      TurnkeyContext.loginWithPasskey(
                          activity = requireActivity()
                      )
-                     (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                     withContext(Dispatchers.Main) { dismissSheetSafely() }
                  } catch (t: Throwable) {
                      Log.e("AuthStepFragment", "Failed to login with passkey", t)
                  }
@@ -106,7 +107,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                     TurnkeyContext.signUpWithPasskey(
                         activity = requireActivity()
                     )
-                    (parentFragment as? BottomSheetDialogFragment)?.dismiss()
+                    withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {
                     Log.e("AuthStepFragment", "Failed to sign up with passkey", t)
                 }
@@ -129,5 +130,15 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
         exitTransition = back
         reenterTransition = back
         returnTransition = forward
+    }
+
+    private fun dismissSheetSafely() {
+        val sheet = (parentFragment as? BottomSheetDialogFragment) ?: return
+        // Always commit on main to avoid background-thread fragment ops.
+        requireActivity().runOnUiThread {
+            val fm = sheet.parentFragmentManager
+            if (!sheet.isAdded) return@runOnUiThread
+            if (fm.isStateSaved) sheet.dismissAllowingStateLoss() else sheet.dismiss()
+        }
     }
 }
