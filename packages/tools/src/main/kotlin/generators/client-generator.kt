@@ -15,6 +15,7 @@ import com.squareup.kotlinpoet.asTypeName
 import io.swagger.v3.oas.models.OpenAPI
 import utils.OperationKind
 import utils.SpecCfg
+import utils.VersionedActivityTypes
 import utils.capitalizeLeading
 import utils.classifyOperation
 import utils.toScreamingSnake
@@ -24,7 +25,7 @@ fun generateClientFile(
     apis: List<Pair<SpecCfg, OpenAPI>>,
     outRoot: Path,
     pkg: String,
-    typesPkg: String,
+    modelsPkg: String,
     className: String,
     clientVersionHdr: String,
 ) {
@@ -48,13 +49,19 @@ fun generateClientFile(
                 .build()
         )
         .addParameter("stamper", stamperClass.copy(nullable = true))
-        .addParameter("http", okHttpClient)
+        .addParameter(
+            ParameterSpec.builder("http", okHttpClient.copy(nullable = true))
+                .defaultValue("null")
+                .build()
+        )
         .addParameter(
             ParameterSpec.builder("authProxyUrl", nullableStringT)
                 .defaultValue("null")
                 .build()
         )
-        .addParameter("authProxyConfigId", nullableStringT)
+        .addParameter(
+            ParameterSpec.builder("authProxyConfigId", nullableStringT).defaultValue("null").build()
+        )
         .build()
 
     val typeBuilder = TypeSpec.classBuilder(className)
@@ -72,7 +79,7 @@ fun generateClientFile(
         )
         .addProperty(
             PropertySpec.builder("http", okHttpClient, KModifier.PRIVATE)
-                .initializer("%N", "http")
+                .initializer("%N ?: %T()", "http", okHttpClient)
                 .build()
         )
         .addProperty(
@@ -116,14 +123,14 @@ fun generateClientFile(
                 val bodyDto: ClassName? = reqSchemaRef?.let { ref ->
                     val schemaName = opId.substringAfter("_")
                     val typeName = (opPrefix.ifBlank { "" }) + "T" + schemaName + "Body"
-                    ClassName(typesPkg, typeName)
+                    ClassName(modelsPkg, typeName)
                 }
 
                 // Response type (or Unit)
                 val respType: TypeName = respSchemaRef?.let { ref ->
                     val schemaName = opId.substringAfter("_")
                     val typeName = (opPrefix.ifBlank { "" }) + "T" + schemaName + "Response"
-                    ClassName(typesPkg, typeName)
+                    ClassName(modelsPkg, typeName)
                 } ?: UNIT
 
                 val isDeprecated = op.deprecated == true
@@ -296,8 +303,8 @@ fun generateClientFile(
                 typeBuilder.addFunction(funSpec)
 
                 if (!isProxy) {
-                    val tStampCls = ClassName(typesPkg, "TStamp")
-                    val tSignedReqCls = ClassName(typesPkg, "TSignedRequest")
+                    val tStampCls = ClassName(modelsPkg, "TStamp")
+                    val tSignedReqCls = ClassName(modelsPkg, "TSignedRequest")
                     val stampFunName = "stamp" + methodName.capitalizeLeading()
 
                     val stampFunSpec = FunSpec.builder(stampFunName)

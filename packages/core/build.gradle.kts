@@ -29,12 +29,16 @@ dependencies {
 
     implementation(project(":packages:encoding"))
     implementation(project(":packages:http"))
+    implementation(project(":packages:types"))
     implementation(project(":packages:crypto"))
     implementation(project(":packages:stamper"))
+    implementation(project(":packages:passkey"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.okhttp)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.appcompat)
 }
 
 kotlin {

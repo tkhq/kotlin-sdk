@@ -52,7 +52,7 @@ class Stamper private constructor(
                     payloadSha256 = digest,
                     passkeyClient = passkeyManager
                 )
-                "X-Stamp-WebAuthn" to value
+                "X-Stamp-Webauthn" to value
             }
             else -> throw StampError.UnknownError("Unable to stamp request: no credentials configured")
         }

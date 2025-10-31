@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">kotlin-demo-wallet</string>
+    <string name="app_name">kotlin_demo_wallet</string>
+    <string name="send_otp_code">Send otp code</string>
 </resources>

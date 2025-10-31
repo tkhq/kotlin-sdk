@@ -29,7 +29,6 @@ object PasskeyStampBuilder {
     ): String {
         if (payloadSha256.size != 32) throw PasskeyStampError.InvalidChallenge
 
-        // Swift does: payload.hexEncoded.data(using: .utf8)
         val challengeHexAscii = payloadSha256.joinToString("") { "%02x".format(it) }.encodeToByteArray()
 
         val assertion = try {
@@ -40,8 +39,8 @@ object PasskeyStampBuilder {
 
         val jsonObj = PasskeyStampJson(
             authenticatorData = assertion.authenticatorData.toBase64Url(),
-            clientDataJson = assertion.clientDataJson,
-            credentialId = assertion.credentialId,
+            clientDataJson = assertion.clientDataBytes.toBase64Url(),
+            credentialId = assertion.credentialId.toBase64Url(),
             signature = assertion.signature.toBase64Url()
         )
 

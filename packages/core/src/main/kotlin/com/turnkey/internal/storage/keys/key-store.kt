@@ -21,7 +21,15 @@ object KeyPairStore {
         return data.toString(Charsets.UTF_8)
     }
 
+    fun listKeys(context: Context): List<String> {
+        return SecureStore.listKeys(context, SECURE_ACCOUNT)
+    }
+
     fun delete(context: Context, publicHex: String) {
         SecureStore.delete(context, service = publicHex, account = SECURE_ACCOUNT)
+    }
+
+    fun deleteAll(context: Context) {
+        SecureStore.deleteAll((context))
     }
 }

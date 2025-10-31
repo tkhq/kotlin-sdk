@@ -1,9 +1,6 @@
 package com.turnkey.models
 
-import com.turnkey.http.Externaldatav1Timestamp
-import com.turnkey.http.V1AddressFormat
-import com.turnkey.http.V1Curve
-import com.turnkey.http.V1PathFormat
+import com.turnkey.types.V1WalletAccount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,40 +9,40 @@ enum class AuthState {
 }
 
 @Serializable
-data class TurnkeySession(
-    /** Expiration as epoch-seconds (JWT `exp`). */
-    @SerialName("exp") val exp: Double,
-    @SerialName("public_key") val publicKey: String,
-    @SerialName("session_type") val sessionType: String,
-    @SerialName("user_id") val userId: String,
-    @SerialName("organization_id") val organizationId: String
+data class SessionJwt (
+    @SerialName("user_id")
+    val userId: String,
+    @SerialName("organization_id")
+    val organizationId: String,
+    @SerialName("exp")
+    val expiry: Double,
+    @SerialName("public_key")
+    val publicKey: String,
+    @SerialName("session_type")
+    val sessionType: String
 )
 
 @Serializable
-data class SessionUser(
-    val id: String,
-    val userName: String,
-    val email: String? = null,
-    val phoneNumber: String? = null,
+data class Session(
+    @SerialName("user_id")
+    val userId: String,
+    @SerialName("organization_id")
     val organizationId: String,
-    val wallets: MutableList<UserWallet>
-) {
-    @Serializable
-    data class UserWallet(
-        val id: String,
-        val name: String,
-        val accounts: MutableList<WalletAccount>
-    ) {
-        @Serializable
-        data class WalletAccount(
-            val id: String,
-            val curve: V1Curve,
-            val pathFormat: V1PathFormat,
-            val path: String,
-            val addressFormat: V1AddressFormat,
-            val address: String,
-            val createdAt: Externaldatav1Timestamp,
-            val updatedAt: Externaldatav1Timestamp
-        )
-    }
-}
+    @SerialName("exp")
+    val expiry: Double,
+    @SerialName("expiration_seconds")
+    val expirationSeconds: String,
+    @SerialName("public_key")
+    val publicKey: String,
+    @SerialName("token")
+    val token: String,
+    @SerialName("session_type")
+    val sessionType: String
+)
+
+@Serializable
+data class Wallet (
+    val id: String,
+    val name: String,
+    val accounts: List<V1WalletAccount>
+)

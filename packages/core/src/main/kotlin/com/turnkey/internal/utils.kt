@@ -1,16 +1,38 @@
 package com.turnkey.internal
 
+import android.app.Activity
+import androidx.browser.customtabs.CustomTabsIntent
 import com.turnkey.encoding.decodeBase64Url
-import com.turnkey.http.TGetWalletAccountsBody
 import com.turnkey.http.TurnkeyClient
-import com.turnkey.http.V1Pagination
-import com.turnkey.http.V1Wallet
-import com.turnkey.http.V1WalletAccount
-import com.turnkey.models.SessionUser
+import com.turnkey.models.CreateSubOrgApiKey
+import com.turnkey.models.CreateSubOrgAuthenticator
+import com.turnkey.models.CreateSubOrgParams
+import com.turnkey.models.OAuthOverrideParams
+import com.turnkey.models.OtpOverrireParams
+import com.turnkey.models.OtpType
+import com.turnkey.models.OverrideParams
+import com.turnkey.models.PasskeyOverrideParams
 import com.turnkey.models.StorageError
+import com.turnkey.models.TurnkeyConfig
+import com.turnkey.models.Wallet
+import com.turnkey.types.ProxyTSignupBody
+import com.turnkey.types.TGetWalletAccountsBody
+import com.turnkey.types.V1ApiKeyCurve
+import com.turnkey.types.V1ApiKeyParamsV2
+import com.turnkey.types.V1AuthenticatorParamsV2
+import com.turnkey.types.V1OauthProviderParams
+import com.turnkey.types.V1Pagination
+import com.turnkey.types.V1Wallet
+import com.turnkey.types.V1WalletAccount
+import com.turnkey.types.V1WalletParams
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.Json
+import androidx.core.net.toUri
+import com.turnkey.encoding.toBase64Url
+import com.turnkey.models.ChallengePair
+import java.security.MessageDigest
+import java.security.SecureRandom
 
 object JwtDecoder {
     /**
@@ -78,36 +100,190 @@ object Helpers {
             return@coroutineScope accounts
         }
 
-    fun mapAccountsToWallet(accounts: MutableList<V1WalletAccount>, wallets: List<V1Wallet>): MutableList<SessionUser.UserWallet> {
-        val walletMap: MutableMap<String, SessionUser.UserWallet> =
-            wallets.associateBy(
-                keySelector = { it.walletId },
-                valueTransform = { SessionUser.UserWallet(id = it.walletId, name = it.walletId, accounts = mutableListOf())}
-            ).toMutableMap()
+    fun mapAccountsToWallet(
+        accounts: List<V1WalletAccount>,
+        wallets: List<V1Wallet>
+    ): List<Wallet> {
+        val accountsByWallet = mutableMapOf<String, MutableList<V1WalletAccount>>()
+        val nameByWallet = mutableMapOf<String, String>()
 
+        // Seed known wallets (no accounts yet)
+        for (w in wallets) {
+            nameByWallet.putIfAbsent(w.walletId, w.walletId)
+            accountsByWallet.putIfAbsent(w.walletId, mutableListOf())
+        }
 
         for (a in accounts) {
-            val account = SessionUser.UserWallet.WalletAccount(
-                id = a.walletAccountId,
-                curve = a.curve,
-                pathFormat = a.pathFormat,
-                path = a.path,
-                addressFormat = a.addressFormat,
-                address = a.address,
-                createdAt = a.createdAt,
-                updatedAt = a.updatedAt
+            val id = a.walletId
+            val name = a.walletDetails?.walletName ?: id
+            nameByWallet.putIfAbsent(id, name)
+            accountsByWallet.getOrPut(id) { mutableListOf() }.add(a)
+        }
+
+        // Build immutable Wallets
+        return accountsByWallet.map { (id, accs) ->
+            Wallet(
+                id = id,
+                name = nameByWallet[id] ?: id,
+                accounts = accs.toList()
             )
-            if (walletMap.containsKey(a.walletId)) {
-                val wallet = walletMap[a.walletId]
-                wallet?.accounts?.add(account)
-            } else {
-                walletMap[a.walletDetails!!.walletId] = SessionUser.UserWallet(
-                    id = a.walletId,
-                    name = a.walletDetails!!.walletName,
-                    accounts = mutableListOf(account)
+        }
+    }
+
+    fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupBody {
+        val now = System.currentTimeMillis()
+
+        val authenticators: List<V1AuthenticatorParamsV2> =
+            createSubOrgParams.authenticators
+                ?.takeIf { it.isNotEmpty() }
+                ?.map { a ->
+                    V1AuthenticatorParamsV2(
+                        authenticatorName = a.authenticatorName ?: "A Passkey",
+                        challenge = a.challenge,
+                        attestation = a.attestation
+                    )
+                }
+                ?: emptyList()
+
+        val apiKeys: List<V1ApiKeyParamsV2> =
+            createSubOrgParams.apiKeys
+                ?.filter { it.curveType != null }
+                ?.map { k ->
+                    V1ApiKeyParamsV2(
+                        apiKeyName = k.apiKeyName ?: "api-key-$now",
+                        publicKey = k.publicKey,
+                        expirationSeconds = k.expirationSeconds ?: "900",
+                        curveType = k.curveType!!,
+                    )
+                }
+                ?: emptyList()
+
+        val userName = createSubOrgParams.userName
+            ?: createSubOrgParams.userEmail
+            ?: "user-$now"
+
+        val subOrgName = createSubOrgParams.subOrgName ?: "sub-org-$now"
+
+        val customWallet: V1WalletParams? = createSubOrgParams.customWallet?.let {
+            V1WalletParams(walletName = it.walletName, accounts = it.walletAccounts)
+        }
+
+        return ProxyTSignupBody(
+            userName = userName,
+            organizationName = subOrgName,
+            userEmail = createSubOrgParams.userEmail,
+            userTag = createSubOrgParams.userTag,
+            authenticators = authenticators,
+            userPhoneNumber = createSubOrgParams.userPhoneNumber,
+            verificationToken = createSubOrgParams.verificationToken,
+            apiKeys = apiKeys,
+            wallet = customWallet,
+            oauthProviders = createSubOrgParams.oauthProviders ?: emptyList(),
+        )
+    }
+
+    fun getCreateSubOrgParams(
+        createSubOrgParams: CreateSubOrgParams?, // caller-supplied overrides (highest precedence)
+        config: TurnkeyConfig,                   // contains master config defaults
+        overrideParams: OverrideParams           // determines which branch to apply
+    ): CreateSubOrgParams {
+
+        val cfgCreate = config.authConfig?.createSubOrgParams
+
+        return when (overrideParams) {
+            is OtpOverrireParams -> {
+                if (overrideParams.otpType == OtpType.OTP_TYPE_EMAIL) {
+                    val base = createSubOrgParams
+                        ?: cfgCreate?.emailOtpAuth
+                        ?: CreateSubOrgParams()
+                    base.copy(
+                        userEmail = overrideParams.contact,
+                        verificationToken = overrideParams.verificationToken,
+                    )
+                } else {
+                    val base = createSubOrgParams
+                        ?: cfgCreate?.smsOtpAuth
+                        ?: CreateSubOrgParams()
+                    base.copy(
+                        userPhoneNumber = overrideParams.contact,
+                        verificationToken = overrideParams.verificationToken,
+                    )
+                }
+            }
+
+            is OAuthOverrideParams -> {
+                val base = createSubOrgParams
+                    ?: cfgCreate?.oAuth
+                    ?: CreateSubOrgParams()
+                base.copy(
+                    oauthProviders = listOf(
+                        V1OauthProviderParams(
+                            providerName = overrideParams.providerName,
+                            oidcToken = overrideParams.oidcToken,
+                        )
+                    )
+                )
+            }
+
+            is PasskeyOverrideParams -> {
+                val base = createSubOrgParams
+                    ?: cfgCreate?.passkeyAuth
+                    ?: CreateSubOrgParams()
+
+                base.copy(
+                    authenticators = listOf(
+                        CreateSubOrgAuthenticator(
+                            authenticatorName = overrideParams.passkeyName,
+                            challenge = overrideParams.encodedChallenge,
+                            attestation = overrideParams.attestation,
+                        )
+                    ),
+                    apiKeys = listOf(
+                        CreateSubOrgApiKey(
+                            apiKeyName = "passkey-auth-${overrideParams.temporaryPublicKey}",
+                            publicKey = requireNotNull(overrideParams.temporaryPublicKey) {
+                                "temporaryPublicKey is required for PasskeyOverridedParams"
+                            },
+                            curveType = V1ApiKeyCurve.API_KEY_CURVE_P256,
+                            // short expiration since it's a temporary key
+                            expirationSeconds = "15",
+                        )
+                    )
                 )
             }
         }
-       return walletMap.values.toMutableList()
     }
+
+    fun openCustomTab(activity: Activity, url: String) {
+        val intent = CustomTabsIntent.Builder()
+            .setShowTitle(true)
+            .build()
+        intent.launchUrl(activity, url.toUri())
+    }
+
+    fun sha256Hex(input: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val bytes = md.digest(input.toByteArray(Charsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    /** Generate PKCE (S256) verifier + code_challenge pair. */
+    fun generateChallengePair(lengthBytes: Int = 32): ChallengePair {
+        val verifier = randomVerifier(lengthBytes)
+        val digest = sha256(verifier.toByteArray(Charsets.US_ASCII))
+        val codeChallenge = digest.toBase64Url()
+        return ChallengePair(verifier = verifier, codeChallenge = codeChallenge)
+    }
+
+    /** 32 random bytes → 43-char base64url string (within PKCE 43–128 char limits). */
+    fun randomVerifier(lengthBytes: Int = 32): String {
+        val bytes = ByteArray(lengthBytes)
+        SECURE_RANDOM.nextBytes(bytes)
+        return bytes.toBase64Url()
+    }
+
+    private fun sha256(data: ByteArray): ByteArray =
+        MessageDigest.getInstance("SHA-256").digest(data)
+
+    private val SECURE_RANDOM: SecureRandom by lazy { SecureRandom() }
 }

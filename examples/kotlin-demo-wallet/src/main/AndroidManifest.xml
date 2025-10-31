@@ -13,12 +13,26 @@
         android:theme="@style/Theme.Kotlinsdk">
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data
+                    android:scheme="https"
+                    android:host="a30cb8ee6b7f.ngrok-free.app"
+                    android:pathPrefix="/" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.turnkey.core.OAuthRedirectActivity"
+            android:launchMode="singleTop"
+            android:noHistory="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kotlindemoapp" />
             </intent-filter>
         </activity>
     </application>

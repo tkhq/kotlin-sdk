@@ -1,22 +1,9 @@
 package com.turnkey.encoding
 
+import com.turnkey.encoding.utils.TurnkeyDecodingException
 import java.security.SecureRandom
 import java.util.Base64
 
-/* ---------- Errors ---------- */
-
-sealed class TurnkeyDecodingException(message: String) : IllegalArgumentException(message) {
-    /** Hex string length must be even. */
-    data object OddLengthString : TurnkeyDecodingException("Hex string must have even length") {
-        private fun readResolve(): Any = OddLengthString
-    }
-
-    /** Invalid hex character with index for easier debugging. */
-    data class InvalidHexCharacter(val char: Char, val index: Int) :
-        TurnkeyDecodingException("Invalid hex character '$char' at index $index")
-}
-
-/* ---------- Hex ---------- */
 
 /** Lowercase hex string for this byte array. */
 fun ByteArray.toHexString(): String {

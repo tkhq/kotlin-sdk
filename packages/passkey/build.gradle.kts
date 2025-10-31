@@ -25,6 +25,7 @@ android {
 
 dependencies {
     implementation(project(":packages:encoding"))
+    implementation(project(":packages:types"))
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.kotlinx.serialization.json)

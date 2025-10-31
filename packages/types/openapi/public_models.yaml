@@ -1,0 +1,6 @@
+library: jvm-okhttp4
+serializationLibrary: kotlinx_serialization
+dateLibrary: java8
+enumPropertyNaming: original
+useTags: false
+sourceFolder: src/main/kotlin

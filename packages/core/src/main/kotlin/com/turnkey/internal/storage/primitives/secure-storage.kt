@@ -94,6 +94,22 @@ object SecureStore {
     }
 
     /**
+     * List keys for all entries in secure store
+     */
+    fun listKeys(
+        context: Context,
+        account: String
+    ): List<String> = try {
+        prefs(context).all.keys
+            .asSequence()
+            .filter { it.startsWith(account) }
+            .map { it.removePrefix("$account::") }
+            .toList()
+    } catch (t: Throwable) {
+        throw StorageError.KeychainListKeysFailed(-1)
+    }
+
+    /**
      * Delete data for (service, account). No-op if missing.
      */
     @Throws(StorageError::class)
@@ -104,6 +120,16 @@ object SecureStore {
     ) {
         val key = "$account::$service"
         val ok = prefs(context).edit().remove(key).commit()
+        if (!ok) throw StorageError.KeychainDeleteFailed(-1)
+    }
+
+    /**
+     * Delete all data in SecureStore
+     */
+    fun deleteAll(
+        context: Context
+    ) {
+        val ok = prefs(context).edit().clear().commit()
         if (!ok) throw StorageError.KeychainDeleteFailed(-1)
     }
 }

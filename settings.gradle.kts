@@ -16,6 +16,7 @@ include(
     "packages:http",
     "packages:passkey",
     "packages:core",
+    "packages:types",
     ":examples:kotlin-demo-wallet"
 )
 include(":packages:tools")
@@ -25,8 +26,8 @@ project(":packages:stamper").projectDir = file("packages/stamper")
 project(":packages:http").projectDir = file("packages/http")
 project(":packages:encoding").projectDir = file("packages/encoding")
 project(":packages:crypto").projectDir = file("packages/crypto")
+project(":packages:types").projectDir = file("packages/types")
 project(":examples:kotlin-demo-wallet").projectDir = file("examples/kotlin-demo-wallet")
-
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

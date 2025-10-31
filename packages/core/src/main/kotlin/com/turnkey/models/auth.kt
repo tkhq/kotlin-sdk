@@ -1,9 +1,9 @@
-package com.example.kotlin_demo_wallet.utils
+package com.turnkey.models
 
-import com.turnkey.http.V1ApiKeyCurve
-import com.turnkey.http.V1Attestation
-import com.turnkey.http.V1OauthProviderParams
-import com.turnkey.http.V1WalletAccountParams
+import com.turnkey.types.V1ApiKeyCurve
+import com.turnkey.types.V1Attestation
+import com.turnkey.types.V1OauthProviderParams
+import com.turnkey.types.V1WalletAccountParams
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -57,3 +57,35 @@ data class CustomWallet(
     val walletAccounts: List<V1WalletAccountParams>,
 )
 
+sealed interface OverrideParams
+
+data class OtpOverrireParams(
+    val otpType: OtpType,
+    val contact: String,
+    val verificationToken: String,
+) : OverrideParams
+
+data class OAuthOverrideParams(
+    val providerName: String,
+    val oidcToken: String,
+) : OverrideParams
+
+data class PasskeyOverrideParams(
+    val passkeyName: String,
+    val attestation: V1Attestation,
+    val encodedChallenge: String,
+    val temporaryPublicKey: String?,
+) : OverrideParams
+
+enum class OtpType { OTP_TYPE_EMAIL, OTP_TYPE_SMS  }
+enum class FilterType { EMAIL, PHONE_NUMBER }
+
+val otpTypeToFilterTypeMap: Map<OtpType, FilterType> = mapOf(
+    OtpType.OTP_TYPE_EMAIL to FilterType.EMAIL,
+    OtpType.OTP_TYPE_SMS   to FilterType.PHONE_NUMBER,
+)
+
+data class ChallengePair(
+    val verifier: String,
+    val codeChallenge: String
+)

@@ -39,6 +39,16 @@ object LocalStore {
         }
     }
 
+    fun listKeys(
+        context: Context,
+    ): List<String> = try {
+        prefs(context).all.keys
+            .asSequence()
+            .toList()
+    } catch (t: Throwable) {
+        throw StorageError.KeychainListKeysFailed(-1)
+    }
+
     fun delete(context: Context, key: String) {
         prefs(context).edit().remove(key).apply()
     }

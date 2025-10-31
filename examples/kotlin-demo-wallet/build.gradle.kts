@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.okhttp)
     implementation(libs.material)
     testImplementation(libs.junit)
@@ -53,6 +54,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(project(":packages:http"))
+    implementation(project(":packages:types"))
     implementation(project(":packages:stamper"))
     implementation(project(":packages:core"))
     implementation(project(":packages:passkey"))
