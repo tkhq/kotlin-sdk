@@ -13,9 +13,6 @@ import com.turnkey.core.TurnkeyContext
 import com.turnkey.models.AuthState
 import kotlinx.coroutines.launch
 
-private const val TAG = "MainActivity"
-
-
 private fun Group.setVisible(visible: Boolean) {
     this.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
 }

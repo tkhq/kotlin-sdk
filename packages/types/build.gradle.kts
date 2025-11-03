@@ -1,7 +1,7 @@
 plugins {
     id("java-library")
-    kotlin("jvm") version "2.2.0"
-    kotlin("plugin.serialization") version "2.2.20"
+    kotlin("jvm")
+    kotlin("plugin.serialization")
 }
 
 dependencies {
@@ -9,12 +9,15 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.serialization.core)
-    // tests
     testImplementation(kotlin("test"))
 }
 
 group = "com.turnkey"
-version = "1.0-SNAPSHOT"
+version = "0.1.0-beta.1"
+
+mavenPublishing {
+    coordinates("com.turnkey", "types", version.toString())
+}
 
 val publicSpec: String = file("$projectDir/openapi/public_api.swagger.json").absolutePath
 val proxySpec: String = file("$projectDir/openapi/auth_proxy.swagger.json").absolutePath

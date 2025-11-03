@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.library") version "8.13.0"
-    kotlin("android") version "1.9.0"
-    kotlin("plugin.serialization") version "2.2.0"
+    id("com.android.library")
+    alias(libs.plugins.kotlin.android)
+    kotlin("plugin.serialization")
 }
 
 group = "com.turnkey"
-version = "1.0-SNAPSHOT"
+version = "0.1.0-beta.1"
 
 android {
     namespace = "com.turnkey.core"
@@ -20,6 +20,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_24
         targetCompatibility = JavaVersion.VERSION_24
     }
+}
+
+mavenPublishing {
+    coordinates("com.turnkey", "sdk-kotlin", version.toString())
 }
 
 dependencies {

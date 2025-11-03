@@ -42,7 +42,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation("com.google.android.material:material:1.13.0")
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -57,6 +56,6 @@ dependencies {
     implementation(project(":packages:http"))
     implementation(project(":packages:types"))
     implementation(project(":packages:stamper"))
-    implementation(project(":packages:core"))
+    implementation(project(":packages:sdk-kotlin"))
     implementation(project(":packages:passkey"))
 }

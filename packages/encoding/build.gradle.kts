@@ -1,10 +1,15 @@
 plugins {
     id("java-library")
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "com.turnkey"
-version = "1.0-SNAPSHOT"
+version = "0.1.0-beta.1"
+
+mavenPublishing {
+    coordinates("com.turnkey", "crypto", version.toString())
+}
 
 dependencies {
     testImplementation(platform(libs.junit.bom))

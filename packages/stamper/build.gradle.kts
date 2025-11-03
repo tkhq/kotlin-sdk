@@ -1,11 +1,12 @@
 plugins {
-    id("com.android.library") version "8.13.0"
-    kotlin("android") version "1.9.0"
-    kotlin("plugin.serialization") version "2.2.20"
+    id("com.android.library")
+    alias(libs.plugins.kotlin.android)
+    kotlin("plugin.serialization")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "com.turnkey"
-version = "1.0-SNAPSHOT"
+version = "0.1.0-beta.1"
 
 android {
     namespace = "com.turnkey.stamper"
@@ -23,21 +24,20 @@ android {
     }
 }
 
+mavenPublishing {
+    coordinates("com.turnkey", "stamper", version.toString())
+}
+
 dependencies {
     implementation(project(":packages:encoding"))
     implementation(project(":packages:passkey"))
     implementation(project(":packages:crypto"))
-
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+    testImplementation(kotlin("test"))
     implementation(libs.bcprov.jdk15to18)
-
-    // JSON (only used for tiny Bundle data classes)
     implementation(libs.kotlinx.serialization.json)
-
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.launcher)
-    testImplementation(kotlin("test"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.bcprov.jdk15to18)
 
