@@ -20,67 +20,57 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/authComponentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Auth Component"
-            app:layout_constraintBottom_toTopOf="@id/clearAllSessions"
+            android:text="@string/open_auth_component"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/clearAllSessions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clear All Sessions"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+<!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/clearAllSessions"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Clear All Sessions"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent" />-->
     </LinearLayout>
 
-    <!-- “Dashboard” area for authed users -->
-    <TextView
-        android:id="@+id/tvAuthState"
+    <ImageView
+        android:id="@+id/ivTurnkeyLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="0dp"
-        android:text="AuthState"
+        android:layout_marginStart="20dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/turnkey_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.009"
+        app:srcCompat="@drawable/turnkey_icon" />
 
-    <TextView
-        android:id="@+id/tvSessionKey"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
-        android:text="SessionKey"
-        app:layout_constraintTop_toTopOf="@id/tvAuthState"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Put your dashboard fragment/container here if you want -->
+        android:layout_marginEnd="20dp"
+        android:text="@string/log_out"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/dashboardContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/logoutButton"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAuthState" />
-
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        app:layout_constraintTop_toBottomOf="@+id/dashboardContainer"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/ivTurnkeyLogo" />
 
     <!-- Groups to toggle -->
     <androidx.constraintlayout.widget.Group
@@ -93,7 +83,7 @@
         android:id="@+id/groupAuthed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tvAuthState,tvSessionKey,dashboardContainer,logoutButton" />
+        app:constraint_referenced_ids="dashboardContainer,logoutButton" />
 
     <!-- Optional: loading spinner -->
     <ProgressBar

@@ -61,4 +61,5 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data class MissingConfigParam(val s: String) : TurnkeyKotlinError("Missing config param: $s")
     data class FailedToSignMessage(val t: Throwable) : TurnkeyKotlinError("Failed to sign message", t)
     data class InvalidMessage (val s: String) : TurnkeyKotlinError("Invalid sign message payload: $s")
+    data class FailedToPurgeSession(val t: Throwable) : TurnkeyKotlinError("Failed to purge session", t)
 }

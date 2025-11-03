@@ -39,6 +39,18 @@ fun generateClientFile(
     val jsonObject = MemberName("kotlinx.serialization.json", "jsonObject")
     val jsonPrimitive = MemberName("kotlinx.serialization.json", "jsonPrimitive")
 
+    val awaitM = MemberName("", "await")
+    val suspendCancellable = MemberName("kotlinx.coroutines", "suspendCancellableCoroutine")
+    val withContextM = MemberName("kotlinx.coroutines", "withContext")
+    val dispatchersCls = ClassName("kotlinx.coroutines", "Dispatchers")
+    val resumeM = MemberName("kotlin.coroutines", "resume")
+    val resumeWithExceptionM = MemberName("kotlin.coroutines", "resumeWithException")
+
+    val okCallCls = ClassName("okhttp3", "Call")
+    val okCallbackCls = ClassName("okhttp3", "Callback")
+    val okResponseCls = ClassName("okhttp3", "Response")
+    val ioExceptionCls = ClassName("java.io", "IOException")
+
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
 
@@ -97,6 +109,31 @@ fun generateClientFile(
                 .initializer("%T { ignoreUnknownKeys = true }", jsonCls)
                 .build()
         )
+
+    typeBuilder.addFunction(
+        FunSpec.builder("await")
+            .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
+            .receiver(okCallCls)
+            .returns(okResponseCls)
+            .addCode(
+                """
+            return %M { cont ->
+                this@await.enqueue(object : %T {
+                    override fun onFailure(call: %T, e: %T) {
+                        if (!cont.isCompleted) cont.%M(e)
+                    }
+                    override fun onResponse(call: %T, response: %T) {
+                        if (!cont.isCompleted) cont.%M(response)
+                    }
+                })
+                cont.invokeOnCancellation { kotlin.runCatching { cancel() }.getOrNull() }
+            }
+            """.trimIndent(),
+                suspendCancellable, okCallbackCls, okCallCls, ioExceptionCls, resumeWithExceptionM,
+                okCallCls, okResponseCls, resumeM
+            )
+            .build()
+    )
 
     // For each spec and each operation, generate a method.
     apis.forEach { (cfg, openAPI) ->
@@ -278,24 +315,23 @@ fun generateClientFile(
                         }
 
                         addStatement("val call = http.newCall(req)")
-                        beginControlFlow("call.execute().use { resp ->")
-                        beginControlFlow("if (!resp.isSuccessful)")
+                        addStatement("val resp = call.%M()", awaitM)
+                        beginControlFlow("resp.use {")
+                        beginControlFlow("if (!it.isSuccessful)")
                         addStatement(
-                            "throw RuntimeException(%P + resp.code)",
-                            "HTTP error from $path: "
+                            "val errBody = %M(%T.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }",
+                            withContextM, dispatchersCls
                         )
+                        addStatement("throw RuntimeException(%P + it.code)", "HTTP error from $path: ")
                         endControlFlow()
                         addStatement(
-                            "val text = resp.body.string()"
+                            "val text = %M(%T.IO) { it.body.string() }",
+                            withContextM, dispatchersCls
                         )
-
                         if (respType == UNIT) {
                             addStatement("return Unit")
                         } else {
-                            addStatement(
-                                "return json.decodeFromString(%T.serializer(), text)",
-                                respType
-                            )
+                            addStatement("return json.decodeFromString(%T.serializer(), text)", respType)
                         }
                         endControlFlow()
                     }

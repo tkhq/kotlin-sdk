@@ -452,6 +452,7 @@ object TurnkeyContext {
         sessionKey: String,
         keepAutoRefresh: Boolean
     ) = withContext(Dispatchers.IO) {
+        try {
         expiryJobs.remove(sessionKey)?.cancel()
 
         JwtSessionStore.load(context, sessionKey)?.let { dto ->
@@ -463,6 +464,9 @@ object TurnkeyContext {
 
         if (!keepAutoRefresh) {
             runCatching { AutoRefreshStore.remove(context, sessionKey) }
+        }
+        } catch (t: Throwable) {
+            TurnkeyKotlinError.FailedToPurgeSession(t)
         }
     }
 

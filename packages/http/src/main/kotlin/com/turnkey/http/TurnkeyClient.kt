@@ -234,15 +234,24 @@ import com.turnkey.types.TUpdateWalletBody
 import com.turnkey.types.TUpdateWalletResponse
 import com.turnkey.types.TVerifyOtpBody
 import com.turnkey.types.TVerifyOtpResponse
+import java.io.IOException
 import kotlin.String
 import kotlin.Suppress
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 
 /**
  * HTTP Client for interacting with Turnkey API (generated). DO NOT EDIT BY HAND.
@@ -262,6 +271,18 @@ public class TurnkeyClient(
 
   private val json: Json = Json { ignoreUnknownKeys = true }
 
+  private suspend fun Call.await(): Response = suspendCancellableCoroutine { cont ->
+      this@await.enqueue(object : Callback {
+          override fun onFailure(call: Call, e: IOException) {
+              if (!cont.isCompleted) cont.resumeWithException(e)
+          }
+          override fun onResponse(call: Call, response: Response) {
+              if (!cont.isCompleted) cont.resume(response)
+          }
+      })
+      cont.invokeOnCancellation { kotlin.runCatching { cancel() }.getOrNull() }
+  }
+
   /**
    * POST `/public/v1/query/get_activity` (operationId: PublicApiService_GetActivity)
    */
@@ -272,11 +293,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_activity: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_activity: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetActivityResponse.serializer(), text)
     }
   }
@@ -300,11 +323,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_api_key: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_api_key: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetApiKeyResponse.serializer(), text)
     }
   }
@@ -328,11 +353,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_api_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_api_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetApiKeysResponse.serializer(), text)
     }
   }
@@ -356,11 +383,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_attestation: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_attestation: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetAttestationDocumentResponse.serializer(), text)
     }
   }
@@ -384,11 +413,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_authenticator: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_authenticator: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetAuthenticatorResponse.serializer(), text)
     }
   }
@@ -412,11 +443,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_authenticators: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_authenticators: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -440,11 +473,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_boot_proof: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_boot_proof: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetBootProofResponse.serializer(), text)
     }
   }
@@ -468,11 +503,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_latest_boot_proof: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_latest_boot_proof: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetLatestBootProofResponse.serializer(), text)
     }
   }
@@ -496,11 +533,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_oauth2_credential: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_oauth2_credential: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -524,11 +563,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_oauth_providers: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_oauth_providers: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetOauthProvidersResponse.serializer(), text)
     }
   }
@@ -552,11 +593,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_organization: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_organization: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetOrganizationResponse.serializer(), text)
     }
   }
@@ -580,11 +623,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_organization_configs: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_organization_configs: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetOrganizationConfigsResponse.serializer(), text)
     }
   }
@@ -608,11 +653,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_policy: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_policy: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetPolicyResponse.serializer(), text)
     }
   }
@@ -636,11 +683,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_policy_evaluations: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_policy_evaluations: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetPolicyEvaluationsResponse.serializer(), text)
     }
   }
@@ -664,11 +713,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_private_key: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_private_key: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetPrivateKeyResponse.serializer(), text)
     }
   }
@@ -692,11 +743,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_smart_contract_interface: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_smart_contract_interface: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -720,11 +773,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_user: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_user: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetUserResponse.serializer(), text)
     }
   }
@@ -748,11 +803,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetWalletResponse.serializer(), text)
     }
   }
@@ -776,11 +833,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/get_wallet_account: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_wallet_account: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetWalletAccountResponse.serializer(), text)
     }
   }
@@ -804,11 +863,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_activities: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_activities: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetActivitiesResponse.serializer(), text)
     }
   }
@@ -832,11 +893,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_app_proofs: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_app_proofs: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetAppProofsResponse.serializer(), text)
     }
   }
@@ -860,11 +923,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_oauth2_credentials: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_oauth2_credentials: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TListOauth2CredentialsResponse.serializer(), text)
     }
   }
@@ -888,11 +953,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_policies: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_policies: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetPoliciesResponse.serializer(), text)
     }
   }
@@ -916,11 +983,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_private_key_tags: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_private_key_tags: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TListPrivateKeyTagsResponse.serializer(), text)
     }
   }
@@ -944,11 +1013,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_private_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_private_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetPrivateKeysResponse.serializer(), text)
     }
   }
@@ -972,11 +1043,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_smart_contract_interfaces: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_smart_contract_interfaces: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetSmartContractInterfacesResponse.serializer(), text)
     }
   }
@@ -1000,11 +1073,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_suborgs: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_suborgs: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetSubOrgIdsResponse.serializer(), text)
     }
   }
@@ -1028,11 +1103,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_user_tags: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_user_tags: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TListUserTagsResponse.serializer(), text)
     }
   }
@@ -1056,11 +1133,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_users: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_users: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetUsersResponse.serializer(), text)
     }
   }
@@ -1084,11 +1163,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_verified_suborgs: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_verified_suborgs: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetVerifiedSubOrgIdsResponse.serializer(), text)
     }
   }
@@ -1112,11 +1193,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_wallet_accounts: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_wallet_accounts: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetWalletAccountsResponse.serializer(), text)
     }
   }
@@ -1140,11 +1223,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/list_wallets: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_wallets: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetWalletsResponse.serializer(), text)
     }
   }
@@ -1168,11 +1253,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/query/whoami: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/whoami: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TGetWhoamiResponse.serializer(), text)
     }
   }
@@ -1204,11 +1291,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/approve_activity: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/approve_activity: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TApproveActivityResponse.serializer(), text)
     }
   }
@@ -1248,11 +1337,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_api_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_api_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateApiKeysResponse.serializer(), text)
     }
   }
@@ -1292,11 +1383,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_api_only_users: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_api_only_users: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateApiOnlyUsersResponse.serializer(), text)
     }
   }
@@ -1336,11 +1429,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_authenticators: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_authenticators: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -1380,11 +1475,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_invitations: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_invitations: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateInvitationsResponse.serializer(), text)
     }
   }
@@ -1424,11 +1521,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth2_credential: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth2_credential: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -1468,11 +1567,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth_providers: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth_providers: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateOauthProvidersResponse.serializer(), text)
     }
   }
@@ -1512,11 +1613,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_policies: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_policies: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreatePoliciesResponse.serializer(), text)
     }
   }
@@ -1556,11 +1659,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_policy: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_policy: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreatePolicyResponse.serializer(), text)
     }
   }
@@ -1600,11 +1705,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_private_key_tag: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_private_key_tag: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreatePrivateKeyTagResponse.serializer(), text)
     }
   }
@@ -1644,11 +1751,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_private_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_private_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreatePrivateKeysResponse.serializer(), text)
     }
   }
@@ -1688,11 +1797,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_read_only_session: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_read_only_session: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateReadOnlySessionResponse.serializer(), text)
     }
   }
@@ -1732,11 +1843,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_read_write_session: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_read_write_session: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateReadWriteSessionResponse.serializer(), text)
     }
   }
@@ -1776,11 +1889,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_smart_contract_interface: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_smart_contract_interface: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -1820,11 +1935,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_sub_organization: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_sub_organization: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateSubOrganizationResponse.serializer(), text)
     }
   }
@@ -1864,11 +1981,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_user_tag: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_user_tag: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateUserTagResponse.serializer(), text)
     }
   }
@@ -1908,11 +2027,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_users: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_users: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateUsersResponse.serializer(), text)
     }
   }
@@ -1952,11 +2073,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateWalletResponse.serializer(), text)
     }
   }
@@ -1996,11 +2119,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet_accounts: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet_accounts: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TCreateWalletAccountsResponse.serializer(), text)
     }
   }
@@ -2040,11 +2165,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_api_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_api_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteApiKeysResponse.serializer(), text)
     }
   }
@@ -2084,11 +2211,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_authenticators: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_authenticators: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteAuthenticatorsResponse.serializer(), text)
     }
   }
@@ -2128,11 +2257,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_invitation: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_invitation: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteInvitationResponse.serializer(), text)
     }
   }
@@ -2172,11 +2303,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth2_credential: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth2_credential: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -2216,11 +2349,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth_providers: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth_providers: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteOauthProvidersResponse.serializer(), text)
     }
   }
@@ -2260,11 +2395,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_policy: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_policy: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeletePolicyResponse.serializer(), text)
     }
   }
@@ -2304,11 +2441,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_key_tags: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_key_tags: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeletePrivateKeyTagsResponse.serializer(), text)
     }
   }
@@ -2348,11 +2487,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_keys: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_keys: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeletePrivateKeysResponse.serializer(), text)
     }
   }
@@ -2392,11 +2533,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_smart_contract_interface: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_smart_contract_interface: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteSmartContractInterfaceResponse.serializer(), text)
     }
   }
@@ -2436,11 +2579,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_sub_organization: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_sub_organization: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteSubOrganizationResponse.serializer(), text)
     }
   }
@@ -2480,11 +2625,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_user_tags: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_user_tags: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteUserTagsResponse.serializer(), text)
     }
   }
@@ -2524,11 +2671,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_users: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_users: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteUsersResponse.serializer(), text)
     }
   }
@@ -2568,11 +2717,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/delete_wallets: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/delete_wallets: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TDeleteWalletsResponse.serializer(), text)
     }
   }
@@ -2612,11 +2763,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/email_auth: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/email_auth: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TEmailAuthResponse.serializer(), text)
     }
   }
@@ -2656,11 +2809,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/export_private_key: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/export_private_key: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TExportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2700,11 +2855,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TExportWalletResponse.serializer(), text)
     }
   }
@@ -2744,11 +2901,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet_account: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet_account: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TExportWalletAccountResponse.serializer(), text)
     }
   }
@@ -2788,11 +2947,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/import_private_key: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/import_private_key: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TImportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2832,11 +2993,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/import_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/import_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TImportWalletResponse.serializer(), text)
     }
   }
@@ -2876,11 +3039,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_fiat_on_ramp: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_fiat_on_ramp: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitFiatOnRampResponse.serializer(), text)
     }
   }
@@ -2920,11 +3085,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_import_private_key: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_import_private_key: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitImportPrivateKeyResponse.serializer(), text)
     }
   }
@@ -2964,11 +3131,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_import_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_import_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitImportWalletResponse.serializer(), text)
     }
   }
@@ -3008,11 +3177,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_otp: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_otp: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitOtpResponse.serializer(), text)
     }
   }
@@ -3052,11 +3223,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_otp_auth: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_otp_auth: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitOtpAuthResponse.serializer(), text)
     }
   }
@@ -3096,11 +3269,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/init_user_email_recovery: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/init_user_email_recovery: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TInitUserEmailRecoveryResponse.serializer(), text)
     }
   }
@@ -3140,11 +3315,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/oauth: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/oauth: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TOauthResponse.serializer(), text)
     }
   }
@@ -3184,11 +3361,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/oauth2_authenticate: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/oauth2_authenticate: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TOauth2AuthenticateResponse.serializer(), text)
     }
   }
@@ -3228,11 +3407,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/oauth_login: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/oauth_login: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TOauthLoginResponse.serializer(), text)
     }
   }
@@ -3272,11 +3453,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/otp_auth: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/otp_auth: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TOtpAuthResponse.serializer(), text)
     }
   }
@@ -3316,11 +3499,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/otp_login: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/otp_login: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TOtpLoginResponse.serializer(), text)
     }
   }
@@ -3360,11 +3545,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/recover_user: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/recover_user: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TRecoverUserResponse.serializer(), text)
     }
   }
@@ -3404,11 +3591,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/reject_activity: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/reject_activity: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TRejectActivityResponse.serializer(), text)
     }
   }
@@ -3448,11 +3637,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/remove_organization_feature: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/remove_organization_feature: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TRemoveOrganizationFeatureResponse.serializer(), text)
     }
   }
@@ -3492,11 +3683,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/set_organization_feature: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/set_organization_feature: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TSetOrganizationFeatureResponse.serializer(), text)
     }
   }
@@ -3536,11 +3729,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payload: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payload: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TSignRawPayloadResponse.serializer(), text)
     }
   }
@@ -3580,11 +3775,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payloads: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payloads: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TSignRawPayloadsResponse.serializer(), text)
     }
   }
@@ -3624,11 +3821,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/sign_transaction: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/sign_transaction: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TSignTransactionResponse.serializer(), text)
     }
   }
@@ -3668,11 +3867,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/stamp_login: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/stamp_login: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TStampLoginResponse.serializer(), text)
     }
   }
@@ -3712,11 +3913,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_oauth2_credential: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_oauth2_credential: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateOauth2CredentialResponse.serializer(), text)
     }
   }
@@ -3756,11 +3959,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_policy: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_policy: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdatePolicyResponse.serializer(), text)
     }
   }
@@ -3800,11 +4005,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_private_key_tag: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_private_key_tag: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdatePrivateKeyTagResponse.serializer(), text)
     }
   }
@@ -3844,11 +4051,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_root_quorum: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_root_quorum: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateRootQuorumResponse.serializer(), text)
     }
   }
@@ -3888,11 +4097,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_user: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_user: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateUserResponse.serializer(), text)
     }
   }
@@ -3932,11 +4143,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_email: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_email: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateUserEmailResponse.serializer(), text)
     }
   }
@@ -3976,11 +4189,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_name: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_name: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateUserNameResponse.serializer(), text)
     }
   }
@@ -4020,11 +4235,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_phone_number: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_phone_number: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateUserPhoneNumberResponse.serializer(), text)
     }
   }
@@ -4064,11 +4281,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_tag: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_user_tag: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateUserTagResponse.serializer(), text)
     }
   }
@@ -4108,11 +4327,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/update_wallet: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/update_wallet: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TUpdateWalletResponse.serializer(), text)
     }
   }
@@ -4152,11 +4373,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /public/v1/submit/verify_otp: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/submit/verify_otp: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TVerifyOtpResponse.serializer(), text)
     }
   }
@@ -4188,11 +4411,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /tkhq/api/v1/noop-codegen-anchor: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /tkhq/api/v1/noop-codegen-anchor: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TNOOPCodegenAnchorResponse.serializer(), text)
     }
   }
@@ -4216,11 +4441,13 @@ public class TurnkeyClient(
     val (hName, hValue) = stamper.stamp(bodyJson)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /tkhq/api/v1/test_rate_limits: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /tkhq/api/v1/test_rate_limits: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(TTestRateLimitsResponse.serializer(), text)
     }
   }
@@ -4243,11 +4470,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTGetAccountBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/account: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/account: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTGetAccountResponse.serializer(), text)
     }
   }
@@ -4261,11 +4490,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTOAuth2AuthenticateBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/oauth2_authenticate: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/oauth2_authenticate: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTOAuth2AuthenticateResponse.serializer(), text)
     }
   }
@@ -4279,11 +4510,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTOAuthLoginBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/oauth_login: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/oauth_login: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTOAuthLoginResponse.serializer(), text)
     }
   }
@@ -4297,11 +4530,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTInitOtpBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/otp_init: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_init: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTInitOtpResponse.serializer(), text)
     }
   }
@@ -4315,11 +4550,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTOtpLoginBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/otp_login: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_login: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTOtpLoginResponse.serializer(), text)
     }
   }
@@ -4333,11 +4570,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTVerifyOtpBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/otp_verify: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_verify: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTVerifyOtpResponse.serializer(), text)
     }
   }
@@ -4351,11 +4590,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTSignupBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/signup: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/signup: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTSignupResponse.serializer(), text)
     }
   }
@@ -4369,11 +4610,13 @@ public class TurnkeyClient(
     val bodyJson = json.encodeToString(ProxyTGetWalletKitConfigBody.serializer(), input)
     val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
     val call = http.newCall(req)
-    call.execute().use { resp ->
-      if (!resp.isSuccessful) {
-        throw RuntimeException("""HTTP error from /v1/wallet_kit_config: """ + resp.code)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/wallet_kit_config: """ + it.code)
       }
-      val text = resp.body.string()
+      val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTGetWalletKitConfigResponse.serializer(), text)
     }
   }

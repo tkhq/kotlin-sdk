@@ -45,6 +45,7 @@ class AuthSheetViewModel : ViewModel() {
         )
         true
     } catch (t: Throwable) {
+        Log.e("AuthSheetViewModel", "Verify Otp failed", t)
         error.value = t; false
     } finally { loading.value = false }
 

@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">kotlin_demo_wallet</string>
     <string name="send_otp_code">Send otp code</string>
+    <string name="open_auth_component">Open Auth Component</string>
+    <string name="turnkey_logo">Turnkey Logo</string>
+    <string name="log_out">Log out</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="sign_up_with_passkey">Sign up with passkey</string>
+    <string name="log_in_with_passkey">Log in with passkey</string>
+    <string name="email">Email</string>
+    <string name="login_or_signup">Login or signup</string>
+    <string name="export">Export</string>
+    <string name="close">Close</string>
+    <string name="import_text">Import</string>
+    <string name="wallet_name">Wallet name</string>
+    <string name="mnemonic_phrase">Mnemonic phrase</string>
+    <string name="create_wallet">Create Wallet</string>
+    <string name="accounts">Accounts</string>
+    <string name="sign_message">Sign Message</string>
+    <string name="export_wallet">Export Wallet</string>
+    <string name="import_wallet">Import Wallet</string>
+    <string name="account_logo">Account logo</string>
+    <string name="account_name">Account Name</string>
+    <string name="_0x1234_abcd">0x1234…abcd</string>
+    <string name="or_text">or</string>
 </resources>

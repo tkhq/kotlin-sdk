@@ -46,7 +46,7 @@ class ImportBottomSheet : BottomSheetDialogFragment() {
         }
 
         binding.btnImport.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val m = mnemonic.value
                     if (m.isEmpty()) return@launch

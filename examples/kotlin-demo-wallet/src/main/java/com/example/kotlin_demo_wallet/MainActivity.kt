@@ -35,9 +35,6 @@ class MainActivity : AppCompatActivity() {
         binding.authComponentButton.setOnClickListener {
             AuthBottomSheet.newInstance().show(supportFragmentManager, "auth")
         }
-        binding.clearAllSessions.setOnClickListener {
-            lifecycleScope.launch { TurnkeyContext.clearAllSessions() }
-        }
         binding.logoutButton.setOnClickListener {
             lifecycleScope.launch { TurnkeyContext.clearSession() }
         }
@@ -46,13 +43,7 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     TurnkeyContext.authState.collect { state ->
-                        binding.tvAuthState.text = state.toString()
                         render(state)
-                    }
-                }
-                launch {
-                    TurnkeyContext.selectedSessionKey.collect { key ->
-                        binding.tvSessionKey.text = key.orEmpty()
                     }
                 }
             }
