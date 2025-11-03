@@ -29,7 +29,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
         }
 
         binding.acSendOtpButton.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val ok = vm.sendOtpEmail(vm.email.value)
                 if (ok) navigateToOtp()
                 else binding.acEmailInputLayout.error = "Failed to send code"
@@ -89,7 +89,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
         }
 
          binding.acLoginWithPasskeyButton.setOnClickListener {
-             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+             viewLifecycleOwner.lifecycleScope.launch {
                  try {
                      TurnkeyContext.loginWithPasskey(
                          activity = requireActivity()
@@ -102,7 +102,7 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
          }
 
         binding.acSignUpWithPasskeyButton.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     TurnkeyContext.signUpWithPasskey(
                         activity = requireActivity()

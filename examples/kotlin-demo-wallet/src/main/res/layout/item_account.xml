@@ -12,8 +12,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="horizontal"
         android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imgAccountLogo"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/account_logo"
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -26,15 +35,15 @@
                 style="@style/TextAppearance.Material3.TitleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Account Name" />
+                android:text="@string/account_name" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvAccountAddress"
                 style="@style/TextAppearance.Material3.BodySmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0x1234…abcd"
-                android:alpha="0.8" />
+                android:alpha="0.8"
+                android:text="@string/_0x1234_abcd" />
         </LinearLayout>
 
         <com.google.android.material.radiobutton.MaterialRadioButton

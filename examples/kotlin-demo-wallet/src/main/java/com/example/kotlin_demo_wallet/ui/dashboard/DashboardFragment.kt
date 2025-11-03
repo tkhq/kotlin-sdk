@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlin_demo_wallet.R
+import com.example.kotlin_demo_wallet.helpers.addressFormatToImageIcon
+import com.example.kotlin_demo_wallet.helpers.addressFormatToReadable
 import com.google.android.material.radiobutton.MaterialRadioButton
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
@@ -74,12 +77,12 @@ class DashboardFragment : Fragment() {
         }
 
         btnSignMessage.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val selectedWalletAccount = adapter.getSelected() ?: return@launch
                 val signature = TurnkeyContext.signMessage(
                     signWith = selectedWalletAccount.address,
                     addressFormat = selectedWalletAccount.addressFormat,
-                    message = "Hello Turnkey"
+                    message = "Hello Turnkey!"
                 )
 
                 val display = "${signature.r}${signature.s}${signature.v}"
@@ -94,7 +97,7 @@ class DashboardFragment : Fragment() {
         }
 
         btnCreateWallet.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val accounts = listOf(
                     V1WalletAccountParams(
                         addressFormat = V1AddressFormat.ADDRESS_FORMAT_ETHEREUM,
@@ -118,7 +121,7 @@ class DashboardFragment : Fragment() {
         }
 
         btnExportWallet.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val wallets = TurnkeyContext.wallets.value.orEmpty()
                     val selectedWallet = wallets.getOrNull(selectedWalletIndex) ?: return@launch
@@ -217,6 +220,7 @@ private class AccountsAdapter : RecyclerView.Adapter<AccountsAdapter.VH>() {
         private val onClick: (Int) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         private val name = itemView.findViewById<MaterialTextView>(R.id.tvAccountName)
+        private val icon = itemView.findViewById<ImageView>(R.id.imgAccountLogo)
         private val addr = itemView.findViewById<MaterialTextView>(R.id.tvAccountAddress)
         private val radio = itemView.findViewById<MaterialRadioButton>(R.id.radio)
 
@@ -227,7 +231,8 @@ private class AccountsAdapter : RecyclerView.Adapter<AccountsAdapter.VH>() {
         }
 
         fun bind(item: V1WalletAccount, checked: Boolean) {
-            name.text = item.addressFormat.name
+            name.text = addressFormatToReadable.getValue(item.addressFormat)
+            icon.setImageResource(addressFormatToImageIcon.getValue(item.addressFormat))
             addr.text = item.address
             radio.isChecked = checked
         }

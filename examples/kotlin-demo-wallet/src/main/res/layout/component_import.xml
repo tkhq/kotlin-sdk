@@ -15,7 +15,7 @@
         style="@style/TextAppearance.Material3.TitleLarge"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Import"
+        android:text="@string/import_text"
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +56,7 @@
                         android:id="@+id/etMnemonic"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Mnemonic phrase"
+                        android:hint="@string/mnemonic_phrase"
                         android:inputType="textMultiLine|textNoSuggestions"
                         android:imeOptions="actionDone"
                         android:minLines="3"
@@ -84,7 +84,7 @@
                         android:id="@+id/etWalletName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Wallet name"
+                        android:hint="@string/wallet_name"
                         android:inputType="textPersonName|textCapWords"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:layout_weight="1"
-            android:text="Import"
+            android:text="@string/import_text"
             android:textColor="?attr/colorOnPrimary"
             app:backgroundTint="?attr/colorPrimary" />
 
@@ -116,6 +116,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Close" />
+            android:text="@string/close" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
