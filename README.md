@@ -232,6 +232,6 @@ And that's it! Commit your changeset and the CI release tooling will cover the r
 
 > IMPORTANT (again): `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like `0.1.0-beta.1` -> `0.1.0-beta.2`
 
-> This is purposeful since in our case, a beta version CAN INCLUDE breaking changes. If you are planning on releasing to production on a `beta` version, **please pin the version** so you don't receive breaking changes when bumping packages.
+> This is purposeful since in our case, a beta version CAN INCLUDE breaking changes (unstable versions). If you are planning on releasing to production on a `beta` version, **please pin the version** so you don't receive breaking changes when bumping packages.
 
 ---
