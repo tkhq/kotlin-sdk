@@ -7,17 +7,6 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.plugins.signing.SigningExtension
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFiles
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import java.io.File
 
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
