@@ -178,7 +178,8 @@ This repo uses the Vanniktech Maven Publish plugin.
 
 > CI usually publishes in dependency order. Only modules with version changes will be released. Use prerelease tags like `0.1.0‑beta.1` when needed.
 > Bump precedence for versioning goes as follows: `beta` > `major` > `minor` > `patch` (meaning if a package has both a `major` and a `patch` changeset, the `major` bump will take precedence e.g. 0.1.0 (major + patch bump) -> 1.0.0)
-> IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like 0.1.0-beta.1 -> 0.1.0-beta.2. 
+
+> IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like 0.1.0-beta.1 -> 0.1.0-beta.2 
 
 ---
 
