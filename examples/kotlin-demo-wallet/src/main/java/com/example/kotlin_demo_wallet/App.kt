@@ -10,7 +10,6 @@ import com.turnkey.models.TurnkeyConfig
 import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1Curve
 import com.turnkey.types.V1PathFormat
-import com.turnkey.types.V1WalletAccount
 import com.turnkey.types.V1WalletAccountParams
 
 class App : Application() {

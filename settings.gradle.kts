@@ -18,7 +18,7 @@ include(
     "packages:passkey",
     "packages:sdk-kotlin",
     "packages:types",
-    "examples:kotlin-demo-wallet"
+    "examples:kotlin-demo-wallet",
 )
 include(":packages:tools")
 

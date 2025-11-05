@@ -8,7 +8,7 @@ group = "com.turnkey"
 version = "0.1.0-beta.1"
 
 mavenPublishing {
-    coordinates("com.turnkey", "crypto", version.toString())
+    coordinates("com.turnkey", "encoding", version.toString())
 }
 
 dependencies {

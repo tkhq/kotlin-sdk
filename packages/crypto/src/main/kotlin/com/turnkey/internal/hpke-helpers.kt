@@ -126,7 +126,7 @@ fun hpkeEncrypt(
 
     // setup sender → context + encapsulated key (uncompressed, 65 bytes)
     val ctxWithEnc: HPKEContextWithEncapsulation = hpke.setupBaseS(pkR, info)
-    val encUncompressed: ByteArray = ctxWithEnc.encapsulation  // aka getEncapsulation() in some docs
+    val encUncompressed: ByteArray = ctxWithEnc.encapsulation
 
     // AAD = enc || recipientPub
     val aad = encUncompressed + recipientUncompressed
