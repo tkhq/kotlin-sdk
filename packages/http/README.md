@@ -58,7 +58,6 @@ HTTP client
 
 `turnkey-http` exposes a typed client for all public Turnkey endpoints. The generated sources include:
 * Client class (e.g., TurnkeyClient.kt) with suspend functions per endpoint
-* (If applicable) helpers that wrap Turnkey “activity” envelopes
 
 Where to find things:
 
@@ -87,6 +86,8 @@ From the repo root:
 ./gradlew :packages:http:regenerateHttpClient
 ```
 
+---
+
 > If you run into this error:
 
 ```bash
@@ -97,6 +98,8 @@ FAILURE: Build failed with an exception.
 ```
 
 > It means the Java version you are using is incompatible, please use Java v24 or earlier. 
+
+---
 
 ### What gets generated
 

@@ -68,6 +68,8 @@ The underlying javaexec task:
 
 > The actual codegen implementation lives in the tools module (TypesCodegenKt).
 
+---
+
 > If you run into this error:
 
 ```bash
