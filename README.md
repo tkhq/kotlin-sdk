@@ -179,7 +179,7 @@ This repo uses the Vanniktech Maven Publish plugin.
 > CI usually publishes in dependency order. Only modules with version changes will be released. Use prerelease tags like `0.1.0‑beta.1` when needed.
 > Bump precedence for versioning goes as follows: `beta` > `major` > `minor` > `patch` (meaning if a package has both a `major` and a `patch` changeset, the `major` bump will take precedence e.g. 0.1.0 (major + patch bump) -> 1.0.0)
 
-> IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like 0.1.0-beta.1 -> 0.1.0-beta.2 
+> IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like `0.1.0-beta.1` -> `0.1.0-beta.2 `
 
 ---
 
@@ -229,3 +229,9 @@ This SDK uses a custom changeset tooling to handle changelogs & versioning.
 ![changeset-title-note.png](assets/changeset-title-note.png)
 
 And that's it! Commit your changeset and the CI release tooling will cover the rest (changelogs + versioning)! If done properly, you should see your new changeset in the [.changeset](./.changeset) directory.
+
+> IMPORTANT (again): `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like `0.1.0-beta.1` -> `0.1.0-beta.2`
+
+> This is purposeful since in our case, a beta version CAN INCLUDE breaking changes. If you are planning on releasing to production on a `beta` version, **please pin the version** so you don't receive breaking changes when bumping packages.
+
+---
