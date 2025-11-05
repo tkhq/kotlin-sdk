@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -15,13 +16,13 @@ include(
     "packages:stamper",
     "packages:http",
     "packages:passkey",
-    "packages:core",
+    "packages:sdk-kotlin",
     "packages:types",
-    ":examples:kotlin-demo-wallet"
+    "examples:kotlin-demo-wallet",
 )
 include(":packages:tools")
 
-project(":packages:core").projectDir = file("packages/core")
+project(":packages:sdk-kotlin").projectDir = file("packages/sdk-kotlin")
 project(":packages:stamper").projectDir = file("packages/stamper")
 project(":packages:http").projectDir = file("packages/http")
 project(":packages:encoding").projectDir = file("packages/encoding")
@@ -33,6 +34,7 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
+        mavenLocal()
         google()
         maven { url = uri("https://jitpack.io") }
     }

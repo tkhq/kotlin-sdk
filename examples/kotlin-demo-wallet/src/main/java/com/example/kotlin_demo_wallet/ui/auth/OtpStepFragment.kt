@@ -2,7 +2,6 @@ package com.example.kotlin_demo_wallet.ui.auth
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -16,7 +15,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.android.material.progressindicator.CircularProgressIndicatorSpec
 import com.google.android.material.progressindicator.IndeterminateDrawable
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
