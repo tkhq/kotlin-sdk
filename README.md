@@ -65,7 +65,8 @@ class App : Application() {
       TurnkeyConfig(
         apiBaseUrl = "https://api.turnkey.com",
         authProxyBaseUrl = "https://authproxy.turnkey.com",
-        authProxyConfigId = "<your-auth-proxy-config-id>",
+        authProxyConfigId = "<your-auth-proxy-config-id>", 
+        organizationId = "<your-organization-id>",
         appScheme = "<your-app-scheme>", // for OAuth deep link
         authConfig = AuthConfig(
           rpId = "<your-rp-id>",
@@ -176,6 +177,8 @@ This repo uses the Vanniktech Maven Publish plugin.
 ```
 
 > CI usually publishes in dependency order. Only modules with version changes will be released. Use prerelease tags like `0.1.0‑beta.1` when needed.
+> Bump precedence for versioning goes as follows: `beta` > `major` > `minor` > `patch` (meaning if a package has both a `major` and a `patch` changeset, the `major` bump will take precedence e.g. 0.1.0 (major + patch bump) -> 1.0.0)
+> IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like 0.1.0-beta.1 -> 0.1.0-beta.2. 
 
 ---
 
@@ -205,5 +208,23 @@ Apache-2.0
 1. Open an issue or draft PR for discussion.
 2. Keep changes small and well‑scoped.
 3. Add tests for bugfixes and new features.
+4. Add a changeset for your changes using the tooling found in the repo root `build.gradle.kts` ([here](./build.gradle.kts)). More information below.
 
 ---
+
+## Changeset Tooling
+
+This SDK uses a custom changeset tooling to handle changelogs & versioning.
+
+### Adding a changeset
+
+1) Go to the repo's root `build.gradle.kts` ([here](./build.gradle.kts)) and run the `createChangeset` task.
+![create-changeset.png](assets/create-changeset.png)
+2) Choose which packages to write changesets for
+![select-packages.png](assets/select-packages.png)
+3) Select the bump type per package (major, minor, patch, or beta)
+![select-bump-type.png](assets/select-bump-type.png)
+4) Add a title and a note (end the note with a "." _on its own line_)
+![changeset-title-note.png](assets/changeset-title-note.png)
+
+And that's it! Commit your changeset and the CI release tooling will cover the rest (changelogs + versioning)! If done properly, you should see your new changeset in the [.changeset](./.changeset) directory.
