@@ -18,6 +18,8 @@ To run these codegen scripts, run the following tasks in the repo root (`http` o
 ./gradlew :projects:types:regenerateModels
 ```
 
+---
+
 > If you run into this error:
 
 ```bash
