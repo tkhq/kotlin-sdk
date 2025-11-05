@@ -54,7 +54,7 @@ The underlying javaexec task:
 ./gradlew :projects:types:types-codegen
 ```
 
-`types-codege` flags:
+`types-codegen` flags:
 
 | Flag              | Meaning                                                      |
 |-------------------|--------------------------------------------------------------|
@@ -79,4 +79,4 @@ FAILURE: Build failed with an exception.
   25 (or any other number for that matter)
 ```
 
-> It means the Java version you are using is incompatible, please use Java v24 or earlier. 
+> It means the JVM toolchain version you are using is incompatible, please use JVM toolchain 24 or earlier. 

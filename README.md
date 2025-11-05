@@ -65,7 +65,8 @@ class App : Application() {
       TurnkeyConfig(
         apiBaseUrl = "https://api.turnkey.com",
         authProxyBaseUrl = "https://authproxy.turnkey.com",
-        authProxyConfigId = "<your-auth-proxy-config-id>",
+        authProxyConfigId = "<your-auth-proxy-config-id>", 
+        organizationId = "<your-organization-id>",
         appScheme = "<your-app-scheme>", // for OAuth deep link
         authConfig = AuthConfig(
           rpId = "<your-rp-id>",
