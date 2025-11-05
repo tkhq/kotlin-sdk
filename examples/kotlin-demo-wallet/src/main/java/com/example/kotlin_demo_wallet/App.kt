@@ -55,25 +55,5 @@ class App : Application() {
                 )
             )
         )
-
-//        TurnkeyContext.init(
-//            app = this,
-//            config = TurnkeyConfig(
-//                apiBaseUrl = "http://192.168.2.103:8081",
-//                authProxyBaseUrl = "http://192.168.2.103:8090",
-//                authProxyConfigId = "9012433f-97e1-4c06-99ea-d4b282614649",
-//                organizationId = "a588d081-4a19-42fc-962c-4b5c25603cdf",
-//                appScheme = "kotlindemoapp",
-//                authConfig = AuthConfig(
-//                    rpId = "0bce2a9f181e.ngrok-free.app",
-//                    createSubOrgParams = MethodCreateSubOrgParams(
-//                        emailOtpAuth = createSubOrgParams,
-//                        smsOtpAuth = createSubOrgParams,
-//                        passkeyAuth = createSubOrgParams,
-//                        oAuth = createSubOrgParams
-//                    )
-//                )
-//            )
-//        )
     }
 }

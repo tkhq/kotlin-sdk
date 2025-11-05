@@ -319,7 +319,7 @@ Sign human message (EVM prefixing optional)
 ```kotlin
 lifecycleScope.launch {
     val signature = TurnkeyContext.signMessage(
-        signWith = "0x…accountOrAddress…",
+        signWith = "0x...address...",
         addressFormat = V1AddressFormat.ADDRESS_FORMAT_ETHEREUM, // or whichever address format suits your signing account
         message = "Hello Turnkey!"
     )
