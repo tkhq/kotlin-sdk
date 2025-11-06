@@ -30,7 +30,7 @@ val publishable = listOf(
 )
 
 group = "com.turnkey"
-version = "0.1.0-beta.1"
+version = "0.1.0"
 
 val isCi = providers.environmentVariable("CI").map { it == "true" }.orElse(false)
 val centralEnv = providers.environmentVariable("CENTRAL_RELEASE").map { it == "true" }.orElse(false)
@@ -87,8 +87,9 @@ configure(publishable.map { project(it) }) {
         extensions.configure<SigningExtension> {
             val ciKey = providers.environmentVariable("GPG_PRIVATE_KEY")
             val ciPass = providers.environmentVariable("GPG_PASSPHRASE")
+
             if (ciKey.isPresent) {
-                useInMemoryPgpKeys(ciKey.get(), ciPass.orNull)
+                useInMemoryPgpKeys(ciKey.get(), ciPass.get())
             } else {
                 useGpgCmd()
             }

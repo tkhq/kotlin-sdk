@@ -5,9 +5,6 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 
-group = "com.turnkey"
-version = "0.1.0-beta.1"
-
 android {
     namespace = "com.turnkey.http"
     compileSdk = 36
@@ -25,6 +22,9 @@ android {
     sourceSets["main"].java.srcDir("${layout.buildDirectory}/src/main/kotlin")
     sourceSets["main"].resources.srcDir("${layout.buildDirectory}/src/main/resources")
 }
+
+group = "com.turnkey"
+version = "0.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "http", version.toString())

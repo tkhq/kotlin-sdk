@@ -13,11 +13,12 @@ dependencies {
 }
 
 group = "com.turnkey"
-version = "0.1.0-beta.1"
+version = "0.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "types", version.toString())
 }
+
 
 val publicSpec: String = file("$projectDir/openapi/public_api.swagger.json").absolutePath
 val proxySpec: String = file("$projectDir/openapi/auth_proxy.swagger.json").absolutePath

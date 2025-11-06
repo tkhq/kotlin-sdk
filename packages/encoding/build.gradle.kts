@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.turnkey"
-version = "0.1.0-beta.1"
+version = "0.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "encoding", version.toString())

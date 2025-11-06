@@ -39,13 +39,13 @@ class App : Application() {
         TurnkeyContext.init(
             app = this,
             config = TurnkeyConfig(
-                apiBaseUrl = "https://api.turnkey.com",
-                authProxyBaseUrl = "https://authproxy.turnkey.com",
-                authProxyConfigId = "25736d83-3cb0-4d4b-b020-2e2773bc9774",
-                organizationId = "62691bf1-9242-4e1e-a82b-9e972564d477",
-                appScheme = "kotlindemoapp",
+                apiBaseUrl = BuildConfig.API_BASE_URL,
+                authProxyBaseUrl = BuildConfig.AUTH_PROXY_BASE_URL,
+                authProxyConfigId = BuildConfig.AUTH_PROXY_CONFIG_ID,
+                organizationId = BuildConfig.ORGANIZATION_ID,
+                appScheme = BuildConfig.APP_SHEME,
                 authConfig = AuthConfig(
-                    rpId = "0bce2a9f181e.ngrok-free.app",
+                    rpId = BuildConfig.RP_ID,
                     createSubOrgParams = MethodCreateSubOrgParams(
                         emailOtpAuth = createSubOrgParams,
                         smsOtpAuth = createSubOrgParams,
