@@ -343,6 +343,13 @@ abstract class ChangesetsVersionTask : ChangesetsBase() {
             Files.move(cs.file.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
         println("\nMoved ${items.size} file(s) to .changeset/applied/")
+
+        val bumpedListFile = changesetDir.file(".last_bumped_modules").get().asFile
+        bumpedListFile.parentFile.mkdirs()
+        bumpedListFile.writeText(
+            target.keys.joinToString("\n")
+        )
+        println("Wrote bumped module list to ${bumpedListFile}")
     }
 }
 
