@@ -164,7 +164,7 @@ version-and-rebuild:
     if: ${{ needs.build.outputs.has_changesets == 'true' }}
     runs-on:
       group: package-deploy
-    environment: production   # TODO: protect with required reviewers
+    environment: production   # TODO: protect with required reviewers (I think this environment already has that but good to double check)
 
     steps:
       - name: Checkout release branch
