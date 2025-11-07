@@ -163,28 +163,25 @@ You can also intercept the oidcToken by passing onSuccess = { idToken -> … } a
 > Important note: In order to enable passkeys, you must set up a valid rpId. Please follow the Google Documentation for steps on how to do so: https://developer.android.com/training/app-links/verify-applinks.
 
 ```kotlin
-binding.acLoginWithPasskeyButton.setOnClickListener {
-     viewLifecycleOwner.lifecycleScope.launch {
-         try {
-             TurnkeyContext.loginWithPasskey(
-                 activity = requireActivity()
-             )
-         } catch (t: Throwable) {
-             Log.e("AuthStepFragment", "Failed to login with passkey", t)
-         }
-     }
- }
+lifecycleScope.launch {
+   try {
+       TurnkeyContext.loginWithPasskey(
+           activity = requireActivity()
+       )
+   } catch (t: Throwable) {
+       Log.e("AuthStepFragment", "Failed to login with passkey", t)
+   }
+}
+ 
 
-binding.acSignUpWithPasskeyButton.setOnClickListener {
-    viewLifecycleOwner.lifecycleScope.launch {
-        try {
-            TurnkeyContext.signUpWithPasskey(
-                activity = requireActivity()
-            )
-        } catch (t: Throwable) {
-            Log.e("AuthStepFragment", "Failed to sign up with passkey", t)
-        }
-    }
+lifecycleScope.launch {
+   try {
+       TurnkeyContext.signUpWithPasskey(
+           activity = requireActivity()
+       )
+   } catch (t: Throwable) {
+       Log.e("AuthStepFragment", "Failed to sign up with passkey", t)
+   }
 }
 ```
 > Ensure your rpId is set in config (authConfig.rpId) or pass it explicitly.
@@ -198,16 +195,16 @@ This is a 2 step process:
 ```kotlin
 val ( otpId ) = TurnkeyContext.initOtp(
     otpType = OtpType.OTP_TYPE_EMAIL, // or OtpType.OTP_TYPE_SMS
-    contact = contact
+    contact = "example@email.com"
 )
 ```
 
 2) Verify & login / sign up
 ```kotlin
 TurnkeyContext.loginOrSignUpWithOtp(
-    otpId = otpId,
-    otpCode = code,
-    contact = contact,
+    otpId = "fdS3...3aSD",
+    otpCode = "123ABC",
+    contact = "example@email.com",
     otpType = OtpType.OTP_TYPE_EMAIL // or OtpType.OTP_TYPE_SMS
 )
 ```
