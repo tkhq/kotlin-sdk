@@ -30,7 +30,7 @@ val publishable = listOf(
 )
 
 group = "com.turnkey"
-version = "0.1.0-beta.1"
+version = "0.1.0"
 
 val isCi = providers.environmentVariable("CI").map { it == "true" }.orElse(false)
 val centralEnv = providers.environmentVariable("CENTRAL_RELEASE").map { it == "true" }.orElse(false)
@@ -87,8 +87,9 @@ configure(publishable.map { project(it) }) {
         extensions.configure<SigningExtension> {
             val ciKey = providers.environmentVariable("GPG_PRIVATE_KEY")
             val ciPass = providers.environmentVariable("GPG_PASSPHRASE")
+
             if (ciKey.isPresent) {
-                useInMemoryPgpKeys(ciKey.get(), ciPass.orNull)
+                useInMemoryPgpKeys(ciKey.get(), ciPass.get())
             } else {
                 useGpgCmd()
             }
@@ -97,11 +98,42 @@ configure(publishable.map { project(it) }) {
     }
 }
 
-tasks.register("publishSelectedToMavenLocal") {
-    dependsOn(publishable.map { "$it:publishToMavenLocal" })
+val lastBumpedFile = layout.projectDirectory.file(".changeset/.last_bumped_modules")
+
+val bumpedModulesProvider = providers.provider {
+    val f = lastBumpedFile.asFile
+    if (!f.exists()) emptyList()
+    else f.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
 }
+
+
+tasks.register("publishSelectedToMavenLocal") {
+    group = "publishing"
+    description = "Publish only modules listed in .changeset/.last_bumped_modules to Maven Local"
+
+    dependsOn(
+        bumpedModulesProvider.map { mods ->
+            mods.map { mod -> ":packages:$mod:publishToMavenLocal" }
+        }
+    )
+
+    finalizedBy("printPublishMatrix")
+}
+
+// Publish bumped modules to Maven Central
 tasks.register("publishSelectedToMavenCentral") {
-    dependsOn(publishable.map { "$it:publishToMavenCentral" })
+    group = "publishing"
+    description = "Publish only modules listed in .changeset/.last_bumped_modules to Maven Central"
+
+    dependsOn(
+        bumpedModulesProvider.map { mods ->
+            mods.map { mod -> ":packages:$mod:publishToMavenCentral" }
+        }
+    )
+
+    finalizedBy("printPublishMatrix")
 }
 
 abstract class PrintPublishMatrixTask : DefaultTask() {

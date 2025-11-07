@@ -4,8 +4,6 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "com.turnkey"
-version = "0.1.0-beta.1"
 
 android {
     namespace = "com.turnkey.core"
@@ -21,6 +19,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_24
     }
 }
+
+group = "com.turnkey"
+version = "0.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "sdk-kotlin", version.toString())

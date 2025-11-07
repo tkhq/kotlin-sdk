@@ -5,9 +5,6 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 
-group = "com.turnkey"
-version = "0.1.0-beta.1"
-
 android {
     namespace = "com.turnkey.stamper"
     compileSdk = 36
@@ -23,6 +20,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_24
     }
 }
+
+group = "com.turnkey"
+version = "0.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "stamper", version.toString())
