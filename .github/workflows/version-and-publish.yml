@@ -1,7 +1,7 @@
 name: Version, Tag Release Branch, and Publish (Kotlin)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch: # allows manual invocation
   push:
     tags:
       - "v*.*.*"   # e.g. v1.2.3
@@ -46,7 +46,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 #v4.4.4
 
-      # Check for pending changesets using your Gradle task.
+      - name: Bump Gradle/JVM memory
+        run: |
+          mkdir -p ~/.gradle
+          cat >> ~/.gradle/gradle.properties <<'EOF'
+            org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError
+            org.gradle.parallel=false
+            org.gradle.workers.max=1
+            kotlin.daemon.jvmargs=-Xmx2g
+            org.gradle.caching=true
+          EOF
+
       - name: Check for pending changesets
         id: detect
         run: |
@@ -66,7 +76,15 @@ jobs:
 
       - name: Build (sanity)
         if: ${{ steps.detect.outputs.has_changesets == 'true' }}
-        run: ./gradlew --no-daemon clean build
+        run: |
+          ./gradlew --no-daemon \
+            :packages:encoding:build \
+            :packages:crypto:build \
+            :packages:types:build \
+            :packages:stamper:assembleRelease \
+            :packages:http:assembleRelease \
+            :packages:passkey:assembleRelease \
+            :packages:sdk-kotlin:assembleRelease
 
   version-and-rebuild:
     runs-on: ubuntu-latest
@@ -203,7 +221,7 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           test -n "$GPG_PRIVATE_KEY" || { echo "Missing GPG_PRIVATE_KEY"; exit 1; }
 
@@ -218,9 +236,16 @@ jobs:
           CENTRAL_RELEASE: "true"
           CI: "true"
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
         run: |
           ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace
-          rm ~/.gradle/gradle.properties
+          
+          # Remove publishing creds from ~/.gradle/gradle.properties
+          if [ -f ~/.gradle/gradle.properties ]; then
+            tmp="$(mktemp)"
+            grep -v -E '^[[:space:]]*(mavenCentralUsername|mavenCentralPassword)[[:space:]]*=' \
+              ~/.gradle/gradle.properties > "$tmp"
+            mv "$tmp" ~/.gradle/gradle.properties
+          fi

@@ -1,6 +1,7 @@
 package com.turnkey.encoding
 
 import kotlin.test.*
+import com.turnkey.encoding.utils.TurnkeyDecodingException
 
 class BytesTest {
 
