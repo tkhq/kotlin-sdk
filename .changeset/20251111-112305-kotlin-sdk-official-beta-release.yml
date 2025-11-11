@@ -1,0 +1,11 @@
+title: Kotlin SDK official beta release
+packages:
+  crypto: minor
+  encoding: minor
+  http: minor
+  passkey: minor
+  stamper: minor
+  types: minor
+  sdk-kotlin: minor
+changelog: |-
+  Initial beta release for Turnkey's Kotlin SDK

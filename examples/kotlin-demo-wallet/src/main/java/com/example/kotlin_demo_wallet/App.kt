@@ -52,7 +52,7 @@ class App : Application() {
                         passkeyAuth = createSubOrgParams,
                         oAuth = createSubOrgParams
                     )
-                )
+                ),
             )
         )
     }
