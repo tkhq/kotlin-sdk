@@ -608,10 +608,6 @@ object TurnkeyContext {
             if (selectedSessionKey.value == null) {
                 setSelectedSession(sessionKey)
             }
-
-            withContext(Dispatchers.Main) {
-                _authState.value = AuthState.authenticated
-            }
         } catch (error: Throwable) {
             throw TurnkeyKotlinError.FailedToCreateSession(error)
         }
@@ -633,6 +629,7 @@ object TurnkeyContext {
                 _selectedSessionKey.value = sessionKey
                 _client = cli
                 _session.value = dto
+                _authState.value = AuthState.authenticated
             }
 
             if (config.autoRefreshManagedStates) {
