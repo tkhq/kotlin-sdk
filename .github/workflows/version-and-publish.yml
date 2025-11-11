@@ -76,7 +76,14 @@ jobs:
 
       - name: Build (sanity)
         if: ${{ steps.detect.outputs.has_changesets == 'true' }}
-        run: ./gradlew --no-daemon\:packages:encoding:build\:packages:crypto:build\:packages:http:build\:packages:passkey:build\:packages:stamper:build\:packages:types:build\:packages:sdk-kotlin:build
+        run: ./gradlew --no-daemon \
+          :packages:encoding:build \
+          :packages:crypto:build \
+          :packages:http:build \
+          :packages:passkey:build \
+          :packages:stamper:build \
+          :packages:types:build \
+          :packages:sdk-kotlin:build
 
   version-and-rebuild:
     runs-on: ubuntu-latest
