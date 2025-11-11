@@ -223,3 +223,4 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
         run: |
           ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace
+          rm ~/.gradle/gradle.properties

@@ -292,7 +292,7 @@ object TurnkeyContext {
     }
 
     private suspend fun getAuthProxyConfig(): ProxyTGetWalletKitConfigResponse? {
-        if (config.authProxyConfigId.isNullOrEmpty() || config.autoFetchWalletKitConfig == null || config.autoFetchWalletKitConfig == false) return null
+        if (config.authProxyConfigId.isNullOrEmpty() || !config.autoFetchWalletKitConfig) return null
 
         val client = awaitClient()
         return withContext(io) {
@@ -635,7 +635,7 @@ object TurnkeyContext {
                 _session.value = dto
             }
 
-            if (config.autoRefreshManagedStates == true) {
+            if (config.autoRefreshManagedStates) {
                 refreshUser()
                 refreshWallets()
             }
@@ -1227,7 +1227,7 @@ object TurnkeyContext {
     }
 
     // TODO: DO THIS LATER
-    suspend fun handleFacebookOAuth() {}
+    // suspend fun handleFacebookOAuth() {}
 
     suspend fun handleXOAuth(
         activity: Activity,
@@ -1425,7 +1425,7 @@ object TurnkeyContext {
                 "No walletId returned from createWallet"
             )
 
-            if (config.autoRefreshManagedStates == true) refreshWallets()
+            if (config.autoRefreshManagedStates) refreshWallets()
 
             return res.activity.result.createWalletResult!!
         } catch (t: Throwable) {
@@ -1534,7 +1534,7 @@ object TurnkeyContext {
             val result = res.activity.result.importWalletResult
                 ?: throw TurnkeyKotlinError.InvalidResponse("No result found from importWallet")
 
-            if (config.autoRefreshManagedStates == true) refreshWallets()
+            if (config.autoRefreshManagedStates) refreshWallets()
             return result
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToImportWallet(t)
