@@ -128,7 +128,14 @@ jobs:
       - name: Version and rebuild packages
         run: |
           ./gradlew --no-daemon changesetsVersion
-          ./gradlew --no-daemon build
+          ./gradlew --no-daemon \
+            :packages:encoding:build \
+            :packages:crypto:build \
+            :packages:types:build \
+            :packages:stamper:assembleRelease \
+            :packages:http:assembleRelease \
+            :packages:passkey:assembleRelease \
+            :packages:sdk-kotlin:assembleRelease
           ./gradlew --no-daemon changesetsChangelog
 
       - name: Git status (debug)
