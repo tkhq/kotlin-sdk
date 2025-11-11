@@ -78,45 +78,53 @@ class DashboardFragment : Fragment() {
 
         btnSignMessage.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val selectedWalletAccount = adapter.getSelected() ?: return@launch
-                val signature = TurnkeyContext.signMessage(
-                    signWith = selectedWalletAccount.address,
-                    addressFormat = selectedWalletAccount.addressFormat,
-                    message = "Hello Turnkey!"
-                )
+                try {
+                    val selectedWalletAccount = adapter.getSelected() ?: return@launch
+                    val signature = TurnkeyContext.signMessage(
+                        signWith = selectedWalletAccount.address,
+                        addressFormat = selectedWalletAccount.addressFormat,
+                        message = "Hello Turnkey!"
+                    )
 
-                val display = "${signature.r}${signature.s}${signature.v}"
+                    val display = "${signature.r}${signature.s}${signature.v}"
 
-                launch(Dispatchers.Main) {
-                    if (!isAdded) return@launch
-                    SignatureBottomSheet
-                        .newInstance(display)
-                        .show(parentFragmentManager, "sign_result")
+                    launch(Dispatchers.Main) {
+                        if (!isAdded) return@launch
+                        SignatureBottomSheet
+                            .newInstance(display)
+                            .show(parentFragmentManager, "sign_result")
+                    }
+                } catch (t: Throwable) {
+                    Log.e("DashboardFragment", "Error Signing Message: ", t)
                 }
             }
         }
 
         btnCreateWallet.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val accounts = listOf(
-                    V1WalletAccountParams(
-                        addressFormat = V1AddressFormat.ADDRESS_FORMAT_ETHEREUM,
-                        curve = V1Curve.CURVE_SECP256K1,
-                        path = "m/44'/60'/0'/0/0",
-                        pathFormat = V1PathFormat.PATH_FORMAT_BIP32
-                    ),
-                    V1WalletAccountParams(
-                        addressFormat = V1AddressFormat.ADDRESS_FORMAT_SOLANA,
-                        curve = V1Curve.CURVE_ED25519,
-                        path = "m/44'/501'/0'/0'",
-                        pathFormat = V1PathFormat.PATH_FORMAT_BIP32
+                try {
+                    val accounts = listOf(
+                        V1WalletAccountParams(
+                            addressFormat = V1AddressFormat.ADDRESS_FORMAT_ETHEREUM,
+                            curve = V1Curve.CURVE_SECP256K1,
+                            path = "m/44'/60'/0'/0/0",
+                            pathFormat = V1PathFormat.PATH_FORMAT_BIP32
+                        ),
+                        V1WalletAccountParams(
+                            addressFormat = V1AddressFormat.ADDRESS_FORMAT_SOLANA,
+                            curve = V1Curve.CURVE_ED25519,
+                            path = "m/44'/501'/0'/0'",
+                            pathFormat = V1PathFormat.PATH_FORMAT_BIP32
+                        )
                     )
-                )
-                TurnkeyContext.createWallet(
-                    walletName = "Wallet-${System.currentTimeMillis()}",
-                    accounts = accounts,
-                    mnemonicLength = 12
-                )
+                    TurnkeyContext.createWallet(
+                        walletName = "Wallet-${System.currentTimeMillis()}",
+                        accounts = accounts,
+                        mnemonicLength = 12
+                    )
+                } catch (t: Throwable) {
+                    Log.e("DashboardFragment", "Error Creating Wallet: ", t)
+                }
             }
         }
 

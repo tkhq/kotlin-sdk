@@ -10,6 +10,8 @@ data class TurnkeyConfig(
     val authProxyConfigId: String? = null,
     val authConfig: AuthConfig? = null,
     val appScheme: String? = null,
+    val autoRefreshManagedStates: Boolean = true,
+    val autoFetchWalletKitConfig: Boolean = true,
 
     // Callbacks
     val onSessionCreated: ((Session) -> Unit)? = null,

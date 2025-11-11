@@ -292,7 +292,7 @@ object TurnkeyContext {
     }
 
     private suspend fun getAuthProxyConfig(): ProxyTGetWalletKitConfigResponse? {
-        if (config.authProxyConfigId.isNullOrEmpty()) return null
+        if (config.authProxyConfigId.isNullOrEmpty() || config.autoFetchWalletKitConfig == null || config.autoFetchWalletKitConfig == false) return null
 
         val client = awaitClient()
         return withContext(io) {
@@ -453,18 +453,18 @@ object TurnkeyContext {
         keepAutoRefresh: Boolean
     ) = withContext(Dispatchers.IO) {
         try {
-        expiryJobs.remove(sessionKey)?.cancel()
+            expiryJobs.remove(sessionKey)?.cancel()
 
-        JwtSessionStore.load(context, sessionKey)?.let { dto ->
-            runCatching { KeyPairStore.delete(context, dto.publicKey) }
-        }
+            JwtSessionStore.load(context, sessionKey)?.let { dto ->
+                runCatching { KeyPairStore.delete(context, dto.publicKey) }
+            }
 
-        JwtSessionStore.delete(context, sessionKey)
-        runCatching { SessionRegistryStore.remove(context, sessionKey) }
+            JwtSessionStore.delete(context, sessionKey)
+            runCatching { SessionRegistryStore.remove(context, sessionKey) }
 
-        if (!keepAutoRefresh) {
-            runCatching { AutoRefreshStore.remove(context, sessionKey) }
-        }
+            if (!keepAutoRefresh) {
+                runCatching { AutoRefreshStore.remove(context, sessionKey) }
+            }
         } catch (t: Throwable) {
             TurnkeyKotlinError.FailedToPurgeSession(t)
         }
@@ -635,8 +635,10 @@ object TurnkeyContext {
                 _session.value = dto
             }
 
-            refreshUser()
-            refreshWallets()
+            if (config.autoRefreshManagedStates == true) {
+                refreshUser()
+                refreshWallets()
+            }
 
             return cli
         } catch (t: Throwable) {
@@ -1212,7 +1214,7 @@ object TurnkeyContext {
                         publicKey = targetPublicKey,
                         providerName = "apple",
                         sessionKey = sessionKey,
-                        createSubOrgParams= createSubOrgParams,
+                        createSubOrgParams = createSubOrgParams,
                         invalidateExisting = invalidateExisting
                     )
                 }
@@ -1254,7 +1256,8 @@ object TurnkeyContext {
 
         val challengePair = Helpers.generateChallengePair()
 
-        val state = "provider=twitter&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
+        val state =
+            "provider=twitter&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
 
         val xAuthUrl = buildString {
             append(originUri)
@@ -1341,7 +1344,8 @@ object TurnkeyContext {
 
         val challengePair = Helpers.generateChallengePair()
 
-        val state = "provider=discord&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
+        val state =
+            "provider=discord&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
 
         val discordAuthUrl = buildString {
             append(originUri)
@@ -1420,7 +1424,9 @@ object TurnkeyContext {
             if (res.activity.result.createWalletResult?.walletId.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidResponse(
                 "No walletId returned from createWallet"
             )
-            refreshWallets()
+
+            if (config.autoRefreshManagedStates == true) refreshWallets()
+
             return res.activity.result.createWalletResult!!
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToCreateWallet(t)
@@ -1473,14 +1479,16 @@ object TurnkeyContext {
         try {
             val res = client.signRawPayload(
                 TSignRawPayloadBody(
-                    organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession,
+                    organizationId = session.value?.organizationId
+                        ?: throw TurnkeyKotlinError.InvalidSession,
                     encoding = finalEncoding,
                     hashFunction = finalHash,
                     payload = payload,
                     signWith = signWith
                 )
             )
-            return res.activity.result.signRawPayloadResult ?: throw TurnkeyKotlinError.InvalidResponse("Invalid sign raw payload result")
+            return res.activity.result.signRawPayloadResult
+                ?: throw TurnkeyKotlinError.InvalidResponse("Invalid sign raw payload result")
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSignMessage(t)
         }
@@ -1491,15 +1499,19 @@ object TurnkeyContext {
         mnemonic: String,
         accounts: List<V1WalletAccountParams>
     ): V1ImportWalletResult {
-        val organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
+        val organizationId =
+            session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
         val userId = session.value?.userId ?: throw TurnkeyKotlinError.InvalidSession
         try {
-            val initRes = client.initImportWallet(TInitImportWalletBody(
-                organizationId = organizationId,
-                userId = userId
-            ))
+            val initRes = client.initImportWallet(
+                TInitImportWalletBody(
+                    organizationId = organizationId,
+                    userId = userId
+                )
+            )
 
-            val importBundle = initRes.activity.result.initImportWalletResult?.importBundle ?: throw TurnkeyKotlinError.InvalidResponse("No import bundle returned from initImportWallet")
+            val importBundle = initRes.activity.result.initImportWalletResult?.importBundle
+                ?: throw TurnkeyKotlinError.InvalidResponse("No import bundle returned from initImportWallet")
 
             val encrypted = encryptWalletToBundle(
                 mnemonic = mnemonic,
@@ -1509,16 +1521,20 @@ object TurnkeyContext {
                 null
             )
 
-            val res = client.importWallet(TImportWalletBody(
-                organizationId = organizationId,
-                accounts = accounts,
-                encryptedBundle = encrypted,
-                userId = userId,
-                walletName = walletName
-            ))
+            val res = client.importWallet(
+                TImportWalletBody(
+                    organizationId = organizationId,
+                    accounts = accounts,
+                    encryptedBundle = encrypted,
+                    userId = userId,
+                    walletName = walletName
+                )
+            )
 
-            val result = res.activity.result.importWalletResult ?: throw TurnkeyKotlinError.InvalidResponse("No result found from importWallet")
-            refreshWallets()
+            val result = res.activity.result.importWalletResult
+                ?: throw TurnkeyKotlinError.InvalidResponse("No result found from importWallet")
+
+            if (config.autoRefreshManagedStates == true) refreshWallets()
             return result
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToImportWallet(t)
@@ -1529,16 +1545,20 @@ object TurnkeyContext {
         walletId: String,
     ): ExportWalletResult {
         val (targetPublicKey, _, embeddedPriv) = generateP256KeyPair()
-        val organizationId = session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
+        val organizationId =
+            session.value?.organizationId ?: throw TurnkeyKotlinError.InvalidSession
 
         try {
-            val res = client.exportWallet(TExportWalletBody(
-                organizationId = organizationId,
-                targetPublicKey = targetPublicKey,
-                walletId = walletId
-            ))
+            val res = client.exportWallet(
+                TExportWalletBody(
+                    organizationId = organizationId,
+                    targetPublicKey = targetPublicKey,
+                    walletId = walletId
+                )
+            )
 
-            val bundle = res.activity.result.exportWalletResult?.exportBundle ?: throw TurnkeyKotlinError.InvalidResponse("No export bundle returned from exportWallet")
+            val bundle = res.activity.result.exportWalletResult?.exportBundle
+                ?: throw TurnkeyKotlinError.InvalidResponse("No export bundle returned from exportWallet")
 
             val mnemonicPhrase = decryptExportBundle(
                 exportBundle = bundle,
@@ -1546,7 +1566,7 @@ object TurnkeyContext {
                 embeddedPrivateKey = embeddedPriv,
                 dangerouslyOverrideSignerPublicKey = null,
                 returnMnemonic = true
-                )
+            )
             return ExportWalletResult(mnemonicPhrase = mnemonicPhrase)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToExportWallet(t)
