@@ -30,4 +30,6 @@ RP_ID=<your-rp-id>
 > Note:
 > If you are testing on a free org, you may run into signing caps. All errors are logged in Logcat (for Android Studio) so if any button is not doing what its supposed to, or doesn't seem to be working, check your logs to ensure everything is set up fine.
 
-![Demo](../../assets/demo.gif)
+<p align="center">
+  <img src="../../assets/demo.gif" alt="Demo" width="480">
+</p>
