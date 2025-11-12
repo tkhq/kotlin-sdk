@@ -17,10 +17,9 @@ data class TurnkeyConfig(
     val onSessionCreated: ((Session) -> Unit)? = null,
     val onSessionSelected: ((Session) -> Unit)? = null,
     val onSessionExpired: ((Session) -> Unit)? = null,
-    val onSessionCleared: ((Session) -> Unit)? = null,
     val onSessionRefreshed: ((Session) -> Unit)? = null,
-    val onSessionEmpty: (() -> Unit)? = null,
-    val onInitialized: ((Any?) -> Unit)? = null,
+    // val onSessionCleared: ((Session) -> Unit)? = null,
+    // val onSessionEmpty: (() -> Unit)? = null,
 )
 
 data class AuthConfig(

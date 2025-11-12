@@ -200,7 +200,7 @@ jobs:
     if: ${{ needs.build.outputs.has_changesets == 'true' }}
     runs-on:
       group: package-deploy
-    environment: production   # TODO: protect with required reviewers (I think this environment already has that but good to double check)
+    environment: production
 
     steps:
       - name: Checkout release branch
@@ -230,14 +230,14 @@ jobs:
       - name: Configure publishing credentials
         run: |
           {
-            echo "mavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }}";
-            echo "mavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}";
+            echo "mavenCentralUsername=${{ secrets.SONATYPE_USERNAME }}";
+            echo "mavenCentralPassword=${{ secrets.SONATYPE_PASSWORD }}";
           } >> ~/.gradle/gradle.properties
 
       - name: Import in-memory PGP key (used by Signing plugin)
         env:
-          OSSRH_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
@@ -255,8 +255,8 @@ jobs:
           CI: "true"
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          OSSRH_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
           ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace
           

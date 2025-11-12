@@ -53,6 +53,10 @@ class App : Application() {
                         oAuth = createSubOrgParams
                     )
                 ),
+                onSessionCreated = { s -> println("created: $s")},
+                onSessionSelected = { s -> println("selected: $s")},
+                onSessionExpired  = { s -> println("expired at: ${s.expiry}") },
+                onSessionRefreshed = { s -> println("refreshed token=${s.token.take(6)}...") }
             )
         )
     }
