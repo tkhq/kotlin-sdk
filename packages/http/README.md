@@ -76,11 +76,6 @@ This package uses a custom generator to produce the Kotlin client from Swagger. 
 
 ### Quick Start
 
-Within this module:
-```bash
-./gradlew regenerateHttpClient
-```
-
 From the repo root:
 ```bash
 ./gradlew :packages:http:regenerateHttpClient
