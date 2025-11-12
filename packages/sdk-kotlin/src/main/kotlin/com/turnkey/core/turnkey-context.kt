@@ -77,6 +77,7 @@ import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
 import com.turnkey.utils.KeyFormat
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
@@ -324,7 +325,7 @@ object TurnkeyContext {
                 ?: return@runCatching false.also { resetToUnauthenticated(clearSelection = true) }
 
             // success path
-            scheduleExpiryTimer(sessionKey, dto.expiry)
+            scheduleExpiryTimer(sessionKey, dto.expiry, session = dto)
             _selectedSessionKey.value = sessionKey
             _authState.value = AuthState.authenticated
 
@@ -356,7 +357,7 @@ object TurnkeyContext {
         try {
             SessionRegistryStore.all(context).forEach { key ->
                 JwtSessionStore.load(context, key)?.let { dto ->
-                    scheduleExpiryTimer(key, dto.expiry)
+                    scheduleExpiryTimer(key, dto.expiry, session = dto)
                 }
             }
         } catch (_: Throwable) {
@@ -374,7 +375,8 @@ object TurnkeyContext {
     suspend fun scheduleExpiryTimer(
         sessionKey: String,
         expTimestampSeconds: Double,
-        bufferSeconds: Double = 5.0
+        bufferSeconds: Double = 5.0,
+        session: Session
     ) {
         // Cancel any previous timer for this key
         expiryJobs.remove(sessionKey)?.cancel()
@@ -409,6 +411,7 @@ object TurnkeyContext {
                     clearSession(sessionKey)
                 }
             } else {
+                config.onSessionExpired?.let { it(session) }
                 clearSession(sessionKey)
             }
         }
@@ -439,7 +442,7 @@ object TurnkeyContext {
             AutoRefreshStore.set(appContext, sessionKey, refreshedSessionTTLSeconds)
         }
 
-        scheduleExpiryTimer(sessionKey, dto.expiry)
+        scheduleExpiryTimer(sessionKey, dto.expiry, session = dto)
     }
 
     /**
@@ -608,6 +611,7 @@ object TurnkeyContext {
             if (selectedSessionKey.value == null) {
                 setSelectedSession(sessionKey)
             }
+            config.onSessionCreated?.let { it(s) }
         } catch (error: Throwable) {
             throw TurnkeyKotlinError.FailedToCreateSession(error)
         }
@@ -633,10 +637,14 @@ object TurnkeyContext {
             }
 
             if (config.autoRefreshManagedStates) {
-                refreshUser()
-                refreshWallets()
+                coroutineScope {
+                    val userRefreshDeferred = async { refreshUser() }
+                    val walletsRefreshDeferred = async { refreshWallets() }
+                    awaitAll(userRefreshDeferred, walletsRefreshDeferred)
+                }
             }
 
+            config.onSessionSelected?.let { it(dto) }
             return cli
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSetSelectedSession(t)
@@ -695,19 +703,21 @@ object TurnkeyContext {
             updateSession(appContext, jwt = jwt, sessionKey = targetKey)
 
             // If this was the selected session, replace the client in memory
+            val updatedSession = JwtSessionStore.load(appContext, targetKey)!!
+
             if (targetKey == selectedSessionKey.value) {
-                val updated = JwtSessionStore.load(appContext, targetKey)!!
-                val privHex = KeyPairStore.getPrivateHex(appContext, updated.publicKey)
+                val privHex = KeyPairStore.getPrivateHex(appContext, updatedSession.publicKey)
 
                 val newClient = createTurnkeyClient(
                     config,
-                    Stamper(apiPublicKey = updated.publicKey, apiPrivateKey = privHex)
+                    Stamper(apiPublicKey = updatedSession.publicKey, apiPrivateKey = privHex)
                 )
 
                 withContext(Dispatchers.Main) {
                     _client = newClient
                 }
             }
+            config.onSessionRefreshed?.let { it(updatedSession) }
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToRefreshSession(t)
         }
