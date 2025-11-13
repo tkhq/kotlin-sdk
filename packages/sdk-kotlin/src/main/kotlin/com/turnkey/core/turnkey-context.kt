@@ -1407,8 +1407,7 @@ object TurnkeyContext {
 
         val challengePair = Helpers.generateChallengePair()
 
-        val state =
-            "provider=twitter&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
+        val state = UUID.randomUUID().toString()
 
         val xAuthUrl = buildString {
             append(originUri)
@@ -1428,6 +1427,10 @@ object TurnkeyContext {
                 OAuthEvents.deepLinks
                     .filter { it.scheme.equals(scheme, ignoreCase = true) }
                     .first()
+            }
+
+            if (uri.getQueryParameter("state") != state) {
+                throw TurnkeyKotlinError.OAuthStateMismatch("Could not complete X OAuth")
             }
 
             val authCode = uri.getQueryParameter("code")
@@ -1506,8 +1509,7 @@ object TurnkeyContext {
 
         val challengePair = Helpers.generateChallengePair()
 
-        val state =
-            "provider=discord&flow=redirect&publicKey=${Uri.encode(targetPublicKey)}&nonce=${nonce}"
+        val state = UUID.randomUUID().toString()
 
         val discordAuthUrl = buildString {
             append(originUri)
@@ -1527,6 +1529,10 @@ object TurnkeyContext {
                 OAuthEvents.deepLinks
                     .filter { it.scheme.equals(scheme, ignoreCase = true) }
                     .first()
+            }
+
+            if (uri.getQueryParameter("state") != state) {
+                throw TurnkeyKotlinError.OAuthStateMismatch("Could not complete Discord OAuth")
             }
 
             val authCode = uri.getQueryParameter("code")
