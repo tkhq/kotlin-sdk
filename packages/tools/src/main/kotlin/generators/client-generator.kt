@@ -13,16 +13,20 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.asTypeName
 import io.swagger.v3.oas.models.OpenAPI
+import kotlinx.serialization.json.JsonObject
 import utils.OperationKind
 import utils.SpecCfg
 import utils.VersionedActivityTypes
 import utils.capitalizeLeading
 import utils.classifyOperation
+import utils.definitions
+import utils.extractLatestVersions
 import utils.toScreamingSnake
 import java.nio.file.Path
+import javax.validation.metadata.MethodType
 
 fun generateClientFile(
-    apis: List<Pair<SpecCfg, OpenAPI>>,
+    apis: List<Triple<SpecCfg, OpenAPI, JsonObject>>,
     outRoot: Path,
     pkg: String,
     modelsPkg: String,
@@ -50,6 +54,8 @@ fun generateClientFile(
     val okCallbackCls = ClassName("okhttp3", "Callback")
     val okResponseCls = ClassName("okhttp3", "Response")
     val ioExceptionCls = ClassName("java.io", "IOException")
+
+    val activityResponseCls = ClassName("com.turnkey.types", "V1ActivityResponse")
 
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
@@ -136,10 +142,12 @@ fun generateClientFile(
     )
 
     // For each spec and each operation, generate a method.
-    apis.forEach { (cfg, openAPI) ->
+    apis.forEach { (cfg, openAPI, swagger) ->
         val opPrefix = cfg.prefix
         val baseVarName = if (opPrefix.isBlank()) "apiBaseUrl" else "authProxyUrl"
         val isProxy = !opPrefix.isBlank()
+        val defs = swagger.definitions()
+        val latestVersions = extractLatestVersions(defs)
 
         openAPI.paths.orEmpty().forEach { (path, item) ->
             listOfNotNull("get" to item.get, "post" to item.post).forEach { (method, op) ->
@@ -330,6 +338,33 @@ fun generateClientFile(
                         )
                         if (respType == UNIT) {
                             addStatement("return Unit")
+                        } else if (kind == OperationKind.Activity && !isProxy) {
+                            val activityResultType = respSchemaRef?.let { ref ->
+                                val schemaName = opId.substringAfter("_")
+
+                                val snake = schemaName.toScreamingSnake()
+                                val versioned =
+                                    VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                val versionSuffix = Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
+
+                                // search for intents matching the above version
+                                val candidate = versionSuffix?.let { suf ->
+                                    defs.keys.firstOrNull { k ->
+                                        k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                    }
+                                }
+
+                                val resultName =
+                                    candidate
+                                        ?.removePrefix("v1")
+                                        ?.replaceFirstChar { it.lowercase() }
+                                        ?: latestVersions["${schemaName}Result"]?.formattedKeyName
+                                "${opPrefix.ifBlank { "" }}$resultName"
+                            }
+
+                            addStatement("val response = json.decodeFromString(%T.serializer(), text)", activityResponseCls)
+                            addStatement("val result = response.activity.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\")")
+                            addStatement("return %T(activity = response.activity, result = result)", respType)
                         } else {
                             addStatement("return json.decodeFromString(%T.serializer(), text)", respType)
                         }

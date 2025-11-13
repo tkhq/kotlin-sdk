@@ -1611,7 +1611,7 @@ object TurnkeyContext {
         payload: String,
         encoding: V1PayloadEncoding,
         hashFunction: V1HashFunction
-    ): V1SignRawPayloadsResult {
+    ): V1SignRawPayloadResult {
         try {
             val res = client.signRawPayload(
                 TSignRawPayloadBody(
@@ -1622,8 +1622,7 @@ object TurnkeyContext {
                     hashFunction = hashFunction
                 )
             )
-            return res.activity.result.signRawPayloadsResult
-                ?: throw TurnkeyKotlinError.InvalidResponse("No result returned from SignRawPayload")
+            return res.result
         } catch (e: Throwable) {
             throw TurnkeyKotlinError.FailedToSignRawPayload(e)
         }
@@ -1668,8 +1667,7 @@ object TurnkeyContext {
                     signWith = signWith
                 )
             )
-            return res.activity.result.signRawPayloadResult
-                ?: throw TurnkeyKotlinError.InvalidResponse("Invalid sign raw payload result")
+            return res.result
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToSignMessage(t)
         }
@@ -1696,8 +1694,7 @@ object TurnkeyContext {
                 )
             )
 
-            val importBundle = initRes.activity.result.initImportWalletResult?.importBundle
-                ?: throw TurnkeyKotlinError.InvalidResponse("No import bundle returned from initImportWallet")
+            val importBundle = initRes.result.importBundle
 
             val encrypted = encryptWalletToBundle(
                 mnemonic = mnemonic,
@@ -1746,8 +1743,7 @@ object TurnkeyContext {
                 )
             )
 
-            val bundle = res.activity.result.exportWalletResult?.exportBundle
-                ?: throw TurnkeyKotlinError.InvalidResponse("No export bundle returned from exportWallet")
+            val bundle = res.result.exportBundle
 
             val mnemonicPhrase = decryptExportBundle(
                 exportBundle = bundle,
