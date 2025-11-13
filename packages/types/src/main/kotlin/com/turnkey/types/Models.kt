@@ -10186,8 +10186,6 @@ public class TEmailAuthBody(
   public val email: String,
   @SerialName("targetPublicKey")
   public val targetPublicKey: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("apiKeyName")
   public val apiKeyName: String? = null,
   @SerialName("expirationSeconds")
@@ -10544,6 +10542,8 @@ public class TInitOtpInput(
 public class TInitOtpAuthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitOtpAuthResultV2? = null,
 )
 
 @Serializable
@@ -10556,8 +10556,6 @@ public class TInitOtpAuthBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("otpLength")
   public val otpLength: Long? = null,
   @SerialName("emailCustomization")

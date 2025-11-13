@@ -406,17 +406,16 @@ fun generateApiTypes(
                                 ?.get("enum") as? JsonArray ?: continue
                             if (typeEnum.isEmpty()) continue
 
-                            val activityTypeKey = typeEnum.first().jsonPrimitive.contentOrNull
+                            val raw = typeEnum.first().jsonPrimitive.contentOrNull ?: ""
+                            val activityTypeKey = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+
                             val baseActivity = rqRefName
                                 .replace(Regex("^v\\d+"), "")
                                 .replace(Regex("Request(V\\d+)?$"), "")
 
-                            val mapped = activityTypeKey?.let { VersionedActivityTypes.resolve(it) }
-                            if (mapped != null) {
-                                versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
-                            }
+                            val mapped = activityTypeKey.let { VersionedActivityTypes.resolve(it) }
+                            versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
 
-                            val resultBase = "${baseActivity}Result"
                             val candidate = versionSuffix?.let { suf ->
                                 defs.keys.firstOrNull { k ->
                                     k.startsWith("v1${baseActivity}Result") && k.endsWith(suf)
@@ -559,7 +558,29 @@ fun generateApiTypes(
 
                     val reqProps = jsonProperties(requestTypeDef)
                     val parametersRef = schemaRefName(reqProps?.get("parameters") as? JsonObject)
-                    val intentDef = parametersRef?.let { defs[it] }
+
+                    // get raw activity type & parse out the versioning
+                    val raw = reqProps?.get("type")?.jsonObject?.get("enum")?.jsonArray?.get(0)?.jsonPrimitive?.contentOrNull ?: ""
+                    val activityType = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+
+                    // strip the intent & versioning to get the base activity
+                    val baseActivity = parametersRef
+                        ?.replace(Regex("^v\\d+"), "")
+                        ?.replace(Regex("Intent(V\\d+)?$"), "")
+
+                    // find the proper intent version according to our VersionedActivityTypes map
+                    val mapped = activityType.let { VersionedActivityTypes.resolve(it) }
+                    val versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
+
+                    // search for intents matching the above version
+                    val candidate = versionSuffix?.let { suf ->
+                        defs.keys.firstOrNull { k ->
+                            k.startsWith("v1${baseActivity}Intent") && k.endsWith(suf)
+                        }
+                    }
+
+                    // use the candidate (from versioned map) found or just fall back to the request's parameter intent (latest)
+                    val intentDef = candidate?.let { defs[it] } ?: parametersRef?.let { defs[it] }
                     val iprops = jsonProperties(intentDef) ?: buildJsonObject { }
                     val reqd = jsonRequired(intentDef)
                     val allOpt = isAllOptionalFor(methodName)
