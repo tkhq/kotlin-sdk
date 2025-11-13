@@ -340,6 +340,11 @@ object TurnkeyContext {
         }
     }
 
+    /** Creates a Turnkey client instance
+     * @param cfg configuration to use
+     * @param stamper optional stamper (if null, unauthenticated client)
+     * @return TurnkeyClient instance
+     */
     fun createTurnkeyClient(cfg: TurnkeyConfig, stamper: Stamper? = null): TurnkeyClient {
         return TurnkeyClient(
             apiBaseUrl = cfg.apiBaseUrl,
@@ -370,7 +375,10 @@ object TurnkeyContext {
      *  - refreshes the session automatically if AutoRefreshStore has a duration; or
      *  - clears the session if not.
      *
+     * @param sessionKey session key to schedule an expiry timer.
+     * @param expTimestampSeconds expiry timestamp in seconds since epoch.
      * @param bufferSeconds fire a little earlier than exp (default 5s).
+     * @param session the session object associated with the sessionKey.
      */
     suspend fun scheduleExpiryTimer(
         sessionKey: String,
@@ -422,6 +430,8 @@ object TurnkeyContext {
     /**
      * Persist all storage artifacts for a session and schedule its expiry.
      *
+     * @param dto session DTO to persist.
+     * @param sessionKey key under which to store the session.
      * @param refreshedSessionTTLSeconds if present, also set auto-refresh duration.
      */
     @Throws(StorageError::class)
@@ -448,7 +458,9 @@ object TurnkeyContext {
     /**
      * Removes only stored artifacts for a session (does not reset in-memory UI state).
      *
-     * @param keepAutoRefresh keep auto-refresh duration (true) or remove it (false)
+     * @param context Android context.
+     * @param sessionKey session key to purge.
+     * @param keepAutoRefresh keep auto-refresh duration (true) or remove it (false).
      */
     suspend fun purgeStoredSession(
         context: Context,
@@ -465,9 +477,8 @@ object TurnkeyContext {
             JwtSessionStore.delete(context, sessionKey)
             runCatching { SessionRegistryStore.remove(context, sessionKey) }
 
-            if (!keepAutoRefresh) {
-                runCatching { AutoRefreshStore.remove(context, sessionKey) }
-            }
+            if (!keepAutoRefresh) runCatching { AutoRefreshStore.remove(context, sessionKey) }
+            
         } catch (t: Throwable) {
             TurnkeyKotlinError.FailedToPurgeSession(t)
         }
@@ -476,6 +487,10 @@ object TurnkeyContext {
     /**
      * Update an existing session with a fresh JWT.
      * Preserves auto-refresh duration if one was configured.
+     *
+     * @param context Android context.
+     * @param jwt JWT string to update the session with.
+     * @param sessionKey session key to update.
      */
     @Throws(StorageError::class)
     suspend fun updateSession(
@@ -532,6 +547,7 @@ object TurnkeyContext {
         }
     }
 
+    /** Clears all sessions stored in the registry. */
     suspend fun clearAllSessions() {
         val keys = SessionRegistryStore.all(appContext)
         for (k in keys) {
@@ -539,6 +555,9 @@ object TurnkeyContext {
         }
     }
 
+    /** Creates a new P-256 keypair, stores it, and marks it as pending.
+     * @return public key (compressed hex)
+     */
     fun createKeyPair(): String {
         val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
         KeyPairStore.save(appContext, privKey, pubKeyCompressed)
@@ -546,6 +565,9 @@ object TurnkeyContext {
         return pubKeyCompressed
     }
 
+    /** Deletes a keypair from secure storage.
+     * @param publicKey public key (compressed hex) of the keypair to delete.
+     */
     fun deleteKeyPair(publicKey: String) {
         KeyPairStore.delete(appContext, publicKey)
     }
@@ -568,6 +590,11 @@ object TurnkeyContext {
         }
     }
 
+    /** Creates a new session. Updates session, client, user, and wallet state variables
+     * @param jwt session JWT string.
+     * @param sessionKey optional session key under which to store the session.
+     * @param refreshedSessionTTLSeconds if present, also set auto-refresh duration.
+     */
     suspend fun createSession(
         jwt: String,
         sessionKey: String? = null,
@@ -590,7 +617,6 @@ object TurnkeyContext {
 
             val dto = JwtDecoder.decode<SessionJwt>(jwt)
             val expirySeconds = ((dto.expiry * 1000.0 - System.currentTimeMillis()) / 1000).toLong()
-            print(expirySeconds)
             val s = Session(
                 organizationId = dto.organizationId,
                 userId = dto.userId,
@@ -617,6 +643,10 @@ object TurnkeyContext {
         }
     }
 
+    /** Sets the current active session to the session key provided
+     * @param sessionKey session key to select.
+     * @return TurnkeyClient instance for the selected session.
+     */
     suspend fun setSelectedSession(sessionKey: String): TurnkeyClient {
         try {
             val dto = JwtSessionStore.load(appContext, sessionKey)
@@ -651,6 +681,11 @@ object TurnkeyContext {
         }
     }
 
+    /** Refresh the session for the given key (or selected session if null)
+     * @param expirationSeconds new expiration duration in seconds.
+     * @param sessionKey optional session key to refresh (if null, uses selected session).
+     * @param invalidateExisting whether to invalidate existing sessions.
+     */
     @Throws(TurnkeyKotlinError::class)
     suspend fun refreshSession(
         expirationSeconds: String = SessionStorage.DEFAULT_EXPIRATION_SECONDS,
@@ -723,6 +758,13 @@ object TurnkeyContext {
         }
     }
 
+    /** Logs in a user with OAuth
+     * @param oidcToken OIDC token from the OAuth provider.
+     * @param publicKey public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param sessionKey optional session key under which to store the session.
+     * @param organizationId optional organization ID to log in to.
+     */
     suspend fun loginWithOAuth(
         oidcToken: String,
         publicKey: String,
@@ -747,6 +789,13 @@ object TurnkeyContext {
         }
     }
 
+    /** Signs up a user with OAuth
+     * @param oidcToken OIDC token from the OAuth provider.
+     * @param publicKey public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param providerName name of the OAuth provider (e.g., "google", "apple", "facebook", "x", "discord").
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param sessionKey optional session key under which to store the session.
+     */
     suspend fun signUpWithOAuth(
         oidcToken: String,
         publicKey: String,
@@ -786,6 +835,14 @@ object TurnkeyContext {
         }
     }
 
+    /** Logs in or signs up a user with OAuth
+     * @param oidcToken OIDC token from the OAuth provider.
+     * @param publicKey public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param providerName optional name of the OAuth provider (e.g., "google", "apple", "facebook", "x", "discord").
+     * @param sessionKey optional session key under which to store the session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     */
     suspend fun loginOrSignUpWithOAuth(
         oidcToken: String,
         publicKey: String,
@@ -825,6 +882,15 @@ object TurnkeyContext {
         }
     }
 
+    /** Logs in a user with a passkey
+     * @param activity current Android activity.
+     * @param sessionKey optional session key under which to store the session.
+     * @param expirationSeconds expiration duration in seconds for the session.
+     * @param organizationId optional organization ID to log in to.
+     * @param publicKey optional public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param rpId relying party ID for the passkey.
+     */
     suspend fun loginWithPasskey(
         activity: Activity,
         sessionKey: String? = null,
@@ -871,6 +937,15 @@ object TurnkeyContext {
         }
     }
 
+    /** Signs up a user with a passkey
+     * @param activity current Android activity.
+     * @param sessionKey optional session key under which to store the session.
+     * @param expirationSeconds expiration duration in seconds for the session.
+     * @param passkeyDisplayName optional display name for the passkey.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param rpId relying party ID for the passkey.
+     */
     suspend fun signUpWithPasskey(
         activity: Activity,
         sessionKey: String? = null,
@@ -945,6 +1020,10 @@ object TurnkeyContext {
         }
     }
 
+    /** Initializes an OTP for the given contact
+     * @param otpType type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS).
+     * @param contact contact information (e.g., phone number or email address).
+     */
     suspend fun initOtp(
         otpType: OtpType,
         contact: String
@@ -958,6 +1037,12 @@ object TurnkeyContext {
         return InitOtpResult(otpId = res.otpId)
     }
 
+    /** Verifies the OTP for the given contact
+     * @param otpCode OTP code to verify.
+     * @param otpId OTP ID received from initOtp.
+     * @param contact contact information (e.g., phone number or email address).
+     * @param otpType type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS).
+     */
     suspend fun verifyOtp(
         otpCode: String,
         otpId: String,
@@ -986,6 +1071,13 @@ object TurnkeyContext {
         )
     }
 
+    /** Logs in a user with OTP
+     * @param verificationToken verification token received from verifyOtp.
+     * @param organizationId optional organization ID to log in to.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param publicKey optional public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param sessionKey optional session key under which to store the session.
+     */
     suspend fun loginWithOtp(
         verificationToken: String,
         organizationId: String? = null,
@@ -1016,6 +1108,15 @@ object TurnkeyContext {
         }
     }
 
+    /** Signs up a user with OTP
+     * @param verificationToken verification token received from verifyOtp.
+     * @param contact contact information (e.g., phone number or email address).
+     * @param otpType type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS).
+     * @param publicKey optional public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param sessionKey optional session key under which to store the session.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     */
     suspend fun signUpWithOtp(
         verificationToken: String,
         contact: String,
@@ -1055,6 +1156,16 @@ object TurnkeyContext {
         }
     }
 
+    /** Verifies the OTP for the given contact, then logs in or signs up the user
+     * @param otpId OTP ID received from initOtp.
+     * @param otpCode OTP code to verify.
+     * @param contact contact information (e.g., phone number or email address).
+     * @param otpType type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS).
+     * @param publicKey optional public key (compressed hex) corresponding to the key pair stored to use for this new session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param sessionKey optional session key under which to store the session.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     */
     suspend fun loginOrSignUpWithOtp(
         otpId: String,
         otpCode: String,
@@ -1099,6 +1210,17 @@ object TurnkeyContext {
         }
     }
 
+    /** Handles Google OAuth flow, then logs in or signs up the user
+     * @param activity current Android activity.
+     * @param clientId optional Google Client ID to use (if null, uses configured value).
+     * @param originUri optional OAuth origin URL (if null, uses default Turnkey URL).
+     * @param redirectUri optional redirect URI (if null, uses configured value).
+     * @param sessionKey optional session key under which to store the session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param onSuccess optional callback invoked with the ID token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
+     */
     suspend fun handleGoogleOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1166,6 +1288,17 @@ object TurnkeyContext {
         }
     }
 
+    /** Handles Apple OAuth flow, then logs in or signs up the user
+     * @param activity current Android activity.
+     * @param clientId optional Apple Client ID to use (if null, uses configured value).
+     * @param originUri optional OAuth origin URL (if null, uses default Turnkey URL).
+     * @param redirectUri optional redirect URI (if null, uses configured value).
+     * @param sessionKey optional session key under which to store the session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param onSuccess optional callback invoked with the ID token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
+     */
     suspend fun handleAppleOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1236,6 +1369,17 @@ object TurnkeyContext {
     // TODO: DO THIS LATER
     // suspend fun handleFacebookOAuth() {}
 
+    /** Handles X OAuth flow, then logs in or signs up the user
+     * @param activity current Android activity.
+     * @param clientId optional X Client ID to use (if null, uses configured value).
+     * @param originUri optional OAuth origin URL (if null, uses default Turnkey URL).
+     * @param redirectUri optional redirect URI (if null, uses configured value).
+     * @param sessionKey optional session key under which to store the session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param onSuccess optional callback invoked with the OIDC token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
+     */
     suspend fun handleXOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1324,6 +1468,17 @@ object TurnkeyContext {
         }
     }
 
+    /** Handles Discord OAuth flow, then logs in or signs up the user
+     * @param activity current Android activity.
+     * @param clientId optional Discord Client ID to use (if null, uses configured value).
+     * @param originUri optional OAuth origin URL (if null, uses default Turnkey URL).
+     * @param redirectUri optional redirect URI (if null, uses configured value).
+     * @param sessionKey optional session key under which to store the session.
+     * @param invalidateExisting whether to invalidate existing sessions.
+     * @param createSubOrgParams optional sub-organization creation parameters.
+     * @param onSuccess optional callback invoked with the OIDC token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
+     */
     suspend fun handleDiscordOAuth(
         activity: Activity,
         clientId: String? = null,
@@ -1412,6 +1567,11 @@ object TurnkeyContext {
         }
     }
 
+    /** Creates a new wallet
+     * @param walletName name of the wallet to create.
+     * @param accounts list of account parameters for the wallet.
+     * @param mnemonicLength length of the mnemonic phrase (e.g., 12, 24).
+     */
     suspend fun createWallet(
         walletName: String,
         accounts: List<V1WalletAccountParams>,
@@ -1440,6 +1600,12 @@ object TurnkeyContext {
         }
     }
 
+    /** Signs a raw payload using a specified wallet account
+     * @param signWith the wallet account address to sign with.
+     * @param payload the raw payload to sign (as a string).
+     * @param encoding the encoding of the payload.
+     * @param hashFunction the hash function to use.
+     */
     suspend fun signRawPayload(
         signWith: String,
         payload: String,
@@ -1463,6 +1629,14 @@ object TurnkeyContext {
         }
     }
 
+    /** Signs a message using a specified wallet account
+     * @param signWith the wallet account address to sign with.
+     * @param addressFormat the address format of the wallet account.
+     * @param message the message to sign.
+     * @param encoding optional encoding of the payload (defaults based on address format).
+     * @param hashFunction optional hash function to use (defaults based on address format).
+     * @param addEthereumPrefix optional flag to add Ethereum prefix (only applicable for Ethereum addresses).
+     */
     suspend fun signMessage(
         signWith: String,
         addressFormat: V1AddressFormat,
@@ -1501,6 +1675,11 @@ object TurnkeyContext {
         }
     }
 
+    /** Imports a wallet using the given mnemonic and account params
+     * @param walletName name of the wallet to import.
+     * @param mnemonic mnemonic phrase of the wallet.
+     * @param accounts list of account parameters for the wallet.
+     */
     suspend fun importWallet(
         walletName: String,
         mnemonic: String,
@@ -1548,6 +1727,9 @@ object TurnkeyContext {
         }
     }
 
+    /** Exports a wallet and returns the mnemonic phrase
+     * @param walletId ID of the wallet to export.
+     */
     suspend fun exportWallet(
         walletId: String,
     ): ExportWalletResult {
