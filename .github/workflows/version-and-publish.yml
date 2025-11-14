@@ -244,6 +244,9 @@ jobs:
           test -n "$GPG_PRIVATE_KEY" || { echo "Missing GPG_PRIVATE_KEY"; exit 1; }
 
       - name: Dry-run publish matrix + local publish (sanity)
+        env:
+          CENTRAL_RELEASE: "false"
+          CI: "true"
         run: |
           ./gradlew --no-daemon printPublishMatrix
           ./gradlew --no-daemon publishSelectedToMavenLocal
