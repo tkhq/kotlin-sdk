@@ -59,7 +59,7 @@ configure(publishable.map { project(it) }) {
     // Vanniktech: only wire Central + signing when requested
     extensions.configure<MavenPublishBaseExtension> {
         if (centralRequested.get()) {
-            publishToMavenCentral()
+            publishToMavenCentral(automaticRelease = true)
             signAllPublications()
         }
         pom {
