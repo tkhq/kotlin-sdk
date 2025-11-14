@@ -4,53 +4,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.*
-import utils.OperationKind
-import utils.addSerializableAnnotations
-import utils.classifyOperation
-import utils.sanitizeEnumEntry
-import utils.sanitizeFieldName
-import utils.SpecCfg
-import utils.VersionedActivityTypes
-import utils.sanitizeTypeName
-import utils.ucFirst
-
-/* -------------------------------------------------------------------------- */
-/*                               JSON HELPERS                                 */
-/* -------------------------------------------------------------------------- */
-
-private fun JsonObject.definitions(): Map<String, JsonObject> =
-    (this["definitions"] as? JsonObject)?.mapValues { it.value.jsonObject } ?: emptyMap()
-
-private fun JsonObject.paths(): Map<String, JsonObject> =
-    (this["paths"] as? JsonObject)?.mapValues { it.value.jsonObject } ?: emptyMap()
-
-private fun JsonObject.tags(): JsonArray? =
-    this["tags"] as? JsonArray
-
-/** "#/definitions/Foo.Bar" -> "FooBar" */
-private fun refToName(ref: String): String =
-    ref.removePrefix("#/definitions/").replace(".", "")
-
-private fun schemaRefName(obj: JsonObject?): String? =
-    obj?.get("\$ref")?.jsonPrimitive?.contentOrNull?.let { refToName(it) }
-
-private fun jsonTypeOf(schema: JsonObject?): String? =
-    schema?.get("type")?.jsonPrimitive?.contentOrNull
-
-private fun jsonEnum(schema: JsonObject?): JsonArray? =
-    schema?.get("enum") as? JsonArray
-
-private fun jsonProperties(schema: JsonObject?): JsonObject? =
-    schema?.get("properties") as? JsonObject
-
-private fun jsonRequired(schema: JsonObject?): Set<String> =
-    (schema?.get("required") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }?.toSet() ?: emptySet()
-
-private fun jsonItems(schema: JsonObject?): JsonObject? =
-    (schema?.get("items") as? JsonObject)
-
-private fun jsonAdditionalProperties(schema: JsonObject?): JsonElement? =
-    schema?.get("additionalProperties")
+import utils.*
 
 /* -------------------------------------------------------------------------- */
 /*                           TYPE MAPPING (JSON)                               */
@@ -364,6 +318,7 @@ fun generateApiTypes(
         val tagName = (swagger.tags()?.firstOrNull() as? JsonObject)
             ?.get("name")?.jsonPrimitive?.content
         val namespace = tagName
+        val latestVersions = extractLatestVersions(defs)
 
         pths.forEach { (_, methodsObj) ->
             val post = methodsObj["post"] as? JsonObject ?: return@forEach
@@ -406,23 +361,24 @@ fun generateApiTypes(
                                 ?.get("enum") as? JsonArray ?: continue
                             if (typeEnum.isEmpty()) continue
 
-                            val activityTypeKey = typeEnum.first().jsonPrimitive.contentOrNull
+                            val raw = typeEnum.first().jsonPrimitive.contentOrNull ?: ""
+                            val activityTypeKey = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+
                             val baseActivity = rqRefName
                                 .replace(Regex("^v\\d+"), "")
                                 .replace(Regex("Request(V\\d+)?$"), "")
 
-                            val mapped = activityTypeKey?.let { VersionedActivityTypes.resolve(it) }
-                            if (mapped != null) {
-                                versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
-                            }
+                            val mapped = activityTypeKey.let { VersionedActivityTypes.resolve(it) }
+                            versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
 
-                            val resultBase = "${baseActivity}Result"
                             val candidate = versionSuffix?.let { suf ->
                                 defs.keys.firstOrNull { k ->
                                     k.startsWith("v1${baseActivity}Result") && k.endsWith(suf)
                                 }
                             }
-                            resultTypeName = candidate?.takeIf { it.isNotEmpty() }
+
+                            // take either the found candidate or the latest intent version
+                            resultTypeName = candidate?.takeIf { it.isNotEmpty() } ?: latestVersions["${baseActivity}Result"]?.fullName
                         }
                     }
 
@@ -437,8 +393,8 @@ fun generateApiTypes(
                                         addParameter(
                                             ParameterSpec.builder(
                                                 "result",
-                                                ClassName(pkg, sanitizeTypeName(resultTypeName)).copy(nullable = true)
-                                            ).defaultValue("null").build()
+                                                ClassName(pkg, sanitizeTypeName(resultTypeName))
+                                            ).build()
                                         )
                                     }
                                 }
@@ -455,7 +411,7 @@ fun generateApiTypes(
                                 addProperty(
                                     PropertySpec.builder(
                                         "result",
-                                        ClassName(pkg, sanitizeTypeName(resultTypeName)).copy(nullable = true)
+                                        ClassName(pkg, sanitizeTypeName(resultTypeName))
                                     )
                                         .initializer("result")
                                         .addAnnotation(AnnotationSpec.builder(SerialName::class).addMember("%S", "result").build())
@@ -559,7 +515,29 @@ fun generateApiTypes(
 
                     val reqProps = jsonProperties(requestTypeDef)
                     val parametersRef = schemaRefName(reqProps?.get("parameters") as? JsonObject)
-                    val intentDef = parametersRef?.let { defs[it] }
+
+                    // get raw activity type & parse out the versioning
+                    val raw = reqProps?.get("type")?.jsonObject?.get("enum")?.jsonArray?.get(0)?.jsonPrimitive?.contentOrNull ?: ""
+                    val activityType = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+
+                    // strip the intent & versioning to get the base activity
+                    val baseActivity = parametersRef
+                        ?.replace(Regex("^v\\d+"), "")
+                        ?.replace(Regex("Intent(V\\d+)?$"), "")
+
+                    // find the proper intent version according to our VersionedActivityTypes map
+                    val mapped = activityType.let { VersionedActivityTypes.resolve(it) }
+                    val versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
+
+                    // search for intents matching the above version
+                    val candidate = versionSuffix?.let { suf ->
+                        defs.keys.firstOrNull { k ->
+                            k.startsWith("v1${baseActivity}Intent") && k.endsWith(suf)
+                        }
+                    }
+
+                    // use the candidate (from versioned map) found or just fall back to the request's parameter intent (latest)
+                    val intentDef = candidate?.let { defs[it] } ?: parametersRef?.let { defs[it] }
                     val iprops = jsonProperties(intentDef) ?: buildJsonObject { }
                     val reqd = jsonRequired(intentDef)
                     val allOpt = isAllOptionalFor(methodName)

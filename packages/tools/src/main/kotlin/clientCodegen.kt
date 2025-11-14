@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
     outRoot.createDirectories()
 
     // Parse all specs → OpenAPI 3
-    val apis: List<Pair<SpecCfg, OpenAPI>> = specs.map { it to parseToOpenApi3(it.path) }
+    val apis = specs.map { s -> Triple(s, parseToOpenApi3(s.path), readJson(s.path)) }
     generateClientFile(apis, outRoot, pkg, modelsPkg, clientClass, clientVersionHdr)
 }
 

@@ -62,4 +62,5 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data class FailedToSignMessage(val t: Throwable) : TurnkeyKotlinError("Failed to sign message", t)
     data class InvalidMessage (val s: String) : TurnkeyKotlinError("Invalid sign message payload: $s")
     data class FailedToPurgeSession(val t: Throwable) : TurnkeyKotlinError("Failed to purge session", t)
+    data class OAuthStateMismatch(val s: String) : TurnkeyKotlinError("OAuth state mismatch: $s")
 }

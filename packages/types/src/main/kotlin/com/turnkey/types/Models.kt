@@ -9316,6 +9316,8 @@ public class TApproveActivityInput(
 public class TCreateApiKeysResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateApiKeysResult,
 )
 
 @Serializable
@@ -9340,6 +9342,8 @@ public class TCreateApiKeysInput(
 public class TCreateApiOnlyUsersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateApiOnlyUsersResult,
 )
 
 @Serializable
@@ -9362,6 +9366,8 @@ public class TCreateApiOnlyUsersInput(
 public class TCreateAuthenticatorsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateAuthenticatorsResult,
 )
 
 @Serializable
@@ -9386,6 +9392,8 @@ public class TCreateAuthenticatorsInput(
 public class TCreateFiatOnRampCredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateFiatOnRampCredentialResult,
 )
 
 @Serializable
@@ -9418,6 +9426,8 @@ public class TCreateFiatOnRampCredentialInput(
 public class TCreateInvitationsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateInvitationsResult,
 )
 
 @Serializable
@@ -9440,6 +9450,8 @@ public class TCreateInvitationsInput(
 public class TCreateOauth2CredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateOauth2CredentialResult,
 )
 
 @Serializable
@@ -9466,6 +9478,8 @@ public class TCreateOauth2CredentialInput(
 public class TCreateOauthProvidersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateOauthProvidersResult,
 )
 
 @Serializable
@@ -9490,6 +9504,8 @@ public class TCreateOauthProvidersInput(
 public class TCreatePoliciesResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreatePoliciesResult,
 )
 
 @Serializable
@@ -9512,6 +9528,8 @@ public class TCreatePoliciesInput(
 public class TCreatePolicyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreatePolicyResult,
 )
 
 @Serializable
@@ -9542,6 +9560,8 @@ public class TCreatePolicyInput(
 public class TCreatePrivateKeyTagResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreatePrivateKeyTagResult,
 )
 
 @Serializable
@@ -9567,7 +9587,7 @@ public class TCreatePrivateKeysResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreatePrivateKeysResultV2? = null,
+  public val result: V1CreatePrivateKeysResultV2,
 )
 
 @Serializable
@@ -9590,6 +9610,8 @@ public class TCreatePrivateKeysInput(
 public class TCreateReadOnlySessionResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateReadOnlySessionResult,
 )
 
 @Serializable
@@ -9611,7 +9633,7 @@ public class TCreateReadWriteSessionResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreateReadWriteSessionResultV2? = null,
+  public val result: V1CreateReadWriteSessionResultV2,
 )
 
 @Serializable
@@ -9642,6 +9664,8 @@ public class TCreateReadWriteSessionInput(
 public class TCreateSmartContractInterfaceResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateSmartContractInterfaceResult,
 )
 
 @Serializable
@@ -9673,7 +9697,7 @@ public class TCreateSubOrganizationResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreateSubOrganizationResultV7? = null,
+  public val result: V1CreateSubOrganizationResultV7,
 )
 
 @Serializable
@@ -9712,6 +9736,8 @@ public class TCreateSubOrganizationInput(
 public class TCreateUserTagResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateUserTagResult,
 )
 
 @Serializable
@@ -9736,6 +9762,8 @@ public class TCreateUserTagInput(
 public class TCreateUsersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateUsersResult,
 )
 
 @Serializable
@@ -9758,6 +9786,8 @@ public class TCreateUsersInput(
 public class TCreateWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateWalletResult,
 )
 
 @Serializable
@@ -9784,6 +9814,8 @@ public class TCreateWalletInput(
 public class TCreateWalletAccountsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateWalletAccountsResult,
 )
 
 @Serializable
@@ -9810,6 +9842,8 @@ public class TCreateWalletAccountsInput(
 public class TDeleteApiKeysResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteApiKeysResult,
 )
 
 @Serializable
@@ -9834,6 +9868,8 @@ public class TDeleteApiKeysInput(
 public class TDeleteAuthenticatorsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteAuthenticatorsResult,
 )
 
 @Serializable
@@ -9858,6 +9894,8 @@ public class TDeleteAuthenticatorsInput(
 public class TDeleteFiatOnRampCredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteFiatOnRampCredentialResult,
 )
 
 @Serializable
@@ -9880,6 +9918,8 @@ public class TDeleteFiatOnRampCredentialInput(
 public class TDeleteInvitationResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteInvitationResult,
 )
 
 @Serializable
@@ -9902,6 +9942,8 @@ public class TDeleteInvitationInput(
 public class TDeleteOauth2CredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteOauth2CredentialResult,
 )
 
 @Serializable
@@ -9924,6 +9966,8 @@ public class TDeleteOauth2CredentialInput(
 public class TDeleteOauthProvidersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteOauthProvidersResult,
 )
 
 @Serializable
@@ -9948,6 +9992,8 @@ public class TDeleteOauthProvidersInput(
 public class TDeletePoliciesResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeletePoliciesResult,
 )
 
 @Serializable
@@ -9970,6 +10016,8 @@ public class TDeletePoliciesInput(
 public class TDeletePolicyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeletePolicyResult,
 )
 
 @Serializable
@@ -9992,6 +10040,8 @@ public class TDeletePolicyInput(
 public class TDeletePrivateKeyTagsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeletePrivateKeyTagsResult,
 )
 
 @Serializable
@@ -10014,6 +10064,8 @@ public class TDeletePrivateKeyTagsInput(
 public class TDeletePrivateKeysResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeletePrivateKeysResult,
 )
 
 @Serializable
@@ -10038,6 +10090,8 @@ public class TDeletePrivateKeysInput(
 public class TDeleteSmartContractInterfaceResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteSmartContractInterfaceResult,
 )
 
 @Serializable
@@ -10060,6 +10114,8 @@ public class TDeleteSmartContractInterfaceInput(
 public class TDeleteSubOrganizationResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteSubOrganizationResult,
 )
 
 @Serializable
@@ -10082,6 +10138,8 @@ public class TDeleteSubOrganizationInput(
 public class TDeleteUserTagsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteUserTagsResult,
 )
 
 @Serializable
@@ -10104,6 +10162,8 @@ public class TDeleteUserTagsInput(
 public class TDeleteUsersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteUsersResult,
 )
 
 @Serializable
@@ -10126,6 +10186,8 @@ public class TDeleteUsersInput(
 public class TDeleteWalletAccountsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteWalletAccountsResult,
 )
 
 @Serializable
@@ -10150,6 +10212,8 @@ public class TDeleteWalletAccountsInput(
 public class TDeleteWalletsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteWalletsResult,
 )
 
 @Serializable
@@ -10174,6 +10238,8 @@ public class TDeleteWalletsInput(
 public class TEmailAuthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1EmailAuthResult,
 )
 
 @Serializable
@@ -10186,8 +10252,6 @@ public class TEmailAuthBody(
   public val email: String,
   @SerialName("targetPublicKey")
   public val targetPublicKey: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("apiKeyName")
   public val apiKeyName: String? = null,
   @SerialName("expirationSeconds")
@@ -10214,6 +10278,8 @@ public class TEmailAuthInput(
 public class TEthSendRawTransactionResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1EthSendRawTransactionResult,
 )
 
 @Serializable
@@ -10238,6 +10304,8 @@ public class TEthSendRawTransactionInput(
 public class TEthSendTransactionResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1EthSendTransactionResult,
 )
 
 @Serializable
@@ -10282,6 +10350,8 @@ public class TEthSendTransactionInput(
 public class TExportPrivateKeyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ExportPrivateKeyResult,
 )
 
 @Serializable
@@ -10306,6 +10376,8 @@ public class TExportPrivateKeyInput(
 public class TExportWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ExportWalletResult,
 )
 
 @Serializable
@@ -10332,6 +10404,8 @@ public class TExportWalletInput(
 public class TExportWalletAccountResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ExportWalletAccountResult,
 )
 
 @Serializable
@@ -10356,6 +10430,8 @@ public class TExportWalletAccountInput(
 public class TImportPrivateKeyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ImportPrivateKeyResult,
 )
 
 @Serializable
@@ -10386,6 +10462,8 @@ public class TImportPrivateKeyInput(
 public class TImportWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ImportWalletResult,
 )
 
 @Serializable
@@ -10414,6 +10492,8 @@ public class TImportWalletInput(
 public class TInitFiatOnRampResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitFiatOnRampResult,
 )
 
 @Serializable
@@ -10456,6 +10536,8 @@ public class TInitFiatOnRampInput(
 public class TInitImportPrivateKeyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitImportPrivateKeyResult,
 )
 
 @Serializable
@@ -10478,6 +10560,8 @@ public class TInitImportPrivateKeyInput(
 public class TInitImportWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitImportWalletResult,
 )
 
 @Serializable
@@ -10500,6 +10584,8 @@ public class TInitImportWalletInput(
 public class TInitOtpResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitOtpResult,
 )
 
 @Serializable
@@ -10544,6 +10630,8 @@ public class TInitOtpInput(
 public class TInitOtpAuthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitOtpAuthResultV2,
 )
 
 @Serializable
@@ -10556,8 +10644,6 @@ public class TInitOtpAuthBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("otpLength")
   public val otpLength: Long? = null,
   @SerialName("emailCustomization")
@@ -10586,6 +10672,8 @@ public class TInitOtpAuthInput(
 public class TInitUserEmailRecoveryResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1InitUserEmailRecoveryResult,
 )
 
 @Serializable
@@ -10622,6 +10710,8 @@ public class TInitUserEmailRecoveryInput(
 public class TOauthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1OauthResult,
 )
 
 @Serializable
@@ -10652,6 +10742,8 @@ public class TOauthInput(
 public class TOauth2AuthenticateResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1Oauth2AuthenticateResult,
 )
 
 @Serializable
@@ -10684,6 +10776,8 @@ public class TOauth2AuthenticateInput(
 public class TOauthLoginResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1OauthLoginResult,
 )
 
 @Serializable
@@ -10712,6 +10806,8 @@ public class TOauthLoginInput(
 public class TOtpAuthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1OtpAuthResult,
 )
 
 @Serializable
@@ -10744,6 +10840,8 @@ public class TOtpAuthInput(
 public class TOtpLoginResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1OtpLoginResult,
 )
 
 @Serializable
@@ -10774,6 +10872,8 @@ public class TOtpLoginInput(
 public class TRecoverUserResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1RecoverUserResult,
 )
 
 @Serializable
@@ -10820,6 +10920,8 @@ public class TRejectActivityInput(
 public class TRemoveOrganizationFeatureResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1RemoveOrganizationFeatureResult,
 )
 
 @Serializable
@@ -10842,6 +10944,8 @@ public class TRemoveOrganizationFeatureInput(
 public class TSetOrganizationFeatureResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SetOrganizationFeatureResult,
 )
 
 @Serializable
@@ -10866,6 +10970,8 @@ public class TSetOrganizationFeatureInput(
 public class TSignRawPayloadResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SignRawPayloadResult,
 )
 
 @Serializable
@@ -10894,6 +11000,8 @@ public class TSignRawPayloadInput(
 public class TSignRawPayloadsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SignRawPayloadsResult,
 )
 
 @Serializable
@@ -10922,6 +11030,8 @@ public class TSignRawPayloadsInput(
 public class TSignTransactionResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SignTransactionResult,
 )
 
 @Serializable
@@ -10948,6 +11058,8 @@ public class TSignTransactionInput(
 public class TStampLoginResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1StampLoginResult,
 )
 
 @Serializable
@@ -10974,6 +11086,8 @@ public class TStampLoginInput(
 public class TUpdateFiatOnRampCredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateFiatOnRampCredentialResult,
 )
 
 @Serializable
@@ -11006,6 +11120,8 @@ public class TUpdateFiatOnRampCredentialInput(
 public class TUpdateOauth2CredentialResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateOauth2CredentialResult,
 )
 
 @Serializable
@@ -11035,7 +11151,7 @@ public class TUpdatePolicyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1UpdatePolicyResultV2? = null,
+  public val result: V1UpdatePolicyResultV2,
 )
 
 @Serializable
@@ -11068,6 +11184,8 @@ public class TUpdatePolicyInput(
 public class TUpdatePrivateKeyTagResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdatePrivateKeyTagResult,
 )
 
 @Serializable
@@ -11096,6 +11214,8 @@ public class TUpdatePrivateKeyTagInput(
 public class TUpdateRootQuorumResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateRootQuorumResult,
 )
 
 @Serializable
@@ -11120,6 +11240,8 @@ public class TUpdateRootQuorumInput(
 public class TUpdateUserResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateUserResult,
 )
 
 @Serializable
@@ -11150,6 +11272,8 @@ public class TUpdateUserInput(
 public class TUpdateUserEmailResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateUserEmailResult,
 )
 
 @Serializable
@@ -11176,6 +11300,8 @@ public class TUpdateUserEmailInput(
 public class TUpdateUserNameResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateUserNameResult,
 )
 
 @Serializable
@@ -11200,6 +11326,8 @@ public class TUpdateUserNameInput(
 public class TUpdateUserPhoneNumberResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateUserPhoneNumberResult,
 )
 
 @Serializable
@@ -11226,6 +11354,8 @@ public class TUpdateUserPhoneNumberInput(
 public class TUpdateUserTagResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateUserTagResult,
 )
 
 @Serializable
@@ -11254,6 +11384,8 @@ public class TUpdateUserTagInput(
 public class TUpdateWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateWalletResult,
 )
 
 @Serializable
@@ -11278,6 +11410,8 @@ public class TUpdateWalletInput(
 public class TVerifyOtpResponse(
   @SerialName("activity")
   public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1VerifyOtpResult,
 )
 
 @Serializable

@@ -252,6 +252,7 @@ import com.turnkey.types.TUpdateWalletBody
 import com.turnkey.types.TUpdateWalletResponse
 import com.turnkey.types.TVerifyOtpBody
 import com.turnkey.types.TVerifyOtpResponse
+import com.turnkey.types.V1ActivityResponse
 import java.io.IOException
 import kotlin.String
 import kotlin.Suppress
@@ -1422,7 +1423,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_api_keys: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateApiKeysResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createApiKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/create_api_keys")
+      return TCreateApiKeysResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1468,7 +1471,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_api_only_users: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateApiOnlyUsersResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createApiOnlyUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_api_only_users")
+      return TCreateApiOnlyUsersResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1514,7 +1519,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_authenticators: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateAuthenticatorsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createAuthenticatorsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_authenticators")
+      return TCreateAuthenticatorsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1560,7 +1567,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_fiat_on_ramp_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateFiatOnRampCredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/create_fiat_on_ramp_credential")
+      return TCreateFiatOnRampCredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1606,7 +1615,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_invitations: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateInvitationsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createInvitationsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_invitations")
+      return TCreateInvitationsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1652,7 +1663,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth2_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateOauth2CredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth2_credential")
+      return TCreateOauth2CredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1698,7 +1711,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_oauth_providers: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateOauthProvidersResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createOauthProvidersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth_providers")
+      return TCreateOauthProvidersResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1744,7 +1759,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_policies: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreatePoliciesResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createPoliciesResult ?: throw RuntimeException("No result found from /public/v1/submit/create_policies")
+      return TCreatePoliciesResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1790,7 +1807,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_policy: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreatePolicyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createPolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/create_policy")
+      return TCreatePolicyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1836,7 +1855,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_private_key_tag: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreatePrivateKeyTagResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createPrivateKeyTagResult ?: throw RuntimeException("No result found from /public/v1/submit/create_private_key_tag")
+      return TCreatePrivateKeyTagResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1882,7 +1903,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_private_keys: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreatePrivateKeysResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createPrivateKeysResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_private_keys")
+      return TCreatePrivateKeysResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1928,7 +1951,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_read_only_session: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateReadOnlySessionResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createReadOnlySessionResult ?: throw RuntimeException("No result found from /public/v1/submit/create_read_only_session")
+      return TCreateReadOnlySessionResponse(activity = response.activity, result = result)
     }
   }
 
@@ -1974,7 +1999,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_read_write_session: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateReadWriteSessionResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createReadWriteSessionResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_read_write_session")
+      return TCreateReadWriteSessionResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2020,7 +2047,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_smart_contract_interface: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateSmartContractInterfaceResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createSmartContractInterfaceResult ?: throw RuntimeException("No result found from /public/v1/submit/create_smart_contract_interface")
+      return TCreateSmartContractInterfaceResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2066,7 +2095,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_sub_organization: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateSubOrganizationResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createSubOrganizationResultV7 ?: throw RuntimeException("No result found from /public/v1/submit/create_sub_organization")
+      return TCreateSubOrganizationResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2112,7 +2143,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_user_tag: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateUserTagResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createUserTagResult ?: throw RuntimeException("No result found from /public/v1/submit/create_user_tag")
+      return TCreateUserTagResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2158,7 +2191,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_users: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateUsersResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_users")
+      return TCreateUsersResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2204,7 +2239,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateWalletResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/create_wallet")
+      return TCreateWalletResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2250,7 +2287,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/create_wallet_accounts: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TCreateWalletAccountsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.createWalletAccountsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_wallet_accounts")
+      return TCreateWalletAccountsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2296,7 +2335,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_api_keys: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteApiKeysResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteApiKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_api_keys")
+      return TDeleteApiKeysResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2342,7 +2383,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_authenticators: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteAuthenticatorsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteAuthenticatorsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_authenticators")
+      return TDeleteAuthenticatorsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2388,7 +2431,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_fiat_on_ramp_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteFiatOnRampCredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_fiat_on_ramp_credential")
+      return TDeleteFiatOnRampCredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2434,7 +2479,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_invitation: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteInvitationResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteInvitationResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_invitation")
+      return TDeleteInvitationResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2480,7 +2527,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth2_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteOauth2CredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_oauth2_credential")
+      return TDeleteOauth2CredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2526,7 +2575,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_oauth_providers: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteOauthProvidersResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteOauthProvidersResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_oauth_providers")
+      return TDeleteOauthProvidersResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2572,7 +2623,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_policies: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeletePoliciesResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deletePoliciesResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_policies")
+      return TDeletePoliciesResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2618,7 +2671,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_policy: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeletePolicyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deletePolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_policy")
+      return TDeletePolicyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2664,7 +2719,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_key_tags: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeletePrivateKeyTagsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deletePrivateKeyTagsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_private_key_tags")
+      return TDeletePrivateKeyTagsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2710,7 +2767,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_private_keys: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeletePrivateKeysResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deletePrivateKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_private_keys")
+      return TDeletePrivateKeysResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2756,7 +2815,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_smart_contract_interface: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteSmartContractInterfaceResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteSmartContractInterfaceResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_smart_contract_interface")
+      return TDeleteSmartContractInterfaceResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2802,7 +2863,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_sub_organization: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteSubOrganizationResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteSubOrganizationResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_sub_organization")
+      return TDeleteSubOrganizationResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2848,7 +2911,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_user_tags: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteUserTagsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteUserTagsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_user_tags")
+      return TDeleteUserTagsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2894,7 +2959,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_users: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteUsersResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_users")
+      return TDeleteUsersResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2940,7 +3007,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_wallet_accounts: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteWalletAccountsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteWalletAccountsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_wallet_accounts")
+      return TDeleteWalletAccountsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -2986,7 +3055,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/delete_wallets: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TDeleteWalletsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.deleteWalletsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_wallets")
+      return TDeleteWalletsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3032,7 +3103,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/email_auth: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TEmailAuthResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.emailAuthResult ?: throw RuntimeException("No result found from /public/v1/submit/email_auth")
+      return TEmailAuthResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3078,7 +3151,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/eth_send_raw_transaction: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TEthSendRawTransactionResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.ethSendRawTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/eth_send_raw_transaction")
+      return TEthSendRawTransactionResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3124,7 +3199,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/eth_send_transaction: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TEthSendTransactionResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.ethSendTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/eth_send_transaction")
+      return TEthSendTransactionResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3170,7 +3247,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/export_private_key: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TExportPrivateKeyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.exportPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/export_private_key")
+      return TExportPrivateKeyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3216,7 +3295,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TExportWalletResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.exportWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/export_wallet")
+      return TExportWalletResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3262,7 +3343,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/export_wallet_account: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TExportWalletAccountResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.exportWalletAccountResult ?: throw RuntimeException("No result found from /public/v1/submit/export_wallet_account")
+      return TExportWalletAccountResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3308,7 +3391,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/import_private_key: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TImportPrivateKeyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.importPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/import_private_key")
+      return TImportPrivateKeyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3354,7 +3439,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/import_wallet: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TImportWalletResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.importWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/import_wallet")
+      return TImportWalletResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3400,7 +3487,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_fiat_on_ramp: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitFiatOnRampResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initFiatOnRampResult ?: throw RuntimeException("No result found from /public/v1/submit/init_fiat_on_ramp")
+      return TInitFiatOnRampResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3446,7 +3535,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_import_private_key: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitImportPrivateKeyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initImportPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/init_import_private_key")
+      return TInitImportPrivateKeyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3492,7 +3583,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_import_wallet: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitImportWalletResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initImportWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/init_import_wallet")
+      return TInitImportWalletResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3538,7 +3631,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_otp: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitOtpResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initOtpResult ?: throw RuntimeException("No result found from /public/v1/submit/init_otp")
+      return TInitOtpResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3584,7 +3679,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_otp_auth: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitOtpAuthResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initOtpAuthResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/init_otp_auth")
+      return TInitOtpAuthResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3630,7 +3727,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/init_user_email_recovery: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TInitUserEmailRecoveryResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.initUserEmailRecoveryResult ?: throw RuntimeException("No result found from /public/v1/submit/init_user_email_recovery")
+      return TInitUserEmailRecoveryResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3676,7 +3775,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TOauthResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.oauthResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth")
+      return TOauthResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3722,7 +3823,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth2_authenticate: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TOauth2AuthenticateResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.oauth2AuthenticateResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth2_authenticate")
+      return TOauth2AuthenticateResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3768,7 +3871,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/oauth_login: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TOauthLoginResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.oauthLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth_login")
+      return TOauthLoginResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3814,7 +3919,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/otp_auth: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TOtpAuthResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.otpAuthResult ?: throw RuntimeException("No result found from /public/v1/submit/otp_auth")
+      return TOtpAuthResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3860,7 +3967,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/otp_login: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TOtpLoginResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.otpLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/otp_login")
+      return TOtpLoginResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3906,7 +4015,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/recover_user: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TRecoverUserResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.recoverUserResult ?: throw RuntimeException("No result found from /public/v1/submit/recover_user")
+      return TRecoverUserResponse(activity = response.activity, result = result)
     }
   }
 
@@ -3998,7 +4109,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/remove_organization_feature: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TRemoveOrganizationFeatureResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.removeOrganizationFeatureResult ?: throw RuntimeException("No result found from /public/v1/submit/remove_organization_feature")
+      return TRemoveOrganizationFeatureResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4044,7 +4157,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/set_organization_feature: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TSetOrganizationFeatureResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.setOrganizationFeatureResult ?: throw RuntimeException("No result found from /public/v1/submit/set_organization_feature")
+      return TSetOrganizationFeatureResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4090,7 +4205,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payload: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TSignRawPayloadResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.signRawPayloadResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_raw_payload")
+      return TSignRawPayloadResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4136,7 +4253,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_raw_payloads: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TSignRawPayloadsResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.signRawPayloadsResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_raw_payloads")
+      return TSignRawPayloadsResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4182,7 +4301,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/sign_transaction: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TSignTransactionResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.signTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_transaction")
+      return TSignTransactionResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4228,7 +4349,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/stamp_login: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TStampLoginResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.stampLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/stamp_login")
+      return TStampLoginResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4274,7 +4397,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_fiat_on_ramp_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateFiatOnRampCredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/update_fiat_on_ramp_credential")
+      return TUpdateFiatOnRampCredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4320,7 +4445,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_oauth2_credential: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateOauth2CredentialResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/update_oauth2_credential")
+      return TUpdateOauth2CredentialResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4366,7 +4493,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_policy: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdatePolicyResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updatePolicyResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/update_policy")
+      return TUpdatePolicyResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4412,7 +4541,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_private_key_tag: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdatePrivateKeyTagResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updatePrivateKeyTagResult ?: throw RuntimeException("No result found from /public/v1/submit/update_private_key_tag")
+      return TUpdatePrivateKeyTagResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4458,7 +4589,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_root_quorum: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateRootQuorumResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateRootQuorumResult ?: throw RuntimeException("No result found from /public/v1/submit/update_root_quorum")
+      return TUpdateRootQuorumResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4504,7 +4637,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateUserResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateUserResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user")
+      return TUpdateUserResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4550,7 +4685,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_email: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateUserEmailResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateUserEmailResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_email")
+      return TUpdateUserEmailResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4596,7 +4733,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_name: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateUserNameResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateUserNameResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_name")
+      return TUpdateUserNameResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4642,7 +4781,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_phone_number: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateUserPhoneNumberResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateUserPhoneNumberResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_phone_number")
+      return TUpdateUserPhoneNumberResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4688,7 +4829,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_user_tag: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateUserTagResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateUserTagResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_tag")
+      return TUpdateUserTagResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4734,7 +4877,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/update_wallet: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TUpdateWalletResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.updateWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/update_wallet")
+      return TUpdateWalletResponse(activity = response.activity, result = result)
     }
   }
 
@@ -4780,7 +4925,9 @@ public class TurnkeyClient(
         throw RuntimeException("""HTTP error from /public/v1/submit/verify_otp: """ + it.code)
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TVerifyOtpResponse.serializer(), text)
+      val response = json.decodeFromString(V1ActivityResponse.serializer(), text)
+      val result = response.activity.result.verifyOtpResult ?: throw RuntimeException("No result found from /public/v1/submit/verify_otp")
+      return TVerifyOtpResponse(activity = response.activity, result = result)
     }
   }
 

@@ -8,6 +8,12 @@ import com.squareup.kotlinpoet.TypeSpec
 import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.Schema
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.nio.file.Path
 
 private val STRING = ClassName("kotlin", "String")
@@ -161,3 +167,82 @@ object VersionedActivityTypes {
     /** Fallbacks to the input if there’s no versioned entry. */
     fun resolve(type: String): String = map[type] ?: type
 }
+
+data class LatestVersion(
+    val fullName: String,
+    val formattedKeyName: String,
+    val versionSuffix: String?
+)
+
+private val keyVersionRegex = Regex("""^(v\d+)([A-Z][A-Za-z0-9]*?)(V\d+)?$""")
+
+/**
+ * Takes Swagger/OpenAPI definition names and returns, per base type,
+ * the latest version (by numeric suffix, e.g., V4 > V2; no suffix = 0).
+ *
+ * Keys like: v1CreateSubOrganizationResult, v1CreateSubOrganizationResultV2, ...
+ * Result map key is the base name (e.g., "CreateSubOrganizationResult").
+ */
+fun extractLatestVersions(definitions: Map<String, *>): Map<String, LatestVersion> {
+    fun String.lcFirst(): String =
+        if (isEmpty()) this else replaceFirstChar { it.lowercase() }
+
+    fun parseSuffixToInt(suffix: String?): Int =
+        suffix?.removePrefix("V")?.toIntOrNull() ?: 0
+
+    val latest = linkedMapOf<String, LatestVersion>()
+
+    for (key in definitions.keys) {
+        val m = keyVersionRegex.matchEntire(key) ?: continue
+
+        val fullName = m.groupValues[0]
+        val baseName = m.groupValues[2]                // unversioned core, e.g. "CreateSubOrganizationResult"
+        val versionSuffix = m.groupValues.getOrNull(3).takeUnless { it.isNullOrEmpty() } // e.g. "V4" or null
+
+        val formattedKeyName = baseName.lcFirst() + (versionSuffix ?: "")
+
+        val current = latest[baseName]
+        val currentVer = parseSuffixToInt(current?.versionSuffix)
+        val nextVer = parseSuffixToInt(versionSuffix)
+
+        if (current == null || nextVer > currentVer) {
+            latest[baseName] = LatestVersion(fullName, formattedKeyName, versionSuffix)
+        }
+    }
+
+    return latest
+}
+
+fun JsonObject.definitions(): Map<String, JsonObject> =
+    (this["definitions"] as? JsonObject)?.mapValues { it.value.jsonObject } ?: emptyMap()
+
+fun JsonObject.paths(): Map<String, JsonObject> =
+    (this["paths"] as? JsonObject)?.mapValues { it.value.jsonObject } ?: emptyMap()
+
+fun JsonObject.tags(): JsonArray? =
+    this["tags"] as? JsonArray
+
+/** "#/definitions/Foo.Bar" -> "FooBar" */
+fun refToName(ref: String): String =
+    ref.removePrefix("#/definitions/").replace(".", "")
+
+fun schemaRefName(obj: JsonObject?): String? =
+    obj?.get("\$ref")?.jsonPrimitive?.contentOrNull?.let { refToName(it) }
+
+fun jsonTypeOf(schema: JsonObject?): String? =
+    schema?.get("type")?.jsonPrimitive?.contentOrNull
+
+fun jsonEnum(schema: JsonObject?): JsonArray? =
+    schema?.get("enum") as? JsonArray
+
+fun jsonProperties(schema: JsonObject?): JsonObject? =
+    schema?.get("properties") as? JsonObject
+
+fun jsonRequired(schema: JsonObject?): Set<String> =
+    (schema?.get("required") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }?.toSet() ?: emptySet()
+
+fun jsonItems(schema: JsonObject?): JsonObject? =
+    (schema?.get("items") as? JsonObject)
+
+fun jsonAdditionalProperties(schema: JsonObject?): JsonElement? =
+    schema?.get("additionalProperties")
