@@ -264,7 +264,7 @@ jobs:
         run: |
           ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace
           
-          # Remove publishing creds from ~/.gradle/gradle.properties
+        # Remove publishing creds from ~/.gradle/gradle.properties
           if [ -f ~/.gradle/gradle.properties ]; then
             tmp="$(mktemp)"
             grep -v -E '^[[:space:]]*(mavenCentralUsername|mavenCentralPassword)[[:space:]]*=' \
