@@ -226,14 +226,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
 
-      # TODO: Feed Gradle the Central + signing creds, matching our root build.gradle wiring
-      - name: Configure publishing credentials
-        run: |
-          {
-            echo "mavenCentralUsername=${{ secrets.SONATYPE_USERNAME }}";
-            echo "mavenCentralPassword=${{ secrets.SONATYPE_PASSWORD }}";
-          } >> ~/.gradle/gradle.properties
-
       - name: Import in-memory PGP key (used by Signing plugin)
         env:
           OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -251,23 +243,66 @@ jobs:
         run: |
           ./gradlew --no-daemon printPublishMatrix
           ./gradlew --no-daemon publishSelectedToMavenLocal
+          echo "Successfully published local dry-run!"
+
+      # Import subkey-only signing key into gpg for this job
+      - name: Import GPG signing subkeys
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo "Missing GPG_PRIVATE_KEY secret"; exit 1; }
+
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+
+        # Import the subkeys-only keyring
+          printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+        # Configure gpg for non-interactive use
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --reload gpg-agent
+
+        # list keys
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Configure publishing credentials
+        run: |
+          {
+            echo "mavenCentralUsername=${{ secrets.SONATYPE_USERNAME }}";
+            echo "mavenCentralPassword=${{ secrets.SONATYPE_PASSWORD }}";
+            echo "signing.gnupg.executable=gpg";
+            echo "signing.gnupg.keyName=${{ secrets.GPG_FINGERPRINT }}";
+            echo "signing.gnupg.passphrase=${{ secrets.GPG_PASSPHRASE }}";
+          } >> ~/.gradle/gradle.properties
 
       # Real publish to Central (snapshots if version ends with -SNAPSHOT, otherwise release staging flow)
       - name: Publish to Maven Central
         env:
           CENTRAL_RELEASE: "true"
           CI: "true"
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         run: |
-          ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace
-          
+          ./gradlew clean --no-daemon publishSelectedToMavenCentral --stacktrace    
+          echo "\033[0;32m"
+          echo "░██████╗██╗░░░██╗░█████╗░░█████╗░███████╗░██████╗░██████╗"
+          echo "██╔════╝██║░░░██║██╔══██╗██╔══██╗██╔════╝██╔════╝██╔════╝"
+          echo "╚█████╗░██║░░░██║██║░░╚═╝██║░░╚═╝█████╗░░╚█████╗░╚█████╗░"
+          echo "░╚═══██╗██║░░░██║██║░░██╗██║░░██╗██╔══╝░░░╚═══██╗░╚═══██╗"
+          echo "██████╔╝╚██████╔╝╚█████╔╝╚█████╔╝███████╗██████╔╝██████╔╝"
+          echo "╚═════╝░░╚═════╝░░╚════╝░░╚════╝░╚══════╝╚═════╝░╚═════╝░"
+          echo "\033[0m"
+
         # Remove publishing creds from ~/.gradle/gradle.properties
           if [ -f ~/.gradle/gradle.properties ]; then
             tmp="$(mktemp)"
-            grep -v -E '^[[:space:]]*(mavenCentralUsername|mavenCentralPassword)[[:space:]]*=' \
+            grep -v -E '^[[:space:]]*(mavenCentralUsername|mavenCentralPassword|signing\.gnupg\.executable|signing\.gnupg\.keyName|signing\.gnupg\.passphrase)[[:space:]]*=' \
               ~/.gradle/gradle.properties > "$tmp"
             mv "$tmp" ~/.gradle/gradle.properties
           fi
+          echo "Cleared ~/.gradle/gradle.properties"
+        # Remove ~/.gnupg as well 
+          rm -rf ~/.gnupg
+          echo "Cleared ~/.gnupg"

@@ -85,14 +85,7 @@ configure(publishable.map { project(it) }) {
 
     plugins.withId("signing") {
         extensions.configure<SigningExtension> {
-            val ciKey = providers.environmentVariable("GPG_PRIVATE_KEY")
-            val ciPass = providers.environmentVariable("GPG_PASSPHRASE")
-
-            if (ciKey.isPresent) {
-                useInMemoryPgpKeys(ciKey.get(), ciPass.get())
-            } else {
-                useGpgCmd()
-            }
+            useGpgCmd()
             isRequired = centralRequested.get()
         }
     }
