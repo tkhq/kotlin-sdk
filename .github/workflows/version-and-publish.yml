@@ -19,7 +19,6 @@ env:
 
 jobs:
   publish:
-    needs: prepare-release
     runs-on: ubuntu-latest
 
     steps:
