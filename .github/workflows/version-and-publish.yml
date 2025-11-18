@@ -75,6 +75,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
 
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
       - name: Dry-run publish matrix + local publish (sanity)
         env:
           CENTRAL_RELEASE: "false"
