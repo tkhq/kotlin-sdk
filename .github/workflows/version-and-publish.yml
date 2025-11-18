@@ -245,7 +245,6 @@ jobs:
           ./gradlew --no-daemon publishSelectedToMavenLocal
           echo "Successfully published local dry-run!"
 
-      # Import subkey-only signing key into gpg for this job
       - name: Import GPG signing subkeys
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -255,16 +254,13 @@ jobs:
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
 
-        # Import the subkeys-only keyring
           printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
         
-        # Configure gpg for non-interactive use
           echo "use-agent" >> ~/.gnupg/gpg.conf
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --reload gpg-agent
         
-        # list keys
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Configure publishing credentials
@@ -277,7 +273,6 @@ jobs:
             echo "signing.gnupg.passphrase=${{ secrets.GPG_PASSPHRASE }}";
           } >> ~/.gradle/gradle.properties
 
-      # Real publish to Central (snapshots if version ends with -SNAPSHOT, otherwise release staging flow)
       - name: Publish to Maven Central
         env:
           CENTRAL_RELEASE: "true"
@@ -295,7 +290,6 @@ jobs:
           echo "╚═════╝░░╚═════╝░░╚════╝░░╚════╝░╚══════╝╚═════╝░╚═════╝░"
           echo "\033[0m"
           
-        # Remove publishing creds from ~/.gradle/gradle.properties
           if [ -f ~/.gradle/gradle.properties ]; then
             tmp="$(mktemp)"
             grep -v -E '^[[:space:]]*(mavenCentralUsername|mavenCentralPassword|signing\.gnupg\.executable|signing\.gnupg\.keyName|signing\.gnupg\.passphrase)[[:space:]]*=' \
@@ -303,6 +297,6 @@ jobs:
             mv "$tmp" ~/.gradle/gradle.properties
           fi
           echo "Cleared ~/.gradle/gradle.properties"
-        # Remove ~/.gnupg as well 
+          
           rm -rf ~/.gnupg
           echo "Cleared ~/.gnupg"
