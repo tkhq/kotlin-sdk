@@ -180,9 +180,10 @@ examples/
 
 This repo uses the Vanniktech Maven Publish plugin.
 
-```bash
- comming soon
-```
+1. Ensure changesets are present in the `/.changesets` directory (CI will check for present changesets and exit if none are present)
+2. Push a release tag that follows the format: `v<year>.<month>.<release_no>` e.g: `v2025.11.1`
+3. CI will automatically pick up the tag and kick off the publish flow
+4. Await approval on the publish step and the rest is covered!
 
 > CI usually publishes in dependency order. Only modules with version changes will be released. Use prerelease tags like `0.1.0‑beta.1` when needed.
 > Bump precedence for versioning goes as follows: `beta` > `major` > `minor` > `patch` (meaning if a package has both a `major` and a `patch` changeset, the `major` bump will take precedence e.g. 0.1.0 (major + patch bump) -> 1.0.0)

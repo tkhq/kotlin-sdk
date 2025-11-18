@@ -232,9 +232,11 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
         run: |
           test -n "$GPG_PRIVATE_KEY" || { echo "Missing GPG_PRIVATE_KEY"; exit 1; }
           test -n "$GPG_PASSPHRASE" || { echo "Missing GPG_PASSPHRASE"; exit 1; }
+          test -n "$GPG_FINGERPRINT" || { echo "Missing GPG_FINGERPRINT"; exit 1; }
 
       - name: Dry-run publish matrix + local publish (sanity)
         env:
