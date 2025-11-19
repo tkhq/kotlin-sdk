@@ -127,7 +127,7 @@ lifecycleScope.launch {
 
 At Turnkey, we take security very seriously. We sign every published artifact so you can verify that what you consume is exactly what we released.
 
-1) Download the artifact + its detached signature:
+### 1) Download the artifact + its detached signature:
 
 >Replace ARTIFACT_ID with the module you’re verifying (e.g. sdk-kotlin, http, types) and VERSION with the version.
 
@@ -144,7 +144,7 @@ curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${A
 curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.pom.asc
 ```
 
-2) Import our public key (one-time)
+### 2) Import our public key (one-time)
 - Our Kotlin publishing key is discoverable on [keys.openpgp.org](https://keys.openpgp.org/search?q=kotlin-publishers%40turnkey.io) under kotlin-publishers@turnkey.io
 
 You can import by fingerprint:
@@ -158,7 +158,7 @@ You can confirm it’s in your keyring:
 gpg --list-keys kotlin-publishers@turnkey.io
 ```
 
-3) Verify signatures:
+### 3) Verify signatures:
 ```bash
 # Verify sources JAR
 gpg --verify ${ARTIFACT_ID}-${VERSION}-sources.jar.asc ${ARTIFACT_ID}-${VERSION}-sources.jar
