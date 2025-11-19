@@ -174,7 +174,7 @@ gpg:                using RSA key <SIGNING_KEY_FINGERPRINT>
 gpg: Good signature from "Turnkey Kotlin Publishers <kotlin-publishers@turnkey.io>"
 ```
 
-#### Troubleshooting
+### Troubleshooting
 
 - **“No public key”**: Import the correct fingerprint (see step 2), or gpg --recv-keys <fingerprint> again.
 - **Key trust level**: “Good signature” is what matters for authenticity. You can set ownertrust if you want, but it’s not required to validate the signature.
