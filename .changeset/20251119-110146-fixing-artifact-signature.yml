@@ -1,0 +1,11 @@
+title: Fixing artifact signature
+packages:
+  crypto: patch
+  encoding: patch
+  http: patch
+  passkey: patch
+  stamper: patch
+  types: patch
+  sdk-kotlin: patch
+changelog: |-
+  Re-signing artifacts to ensure signature verification works with our uploaded key
