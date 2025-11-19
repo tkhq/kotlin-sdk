@@ -78,7 +78,7 @@ configure(publishable.map { project(it) }) {
                 developerConnection.set("scm:git:ssh://git@github.com:tkhq/kotlin-sdk.git")
             }
             developers {
-                developer { id.set("ethan"); name.set("Ethan Konkolowicz") }
+                developer { id.set("turnkey"); name.set("Turnkey") }
             }
         }
     }

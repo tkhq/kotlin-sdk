@@ -225,6 +225,16 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 # v4.4.4
 
+      - name: Bump Gradle/JVM memory
+        run: |
+          mkdir -p ~/.gradle
+          cat >> ~/.gradle/gradle.properties <<'EOF'
+            org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError
+            org.gradle.parallel=false
+            org.gradle.workers.max=1
+            org.gradle.caching=true
+          EOF
+
       - name: Import in-memory PGP key (used by Signing plugin)
         env:
           OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
