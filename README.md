@@ -10,8 +10,6 @@
 
 The Turnkey **Kotlin/Android** SDKs provide everything you need to build a fully working Android app powered by Turnkey: typed HTTP access, auth flows (OAuth / Passkeys / OTP), session + key management, and wallet utilities.
 
----
-
 ## Packages
 
 | Package        | Description                                                                                                                                               | Path                                                      |
@@ -26,8 +24,6 @@ The Turnkey **Kotlin/Android** SDKs provide everything you need to build a fully
 | **tools**      | Internal codegen utilities used by `types` and `http` (generators, helpers).                                                                              | [`packages/tools/`](./packages/tools/README.md)           |
 
 > See each package’s README for usage details and API docs.
-
----
 
 ## Quick start (Android)
 
@@ -127,7 +123,62 @@ lifecycleScope.launch {
 }
 ```
 
----
+## Verify our artifacts!
+
+At Turnkey, we take security very seriously. We sign every published artifact so you can verify that what you consume is exactly what we released.
+
+### 1) Download the artifact + its detached signature:
+
+>Replace ARTIFACT_ID with the module you’re verifying (e.g. sdk-kotlin, http, types) and VERSION with the version.
+
+```bash
+ARTIFACT_ID=sdk-kotlin
+VERSION=<PACKAGE_VERSION>
+
+# JAR and its .asc (detached signature)
+curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}-sources.jar
+curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}-sources.jar.asc
+
+# (Recommended) also verify the POM:
+curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.pom
+curl -O https://repo1.maven.org/maven2/com/turnkey/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.pom.asc
+```
+
+### 2) Import our public key (one-time)
+- Our Kotlin publishing key is discoverable on [keys.openpgp.org](https://keys.openpgp.org/search?q=kotlin-publishers%40turnkey.io) under kotlin-publishers@turnkey.io
+
+You can import by fingerprint:
+```bash
+# Replace the fingerprint with the one shown on keys.openpgp.org for kotlin-publishers@turnkey.io
+gpg --keyserver hkps://keys.openpgp.org --recv-keys PUB_KEY_FINGERPRINT
+```
+
+You can confirm it’s in your keyring:
+```bash
+gpg --list-keys kotlin-publishers@turnkey.io
+```
+
+### 3) Verify signatures:
+```bash
+# Verify sources JAR
+gpg --verify ${ARTIFACT_ID}-${VERSION}-sources.jar.asc ${ARTIFACT_ID}-${VERSION}-sources.jar
+
+# Verify POM
+gpg --verify ${ARTIFACT_ID}-${VERSION}.pom.asc ${ARTIFACT_ID}-${VERSION}.pom
+```
+
+If everything is good, you’ll see output like:
+```bash
+gpg: Signature made <SIGNATURE_TIMESTAMP>
+gpg:                using RSA key <SIGNING_KEY_FINGERPRINT>
+gpg: Good signature from "Turnkey Kotlin Publishers <kotlin-publishers@turnkey.io>"
+```
+
+### Troubleshooting
+
+- **“No public key”**: Import the correct fingerprint (see step 2), or gpg --recv-keys <fingerprint> again.
+- **Key trust level**: “Good signature” is what matters for authenticity. You can set ownertrust if you want, but it’s not required to validate the signature.
+- **Wrong artifact path**: Double-check group ID (com.turnkey vs your snapshot/group), module (ARTIFACT_ID), and VERSION.
 
 ## Code generation
 
@@ -139,8 +190,6 @@ This repo uses a **tools** module to generate models and the typed HTTP client f
 | **http**  | `./gradlew :packages:http:regenerateHttpClient` | `packages/http/openapi/public_api.swagger.json`, `packages/http/openapi/auth_proxy.swagger.json`   | `packages/http/src/main/kotlin/com/turnkey/http/TurnkeyClient.kt` |
 
 > Exact task names/flags live in each module’s `build.gradle(.kts)` and are documented in the package READMEs.
-
----
 
 ## Repository layout
 
@@ -158,8 +207,6 @@ examples/
   kotlin-demo-wallet/
 ```
 
----
-
 ## Development
 
 ### Requirements
@@ -173,8 +220,6 @@ examples/
 ./gradlew build
 ./gradlew test
 ```
-
----
 
 ## Releasing
 
@@ -190,14 +235,10 @@ This repo uses the Vanniktech Maven Publish plugin.
 
 > IMPORTANT: `beta` takes precedence over ALL, meaning if a package has a `major` changeset + a `beta` changeset, the final version will look like `0.1.0-beta.1` -> `0.1.0-beta.2 `
 
----
-
 ## Links
 
 * Turnkey product docs: [https://docs.turnkey.com](https://docs.turnkey.com)
 * Public API reference: [https://docs.turnkey.com/api](https://docs.turnkey.com/api)
-
----
 
 ## Security
 
@@ -205,13 +246,9 @@ This repo uses the Vanniktech Maven Publish plugin.
 * For passkeys, configure **Digital Asset Links** so your domain (RP ID) is associated with your app.
 * For dev loopback, prefer `10.0.2.2` on Android emulators; allow cleartext only in debug builds.
 
----
-
 ## License
 
 Apache-2.0
-
----
 
 ## Contributing
 
@@ -219,8 +256,6 @@ Apache-2.0
 2. Keep changes small and well‑scoped.
 3. Add tests for bugfixes and new features.
 4. Add a changeset for your changes using the tooling found in the repo root `build.gradle.kts` ([here](./build.gradle.kts)). More information below.
-
----
 
 ## Changeset Tooling
 
