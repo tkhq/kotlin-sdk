@@ -2,4 +2,4 @@ title: OAuth Params
 packages:
   sdk-kotlin: patch
 changelog: |-
-  Added public key and provider name to the onSuccess callback provided by all OAuth methods
+  Added public key and provider name to the onSuccess callback provided by handle OAuth methods
