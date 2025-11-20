@@ -10,6 +10,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 abstract class ChangesetsBase : DefaultTask() {
 
@@ -385,8 +386,8 @@ abstract class ChangesetsChangelogTask : ChangesetsBase() {
             val section = buildString {
                 appendLine("## $newVer — $today")
                 entries.groupBy({ it.first }, { it.second }).forEach { (bump, msgs) ->
-                    appendLine("- **$bump**")
-                    msgs.forEach { msg -> appendLine("  - $msg") }
+                    appendLine("### ${bump.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }} Changes")
+                    msgs.forEach { msg -> appendLine("- $msg") }
                 }
                 appendLine()
             }
