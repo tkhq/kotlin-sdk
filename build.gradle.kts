@@ -115,6 +115,15 @@ tasks.register("publishSelectedToMavenLocal") {
     finalizedBy("printPublishMatrix")
 }
 
+tasks.register("publishAllToMavenLocal") {
+    group = "publishing"
+    description= "Publish all modules to Maven Local"
+
+    dependsOn(
+        publishable.map { mod ->"${mod}:publishToMavenLocal" }
+    )
+}
+
 // Publish bumped modules to Maven Central
 tasks.register("publishSelectedToMavenCentral") {
     group = "publishing"
