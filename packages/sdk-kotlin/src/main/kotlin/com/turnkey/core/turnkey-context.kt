@@ -478,7 +478,7 @@ object TurnkeyContext {
             runCatching { SessionRegistryStore.remove(context, sessionKey) }
 
             if (!keepAutoRefresh) runCatching { AutoRefreshStore.remove(context, sessionKey) }
-            
+
         } catch (t: Throwable) {
             TurnkeyKotlinError.FailedToPurgeSession(t)
         }
@@ -1218,7 +1218,7 @@ object TurnkeyContext {
      * @param sessionKey optional session key under which to store the session.
      * @param invalidateExisting whether to invalidate existing sessions.
      * @param createSubOrgParams optional sub-organization creation parameters.
-     * @param onSuccess optional callback invoked with the ID token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param onSuccess optional callback invoked with the OIDC token, public key, and provider name on successful OAuth (if null, uses default login/sign-up behavior).
      * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
      */
     suspend fun handleGoogleOAuth(
@@ -1229,7 +1229,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         invalidateExisting: Boolean? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
-        onSuccess: ((String) -> Unit)? = null,
+        onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10
     ) {
         val scheme = masterConfig.appScheme
@@ -1268,7 +1268,7 @@ object TurnkeyContext {
 
             withContext(Dispatchers.IO) {
                 if (onSuccess != null) {
-                    onSuccess(idToken)
+                    onSuccess(idToken, targetPublicKey, "google")
                 } else {
                     // default behavior
                     loginOrSignUpWithOAuth(
@@ -1296,7 +1296,7 @@ object TurnkeyContext {
      * @param sessionKey optional session key under which to store the session.
      * @param invalidateExisting whether to invalidate existing sessions.
      * @param createSubOrgParams optional sub-organization creation parameters.
-     * @param onSuccess optional callback invoked with the ID token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param onSuccess optional callback invoked with the OIDC token, public key, and provider name on successful OAuth (if null, uses default login/sign-up behavior).
      * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
      */
     suspend fun handleAppleOAuth(
@@ -1307,7 +1307,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         invalidateExisting: Boolean? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
-        onSuccess: ((String) -> Unit)? = null,
+        onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10
     ) {
         val scheme = masterConfig.appScheme
@@ -1346,7 +1346,7 @@ object TurnkeyContext {
 
             withContext(Dispatchers.IO) {
                 if (onSuccess != null) {
-                    onSuccess(idToken)
+                    onSuccess(idToken, targetPublicKey, "apple")
                 } else {
                     // default behavior
                     loginOrSignUpWithOAuth(
@@ -1377,7 +1377,7 @@ object TurnkeyContext {
      * @param sessionKey optional session key under which to store the session.
      * @param invalidateExisting whether to invalidate existing sessions.
      * @param createSubOrgParams optional sub-organization creation parameters.
-     * @param onSuccess optional callback invoked with the OIDC token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param onSuccess optional callback invoked with the OIDC token, public key, and provider name on successful OAuth (if null, uses default login/sign-up behavior).
      * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
      */
     suspend fun handleXOAuth(
@@ -1388,7 +1388,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         invalidateExisting: Boolean? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
-        onSuccess: ((String) -> Unit)? = null,
+        onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10,
     ) {
         val scheme = masterConfig.appScheme
@@ -1451,7 +1451,7 @@ object TurnkeyContext {
                 val oidcToken = res.oidcToken
 
                 if (onSuccess != null) {
-                    onSuccess(oidcToken)
+                    onSuccess(oidcToken, targetPublicKey, "x")
                 } else {
                     // default behavior
                     loginOrSignUpWithOAuth(
@@ -1479,7 +1479,7 @@ object TurnkeyContext {
      * @param sessionKey optional session key under which to store the session.
      * @param invalidateExisting whether to invalidate existing sessions.
      * @param createSubOrgParams optional sub-organization creation parameters.
-     * @param onSuccess optional callback invoked with the OIDC token on successful OAuth (if null, uses default login/sign-up behavior).
+     * @param onSuccess optional callback invoked with the OIDC token, public key, and provider name on successful OAuth (if null, uses default login/sign-up behavior).
      * @param timeoutMinutes timeout duration in minutes to wait for the OAuth redirect (default: 10 minutes).
      */
     suspend fun handleDiscordOAuth(
@@ -1490,7 +1490,7 @@ object TurnkeyContext {
         sessionKey: String? = null,
         invalidateExisting: Boolean? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
-        onSuccess: ((String) -> Unit)? = null,
+        onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10,
     ) {
         val scheme = masterConfig.appScheme
@@ -1553,7 +1553,7 @@ object TurnkeyContext {
                 val oidcToken = res.oidcToken
 
                 if (onSuccess != null) {
-                    onSuccess(oidcToken)
+                    onSuccess(oidcToken, targetPublicKey, "discord")
                 } else {
                     // default behavior
                     loginOrSignUpWithOAuth(
