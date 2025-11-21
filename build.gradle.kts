@@ -119,7 +119,6 @@ tasks.register("publishAllToMavenLocal") {
     group = "publishing"
     description= "Publish all modules to Maven Local"
 
-    println(publishable.map { mod ->"${mod}:publishToMavenLocal" })
     dependsOn(
         publishable.map { mod ->"${mod}:publishToMavenLocal" }
     )
