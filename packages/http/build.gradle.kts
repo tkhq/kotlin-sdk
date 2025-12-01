@@ -60,7 +60,6 @@ val clientCodegen = tasks.register<JavaExec>("client-codegen") {
         "--modelsPkg", "com.turnkey.types",
         "--class", "TurnkeyClient",
         "--typesFileName", "Models",
-        "--clientVersion", "kotlin-sdk/0.1.0",
         "--warning-mode", "all"
     )
 }
