@@ -40,14 +40,13 @@ fun main(args: Array<String>) {
     val pkg = arg("--pkg")
     val modelsPkg = arg("--modelsPkg")
     val clientClass = arg("--class", "TurnkeyClient")
-    val clientVersionHdr = arg("--clientVersion", "kotlin-sdk/0.1.0")
 
     specs.forEach { require(Files.exists(it.path)) { "Spec not found: ${it.path}" } }
     outRoot.createDirectories()
 
     // Parse all specs → OpenAPI 3
     val apis = specs.map { s -> Triple(s, parseToOpenApi3(s.path), readJson(s.path)) }
-    generateClientFile(apis, outRoot, pkg, modelsPkg, clientClass, clientVersionHdr)
+    generateClientFile(apis, outRoot, pkg, modelsPkg, clientClass)
 }
 
 /** Convert Swagger 2.0 to OpenAPI 3 for easier traversal. */

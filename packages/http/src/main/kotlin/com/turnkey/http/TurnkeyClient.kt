@@ -310,7 +310,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetActivityBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -340,7 +340,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetApiKeyBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -370,7 +370,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetApiKeysBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -400,7 +400,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetAttestationDocumentBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -430,7 +430,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetAuthenticatorBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -460,7 +460,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetAuthenticatorsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -490,7 +490,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetBootProofBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -520,7 +520,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetLatestBootProofBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -550,7 +550,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetOauth2CredentialBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -580,7 +580,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetOauthProvidersBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -610,7 +610,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetOnRampTransactionStatusBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -640,7 +640,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetOrganizationBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -670,7 +670,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetOrganizationConfigsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -700,7 +700,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetPolicyBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -730,7 +730,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetPolicyEvaluationsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -760,7 +760,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetPrivateKeyBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -790,7 +790,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetSmartContractInterfaceBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -820,7 +820,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetUserBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -850,7 +850,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetWalletBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -880,7 +880,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetWalletAccountBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -910,7 +910,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetActivitiesBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -940,7 +940,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetAppProofsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -970,7 +970,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TListFiatOnRampCredentialsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1000,7 +1000,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TListOauth2CredentialsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1030,7 +1030,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetPoliciesBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1060,7 +1060,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TListPrivateKeyTagsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1090,7 +1090,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetPrivateKeysBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1120,7 +1120,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetSmartContractInterfacesBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1150,7 +1150,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetSubOrgIdsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1180,7 +1180,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TListUserTagsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1210,7 +1210,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetUsersBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1240,7 +1240,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetVerifiedSubOrgIdsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1270,7 +1270,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetWalletAccountsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1300,7 +1300,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetWalletsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1330,7 +1330,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TGetWhoamiBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1368,7 +1368,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1414,7 +1414,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1462,7 +1462,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1510,7 +1510,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1558,7 +1558,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1606,7 +1606,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1654,7 +1654,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1702,7 +1702,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1750,7 +1750,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1798,7 +1798,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1846,7 +1846,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1894,7 +1894,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1942,7 +1942,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -1990,7 +1990,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2038,7 +2038,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2086,7 +2086,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2134,7 +2134,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2182,7 +2182,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2230,7 +2230,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2278,7 +2278,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2326,7 +2326,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2374,7 +2374,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2422,7 +2422,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2470,7 +2470,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2518,7 +2518,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2566,7 +2566,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2614,7 +2614,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2662,7 +2662,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2710,7 +2710,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2758,7 +2758,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2806,7 +2806,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2854,7 +2854,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2902,7 +2902,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2950,7 +2950,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -2998,7 +2998,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3046,7 +3046,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3094,7 +3094,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3142,7 +3142,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3190,7 +3190,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3238,7 +3238,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3286,7 +3286,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3334,7 +3334,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3382,7 +3382,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3430,7 +3430,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3478,7 +3478,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3526,7 +3526,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3574,7 +3574,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3622,7 +3622,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3670,7 +3670,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3718,7 +3718,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3766,7 +3766,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3814,7 +3814,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3862,7 +3862,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3910,7 +3910,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -3958,7 +3958,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4006,7 +4006,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4054,7 +4054,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4100,7 +4100,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4148,7 +4148,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4196,7 +4196,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4244,7 +4244,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4292,7 +4292,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4340,7 +4340,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4388,7 +4388,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4436,7 +4436,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4484,7 +4484,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4532,7 +4532,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4580,7 +4580,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4628,7 +4628,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4676,7 +4676,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4724,7 +4724,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4772,7 +4772,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4820,7 +4820,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4868,7 +4868,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4916,7 +4916,7 @@ public class TurnkeyClient(
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); orgIdElem?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4956,7 +4956,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = "{}"
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -4986,7 +4986,7 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val bodyJson = json.encodeToString(TTestRateLimitsBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5015,7 +5015,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/account"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTGetAccountBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5035,7 +5035,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/oauth2_authenticate"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTOAuth2AuthenticateBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5055,7 +5055,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/oauth_login"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTOAuthLoginBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5075,7 +5075,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/otp_init"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTInitOtpBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5095,7 +5095,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/otp_login"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTOtpLoginBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5115,7 +5115,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/otp_verify"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTVerifyOtpBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5135,7 +5135,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/signup"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTSignupBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {
@@ -5155,7 +5155,7 @@ public class TurnkeyClient(
     val url = "$authProxyUrl/v1/wallet_kit_config"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpErrors.MissingAuthProxyConfigId
     val bodyJson = json.encodeToString(ProxyTGetWalletKitConfigBody.serializer(), input)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", "kotlin-sdk/0.1.0").build()
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
     val call = http.newCall(req)
     val resp = call.await()
     resp.use {

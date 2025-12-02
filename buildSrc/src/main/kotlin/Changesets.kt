@@ -3,6 +3,7 @@
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.*
 import java.io.File
@@ -21,6 +22,9 @@ abstract class ChangesetsBase : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val changesetDir: DirectoryProperty
+
+    @get:OutputFile
+    abstract val generatedVersionDir: RegularFileProperty
 
     @get:Input
     abstract val modules: ListProperty<String>
@@ -214,7 +218,7 @@ abstract class ChangesetsBase : DefaultTask() {
             val replaced = if (re.containsMatchIn(txt)) {
                 txt.replace(re, "version=$newVer")
             } else {
-                if (txt.endsWith("\n")) txt + "version=$newVer\n" else txt + "\nversion=$newVer\n"
+                if (txt.endsWith("\n")) txt + "version=$newVer\n" else "$txt\nversion=$newVer\n"
             }
             props.writeText(replaced)
             return true
@@ -294,6 +298,9 @@ abstract class ChangesetsVersionTask : ChangesetsBase() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract override val changesetDir: DirectoryProperty
 
+    @get:OutputFile
+    abstract override val generatedVersionDir: RegularFileProperty
+
     @get:Input
     abstract override val modules: ListProperty<String>
 
@@ -334,6 +341,22 @@ abstract class ChangesetsVersionTask : ChangesetsBase() {
             val ok = writeModuleVersion(dir, next)
             if (ok) println("  - $modPath: $cur → $next ($bump)")
             else    println("  - $modPath: failed to write version")
+
+            if (modPath == "http") {
+                val file = generatedVersionDir.get().asFile
+                file.writeText(
+                    """
+                        package com.turnkey.http
+
+                        /**
+                         * Auto-generated. Do not edit manually.
+                         */
+                        object Version {
+                            const val VERSION: String = "turnkey/kotlin-sdk@$next"
+                        }
+                    """.trimIndent()
+                )
+            }
         }
 
         // Move applied files to .changeset/applied
@@ -350,7 +373,7 @@ abstract class ChangesetsVersionTask : ChangesetsBase() {
         bumpedListFile.writeText(
             target.keys.joinToString("\n")
         )
-        println("Wrote bumped module list to ${bumpedListFile}")
+        println("Wrote bumped module list to $bumpedListFile")
     }
 }
 

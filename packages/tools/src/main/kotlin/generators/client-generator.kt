@@ -31,7 +31,6 @@ fun generateClientFile(
     pkg: String,
     modelsPkg: String,
     className: String,
-    clientVersionHdr: String,
 ) {
     val stamperClass = ClassName("com.turnkey.stamper", "Stamper")
     val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyHttpErrors")
@@ -54,6 +53,7 @@ fun generateClientFile(
     val okCallbackCls = ClassName("okhttp3", "Callback")
     val okResponseCls = ClassName("okhttp3", "Response")
     val ioExceptionCls = ClassName("java.io", "IOException")
+    val clientVersionHdr = ClassName("com.turnkey.http", "Version")
 
     val activityResponseCls = ClassName("com.turnkey.types", "V1ActivityResponse")
 
@@ -210,7 +210,7 @@ fun generateClientFile(
 
                             if (isProxy) {
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Auth-Proxy-Config-ID", "authProxyConfigId",
                                     "X-Client-Version", clientVersionHdr
@@ -218,7 +218,7 @@ fun generateClientFile(
                             } else {
                                 addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Client-Version", clientVersionHdr
                                 )
@@ -241,7 +241,7 @@ fun generateClientFile(
                                     bodyDto
                                 )
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Auth-Proxy-Config-ID", "authProxyConfigId",
                                     "X-Client-Version", clientVersionHdr
@@ -292,7 +292,7 @@ fun generateClientFile(
                                 // stamp & request
                                 addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Client-Version", clientVersionHdr
                                 )
@@ -307,7 +307,7 @@ fun generateClientFile(
 
                             if (isProxy) {
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(%S, %N).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Auth-Proxy-Config-ID", "authProxyConfigId",
                                     "X-Client-Version", clientVersionHdr
@@ -315,7 +315,7 @@ fun generateClientFile(
                             } else {
                                 addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
                                 addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %S).build()",
+                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %T.VERSION).build()",
                                     requestCls, toReqBody, "application/json", toMediaType,
                                     "X-Client-Version", clientVersionHdr
                                 )
