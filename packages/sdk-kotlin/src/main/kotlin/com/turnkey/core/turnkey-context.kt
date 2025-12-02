@@ -4,10 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
-import android.util.Log
-import androidx.annotation.MainThread
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -22,7 +18,6 @@ import com.turnkey.internal.storage.sessions.JwtSessionStore
 import com.turnkey.internal.storage.sessions.SelectedSessionStore
 import com.turnkey.internal.storage.sessions.SessionRegistryStore
 import com.turnkey.models.AuthState
-import com.turnkey.models.Storage
 import com.turnkey.models.StorageError
 import com.turnkey.models.TurnkeyConfig
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +36,6 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import com.turnkey.models.*
 import com.turnkey.crypto.generateP256KeyPair
-import com.turnkey.encoding.hexToBytesOrNull
 import com.turnkey.internal.encryptWalletToBundle
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
@@ -58,7 +52,6 @@ import com.turnkey.types.ProxyTVerifyOtpBody
 import com.turnkey.types.TCreateWalletBody
 import com.turnkey.types.TExportWalletBody
 import com.turnkey.types.TGetUserBody
-import com.turnkey.types.TGetWalletAccountsBody
 import com.turnkey.types.TGetWalletsBody
 import com.turnkey.types.TImportWalletBody
 import com.turnkey.types.TInitImportWalletBody
@@ -66,16 +59,13 @@ import com.turnkey.types.TSignRawPayloadBody
 import com.turnkey.types.TStampLoginBody
 import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1CreateWalletResult
-import com.turnkey.types.V1ExportWalletResult
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1ImportWalletResult
 import com.turnkey.types.V1Oauth2Provider
 import com.turnkey.types.V1PayloadEncoding
 import com.turnkey.types.V1SignRawPayloadResult
-import com.turnkey.types.V1SignRawPayloadsResult
 import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
-import com.turnkey.utils.KeyFormat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.filter
@@ -85,10 +75,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
-import okio.Utf8
 import java.nio.charset.StandardCharsets
 import java.util.Date
-import java.util.HexFormat
 import java.util.UUID
 
 object TurnkeyContext {
@@ -97,7 +85,7 @@ object TurnkeyContext {
     private val initMutex = Mutex()
     lateinit var appContext: Context
     private lateinit var config: TurnkeyConfig
-    private lateinit var masterConfig: TurnkeyConfig
+    private lateinit var runtimeConfig: TurnkeyRuntimeConfig
 
     private val io = Dispatchers.IO
     private val bg = Dispatchers.Default
@@ -191,7 +179,7 @@ object TurnkeyContext {
 
                 // Resolve final config (proxy wins; failure is non-fatal)
                 val proxyConfig = runCatching { proxyDeferred.await() }.getOrNull()
-                masterConfig = config.resolveWithProxy(proxyConfig)
+                runtimeConfig = config.resolveWithProxy(proxyConfig)
             }
         } catch (t: Throwable) {
             if (!clientReady.isCompleted) clientReady.completeExceptionally(t)
@@ -201,13 +189,7 @@ object TurnkeyContext {
 
     private fun TurnkeyConfig.resolveWithProxy(
         authProxyConfig: ProxyTGetWalletKitConfigResponse?
-    ): TurnkeyConfig {
-        fun resolveMethod(local: Boolean?, key: String): Boolean? {
-            if (local != null) return local
-            val proxy = authProxyConfig ?: return null
-            return key in proxy.enabledProviders
-        }
-
+    ): TurnkeyRuntimeConfig {
         fun resolveClientId(local: String?, key: String): String? {
             if (!local.isNullOrEmpty()) return local
             return authProxyConfig?.oauthClientIds?.get(key)
@@ -217,42 +199,6 @@ object TurnkeyContext {
             if (!local.isNullOrEmpty()) return local
             return authProxyConfig?.oauthRedirectUrl
         }
-
-        val usingAuthProxy = !this.authProxyConfigId.isNullOrEmpty()
-        if (usingAuthProxy) {
-            this.authConfig?.sessionExpirationSeconds?.let {
-                Log.w(
-                    "TurnkeyConfig",
-                    "`sessionExpirationSeconds` set directly will be ignored when using an auth proxy. Configure this in the Turnkey dashboard."
-                )
-            }
-            this.authConfig?.otpAlphanumeric?.let {
-                Log.w(
-                    "TurnkeyConfig",
-                    "`otpAlphanumeric` set directly will be ignored when using an auth proxy. Configure this in the Turnkey dashboard."
-                )
-            }
-            this.authConfig?.otpLength?.let {
-                Log.w(
-                    "TurnkeyConfig",
-                    "`otpLength` set directly will be ignored when using an auth proxy. Configure this in the Turnkey dashboard."
-                )
-            }
-        }
-
-        // ---- resolved methods (nullable booleans) ----
-        val baseMethods = this.authConfig?.methods
-        val resolvedMethods = AuthMethods(
-            emailOtpAuthEnabled = resolveMethod(baseMethods?.emailOtpAuthEnabled, "email"),
-            smsOtpAuthEnabled = resolveMethod(baseMethods?.smsOtpAuthEnabled, "sms"),
-            passkeyAuthEnabled = resolveMethod(baseMethods?.passkeyAuthEnabled, "passkey"),
-            walletAuthEnabled = resolveMethod(baseMethods?.walletAuthEnabled, "wallet"),
-            googleOauthEnabled = resolveMethod(baseMethods?.googleOauthEnabled, "google"),
-            appleOauthEnabled = resolveMethod(baseMethods?.appleOauthEnabled, "apple"),
-            xOauthEnabled = resolveMethod(baseMethods?.xOauthEnabled, "x"),
-            discordOauthEnabled = resolveMethod(baseMethods?.discordOauthEnabled, "discord"),
-            facebookOauthEnabled = resolveMethod(baseMethods?.facebookOauthEnabled, "facebook"),
-        )
 
         // ---- resolved OAuth (strings) ----
         val baseOAuth = this.authConfig?.oAuthConfig
@@ -265,22 +211,12 @@ object TurnkeyContext {
             discordClientId = resolveClientId(baseOAuth?.discordClientId, "discord"),
         )
 
-        // ---- proxy-only values (proxy wins; if using proxy and missing, null them) ----
-        val sessionExpirationSeconds =
-            authProxyConfig?.sessionExpirationSeconds
-                ?: (if (usingAuthProxy) null else this.authConfig?.sessionExpirationSeconds)
+        // ---- proxy-only values ----
+        val sessionExpirationSeconds = authProxyConfig?.sessionExpirationSeconds
+        val otpAlphanumeric = authProxyConfig?.otpAlphanumeric
+        val otpLength = authProxyConfig?.otpLength
 
-        val otpAlphanumeric =
-            authProxyConfig?.otpAlphanumeric
-                ?: (if (usingAuthProxy) null else this.authConfig?.otpAlphanumeric)
-
-        val otpLength =
-            authProxyConfig?.otpLength
-                ?: (if (usingAuthProxy) null else this.authConfig?.otpLength)
-
-        // Preserve your createSubOrgParams as-is
-        val resolvedAuth = AuthConfig(
-            methods = resolvedMethods,
+        val resolvedAuth = RuntimeAuthConfig(
             oAuthConfig = resolvedOAuth,
             sessionExpirationSeconds = sessionExpirationSeconds,
             otpAlphanumeric = otpAlphanumeric,
@@ -288,8 +224,20 @@ object TurnkeyContext {
             createSubOrgParams = this.authConfig?.createSubOrgParams
         )
 
-        // If TurnkeyConfig is a data class, prefer copy()
-        return this.copy(authConfig = resolvedAuth)
+        return TurnkeyRuntimeConfig(
+            organizationId = this.organizationId,
+            apiBaseUrl = this.apiBaseUrl,
+            authProxyBaseUrl = this.authProxyBaseUrl,
+            authProxyConfigId = this.authProxyConfigId,
+            authConfig = resolvedAuth,
+            appScheme = this.appScheme,
+            autoRefreshManagedStates = this.autoRefreshManagedStates,
+            autoFetchWalletKitConfig = this.autoFetchWalletKitConfig,
+            onSessionCreated = this.onSessionCreated,
+            onSessionSelected = this.onSessionSelected,
+            onSessionExpired = this.onSessionExpired,
+            onSessionRefreshed = this.onSessionRefreshed
+        )
     }
 
     private suspend fun getAuthProxyConfig(): ProxyTGetWalletKitConfigResponse? {
@@ -302,7 +250,6 @@ object TurnkeyContext {
             )
         }
     }
-
 
     /**
      * Attempt to restore a previously selected session.
@@ -539,7 +486,7 @@ object TurnkeyContext {
         if (selectedSessionKey.value == key) {
             _authState.value = AuthState.unauthenticated
             _selectedSessionKey.value = null
-            _client = createTurnkeyClient(masterConfig)
+            _client = createTurnkeyClient(runtimeConfig)
             _user.value = null
             _session.value = null
             _wallets.value = null
@@ -809,7 +756,7 @@ object TurnkeyContext {
         )
         val updatedCreateSubOrgParams = Helpers.getCreateSubOrgParams(
             createSubOrgParams,
-            masterConfig,
+            runtimeConfig,
             overrideParams
         )
         val signUpBody = Helpers.buildSignUpBody(
@@ -986,7 +933,7 @@ object TurnkeyContext {
                 temporaryPublicKey = temporaryPublicKey
             )
             val updatedCreateSubOrgParams =
-                Helpers.getCreateSubOrgParams(createSubOrgParams, masterConfig, overrideParams)
+                Helpers.getCreateSubOrgParams(createSubOrgParams, runtimeConfig, overrideParams)
 
             val signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
@@ -1060,7 +1007,8 @@ object TurnkeyContext {
         val accountRes = client.proxyGetAccount(
             ProxyTGetAccountBody(
                 filterType = otpTypeToFilterTypeMap.getValue(otpType).name,
-                filterValue = contact
+                filterValue = contact,
+                verificationToken = verifyOtpRes.verificationToken
             )
         )
 
@@ -1133,7 +1081,7 @@ object TurnkeyContext {
         )
 
         val updatedCreateSubOrgParams =
-            Helpers.getCreateSubOrgParams(createSubOrgParams, masterConfig, overrideParams)
+            Helpers.getCreateSubOrgParams(createSubOrgParams, runtimeConfig, overrideParams)
         val signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
         try {
@@ -1232,18 +1180,18 @@ object TurnkeyContext {
         onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10
     ) {
-        val scheme = masterConfig.appScheme
+        val scheme = runtimeConfig.appScheme
             ?: throw TurnkeyKotlinError.MissingConfigParam("App scheme is not configured. Set `appScheme` in TurnkeyConfig.")
 
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
         val googleClientId = clientId
-            ?: masterConfig.authConfig?.oAuthConfig?.googleClientId
+            ?: runtimeConfig.authConfig?.oAuthConfig?.googleClientId
             ?: throw TurnkeyKotlinError.MissingConfigParam("Google Client ID not configured")
 
         val resolvedRedirect = redirectUri
-            ?: masterConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+            ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
             ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
 
         val oauthUrl = buildString {
@@ -1310,18 +1258,18 @@ object TurnkeyContext {
         onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10
     ) {
-        val scheme = masterConfig.appScheme
+        val scheme = runtimeConfig.appScheme
             ?: throw TurnkeyKotlinError.MissingConfigParam("App scheme is not configured. Set `appScheme` in TurnkeyConfig.")
 
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
         val appleClientId = clientId
-            ?: masterConfig.authConfig?.oAuthConfig?.appleClientId
+            ?: runtimeConfig.authConfig?.oAuthConfig?.appleClientId
             ?: throw TurnkeyKotlinError.MissingConfigParam("Apple Client ID not configured")
 
         val resolvedRedirect = redirectUri
-            ?: masterConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+            ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
             ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
 
         val oauthUrl = buildString {
@@ -1391,18 +1339,18 @@ object TurnkeyContext {
         onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10,
     ) {
-        val scheme = masterConfig.appScheme
+        val scheme = runtimeConfig.appScheme
             ?: throw TurnkeyKotlinError.MissingConfigParam("App scheme is not configured. Set `appScheme` in TurnkeyConfig.")
 
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
         val xClientId = clientId
-            ?: masterConfig.authConfig?.oAuthConfig?.xClientId
+            ?: runtimeConfig.authConfig?.oAuthConfig?.xClientId
             ?: throw TurnkeyKotlinError.MissingConfigParam("X Client ID not configured")
 
         val resolvedRedirect = redirectUri
-            ?: masterConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+            ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
             ?: "$scheme://"
 
         val challengePair = Helpers.generateChallengePair()
@@ -1493,18 +1441,18 @@ object TurnkeyContext {
         onSuccess: ((oidcToken: String, publicKey: String, providerName: String) -> Unit)? = null,
         timeoutMinutes: Long = 10,
     ) {
-        val scheme = masterConfig.appScheme
+        val scheme = runtimeConfig.appScheme
             ?: throw TurnkeyKotlinError.MissingConfigParam("App scheme is not configured. Set `appScheme` in TurnkeyConfig.")
 
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
         val discordClientId = clientId
-            ?: masterConfig.authConfig?.oAuthConfig?.discordClientId
+            ?: runtimeConfig.authConfig?.oAuthConfig?.discordClientId
             ?: throw TurnkeyKotlinError.MissingConfigParam("Discord Client ID not configured")
 
         val resolvedRedirect = redirectUri
-            ?: masterConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+            ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
             ?: "$scheme://"
 
         val challengePair = Helpers.generateChallengePair()

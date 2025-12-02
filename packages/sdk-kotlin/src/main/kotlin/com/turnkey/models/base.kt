@@ -3,12 +3,12 @@ package com.turnkey.models
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1PayloadEncoding
 
-data class TurnkeyConfig(
+open class TurnkeyConfig(
     val organizationId: String,
     val apiBaseUrl: String? = null,
     val authProxyBaseUrl: String? = null,
     val authProxyConfigId: String? = null,
-    val authConfig: AuthConfig? = null,
+    open val authConfig: AuthConfig? = null,
     val appScheme: String? = null,
     val autoRefreshManagedStates: Boolean = true,
     val autoFetchWalletKitConfig: Boolean = true,
@@ -22,37 +22,48 @@ data class TurnkeyConfig(
     // val onSessionEmpty: (() -> Unit)? = null,
 )
 
-data class AuthConfig(
-    val methods: AuthMethods? = null,
+class TurnkeyRuntimeConfig (
+    organizationId: String,
+    apiBaseUrl: String? = null,
+    authProxyBaseUrl: String? = null,
+    authProxyConfigId: String? = null,
+    override val authConfig: RuntimeAuthConfig? = null,
+    appScheme: String? = null,
+    autoRefreshManagedStates: Boolean = true,
+    autoFetchWalletKitConfig: Boolean = true,
+
+    // Callbacks
+    onSessionCreated: ((Session) -> Unit)? = null,
+    onSessionSelected: ((Session) -> Unit)? = null,
+    onSessionExpired: ((Session) -> Unit)? = null,
+    onSessionRefreshed: ((Session) -> Unit)? = null,
+    // val onSessionCleared: ((Session) -> Unit)? = null,
+    // val onSessionEmpty: (() -> Unit)? = null,
+) : TurnkeyConfig (
+    organizationId = organizationId,
+    apiBaseUrl = apiBaseUrl,
+    authProxyBaseUrl = authProxyBaseUrl,
+    authProxyConfigId = authProxyConfigId,
+    authConfig = authConfig
+)
+
+open class AuthConfig(
     val oAuthConfig: OAuthConfig? = null,
-
-    /**
-     * Session expiration time in seconds.
-     * If using the auth proxy, configure this in the dashboard.
-     * Changing this through the Turnkey provider will have no effect.
-     */
-    val sessionExpirationSeconds: String? = null,
-
-    /**
-     * If OTP sent will be alphanumeric.
-     * If using the auth proxy, configure this in the dashboard.
-     * Changing this through the Turnkey provider will have no effect.
-     */
-    val otpAlphanumeric: Boolean? = null,
-
-    /**
-     * Length of the OTP.
-     * If using the auth proxy, configure this in the dashboard.
-     * Changing this through the Turnkey provider will have no effect.
-     */
-    val otpLength: String? = null,
-
-    /**
-     * The relying party ID for passkey authentication.
-     */
     val rpId: String? = null,
-
     val createSubOrgParams: MethodCreateSubOrgParams? = null,
+)
+
+class RuntimeAuthConfig(
+    oAuthConfig: OAuthConfig? = null,
+    val sessionExpirationSeconds: String? = null,
+    val otpAlphanumeric: Boolean? = null,
+    val otpLength: String? = null,
+    rpId: String? = null,
+    createSubOrgParams: MethodCreateSubOrgParams? = null,
+) : AuthConfig (
+    oAuthConfig = oAuthConfig,
+    rpId = rpId,
+    createSubOrgParams = createSubOrgParams
 )
 
 data class MethodCreateSubOrgParams(
