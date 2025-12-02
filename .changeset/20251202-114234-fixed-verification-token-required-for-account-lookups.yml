@@ -1,5 +1,0 @@
-title: Fixed Verification Token Required for Account Lookups
-packages:
-  sdk-kotlin: patch
-changelog: |-
-  Fixed broken OTP flow when "Verification Token Required for Account Lookups" was enabled in the Auth Proxy.

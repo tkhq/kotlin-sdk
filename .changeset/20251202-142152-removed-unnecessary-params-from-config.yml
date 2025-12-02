@@ -1,5 +1,0 @@
-title: Removed Unnecessary Params From Config
-packages:
-  sdk-kotlin: minor
-changelog: |-
-  Removed `methods`, `sessionExpirationSeconds`, `otpAlphanumeric`, and `otpLength` from the base config since they are params that are only configurable from the Dashboard and have no affect when changed in the provider config.
