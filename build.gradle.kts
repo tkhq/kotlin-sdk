@@ -226,6 +226,7 @@ tasks.register<ChangesetsVersionTask>("changesetsVersion") {
 tasks.register<ChangesetsChangelogTask>("changesetsChangelog") {
     rootDirProp.set(layout.projectDirectory)
     changesetDir.set(layout.projectDirectory.dir(".changeset"))
+    generatedVersionDir.set(layout.projectDirectory.file("./packages/http/src/main/kotlin/com/turnkey/http/Version.kt"))
     modules.set(publishable)
 }
 tasks.register<CreateChangesetTask>("createChangeset") {
