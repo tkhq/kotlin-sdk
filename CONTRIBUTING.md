@@ -19,7 +19,7 @@ $ cd kotlin-sdk
 
 ## Before you open PRs
 
-Before you open a PR, ensure you've added a changeset detailing which packages we're affected, what kind of bump they require, and an appropriate changelog note & title.
+Before you open a PR, ensure you've added a changeset detailing which packages were affected, what kind of bump they require, and an appropriate changelog note & title.
 
 ### Adding a changeset
 
