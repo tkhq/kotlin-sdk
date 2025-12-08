@@ -37,7 +37,7 @@ dependencies {
     api(project(":packages:stamper"))
     api(project(":packages:http"))
     api(project(":packages:types"))
-    implementation(project(":packages:passkey"))
+    api(project(":packages:passkey"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.process)
