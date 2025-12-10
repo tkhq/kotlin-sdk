@@ -2,11 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat)](LICENSE)
 [![Static Badge](https://img.shields.io/badge/status-beta-yellow?style=flat)]()
-[![Static Badge](https://img.shields.io/badge/JVM_toolchain-24-red?style=flat)](https://openjdk.org/projects/jdk/24/)
 [![Static Badge](https://img.shields.io/badge/docs-available-008000?style=flat)](https://docs.turnkey.com/sdks/kotlin/overview)
-
-> [!NOTE]
-> **Beta Status:** This Kotlin SDK is in open beta while we refine the developer experience. You can use it today, but **minor releases may include breaking changes** until we reach v1.0.0. We recommend pinning exact versions and checking the changelog for each update.
 
 The Turnkey **Kotlin/Android** SDKs provide everything you need to build a fully working Android app powered by Turnkey: typed HTTP access, auth flows (OAuth / Passkeys / OTP), session + key management, and wallet utilities.
 
