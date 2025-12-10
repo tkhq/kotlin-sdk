@@ -21,6 +21,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
+public enum class Externaldatav1SignatureScheme {
+  @SerialName("SIGNATURE_SCHEME_EPHEMERAL_KEY_P256")
+  SIGNATURE_SCHEME_EPHEMERAL_KEY_P256,
+}
+
+@Serializable
 public enum class V1AccessType {
   @SerialName("ACCESS_TYPE_WEB")
   ACCESS_TYPE_WEB,
@@ -375,6 +381,12 @@ public enum class V1AuthenticatorTransport {
 }
 
 @Serializable
+public enum class V1ClientSignatureScheme {
+  @SerialName("CLIENT_SIGNATURE_SCHEME_API_P256")
+  CLIENT_SIGNATURE_SCHEME_API_P256,
+}
+
+@Serializable
 public enum class V1CredentialType {
   @SerialName("CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR")
   CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR,
@@ -681,12 +693,6 @@ public enum class V1PayloadEncoding {
 }
 
 @Serializable
-public enum class V1SignatureScheme {
-  @SerialName("SIGNATURE_SCHEME_EPHEMERAL_KEY_P256")
-  SIGNATURE_SCHEME_EPHEMERAL_KEY_P256,
-}
-
-@Serializable
 public enum class V1SmartContractInterfaceType {
   @SerialName("SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM")
   SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM,
@@ -712,6 +718,14 @@ public enum class V1TransactionType {
   TRANSACTION_TYPE_TRON,
   @SerialName("TRANSACTION_TYPE_BITCOIN")
   TRANSACTION_TYPE_BITCOIN,
+}
+
+@Serializable
+public enum class V1UsageType {
+  @SerialName("USAGE_TYPE_SIGNUP")
+  USAGE_TYPE_SIGNUP,
+  @SerialName("USAGE_TYPE_LOGIN")
+  USAGE_TYPE_LOGIN,
 }
 
 @Serializable
@@ -923,6 +937,49 @@ public data class Externaldatav1Quorum(
    */
   @SerialName("userIds")
   public val userIds: List<String>,
+)
+
+@Serializable
+public data class Externaldatav1SmartContractInterface(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
+   */
+  @SerialName("label")
+  public val label: String,
+  /**
+   * The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
+   */
+  @SerialName("notes")
+  public val notes: String,
+  /**
+   * The Organization the Smart Contract Interface belongs to.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The address corresponding to the Smart Contract or Program.
+   */
+  @SerialName("smartContractAddress")
+  public val smartContractAddress: String,
+  /**
+   * The JSON corresponding to the Smart Contract Interface (ABI or IDL).
+   */
+  @SerialName("smartContractInterface")
+  public val smartContractInterface: String,
+  /**
+   * Unique identifier for a given Smart Contract Interface (ABI or IDL).
+   */
+  @SerialName("smartContractInterfaceId")
+  public val smartContractInterfaceId: String,
+  /**
+   * The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
+   */
+  @SerialName("type")
+  public val type: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -1184,7 +1241,7 @@ public data class V1AppProof(
    * Scheme of signing key.
    */
   @SerialName("scheme")
-  public val scheme: V1SignatureScheme,
+  public val scheme: Externaldatav1SignatureScheme,
   /**
    * Signature over hashed proof_payload.
    */
@@ -1203,6 +1260,8 @@ public data class V1ApproveActivityIntent(
 
 @Serializable
 public data class V1ApproveActivityRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1388,6 +1447,30 @@ public data class V1BootProofResponse(
 )
 
 @Serializable
+public data class V1ClientSignature(
+  /**
+   * The message that was signed.
+   */
+  @SerialName("message")
+  public val message: String,
+  /**
+   * The public component of a cryptographic key pair used to create the signature.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+  /**
+   * The signature scheme used to generate the client signature.
+   */
+  @SerialName("scheme")
+  public val scheme: V1ClientSignatureScheme,
+  /**
+   * The cryptographic signature over the message.
+   */
+  @SerialName("signature")
+  public val signature: String,
+)
+
+@Serializable
 public data class V1Config(
   @SerialName("features")
   public val features: List<V1Feature>? = null,
@@ -1425,6 +1508,8 @@ public data class V1CreateApiKeysIntentV2(
 
 @Serializable
 public data class V1CreateApiKeysRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1461,6 +1546,8 @@ public data class V1CreateApiOnlyUsersIntent(
 
 @Serializable
 public data class V1CreateApiOnlyUsersRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1516,6 +1603,8 @@ public data class V1CreateAuthenticatorsIntentV2(
 
 @Serializable
 public data class V1CreateAuthenticatorsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1577,6 +1666,8 @@ public data class V1CreateFiatOnRampCredentialIntent(
 
 @Serializable
 public data class V1CreateFiatOnRampCredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1613,6 +1704,8 @@ public data class V1CreateInvitationsIntent(
 
 @Serializable
 public data class V1CreateInvitationsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1659,6 +1752,8 @@ public data class V1CreateOauth2CredentialIntent(
 
 @Serializable
 public data class V1CreateOauth2CredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1700,6 +1795,8 @@ public data class V1CreateOauthProvidersIntent(
 
 @Serializable
 public data class V1CreateOauthProvidersRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1793,6 +1890,8 @@ public data class V1CreatePoliciesIntent(
 
 @Serializable
 public data class V1CreatePoliciesRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1888,6 +1987,8 @@ public data class V1CreatePolicyIntentV3(
 
 @Serializable
 public data class V1CreatePolicyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1929,6 +2030,8 @@ public data class V1CreatePrivateKeyTagIntent(
 
 @Serializable
 public data class V1CreatePrivateKeyTagRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -1979,6 +2082,8 @@ public data class V1CreatePrivateKeysIntentV2(
 
 @Serializable
 public data class V1CreatePrivateKeysRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2015,6 +2120,8 @@ public data class V1CreatePrivateKeysResultV2(
 
 @Serializable
 public data class V1CreateReadOnlySessionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2120,6 +2227,8 @@ public data class V1CreateReadWriteSessionIntentV2(
 
 @Serializable
 public data class V1CreateReadWriteSessionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2222,7 +2331,7 @@ public data class V1CreateSmartContractInterfaceIntent(
   @SerialName("smartContractAddress")
   public val smartContractAddress: String,
   /**
-   * ABI/IDL as a JSON string
+   * ABI/IDL as a JSON string. Limited to 400kb
    */
   @SerialName("smartContractInterface")
   public val smartContractInterface: String,
@@ -2232,6 +2341,8 @@ public data class V1CreateSmartContractInterfaceIntent(
 
 @Serializable
 public data class V1CreateSmartContractInterfaceRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2419,6 +2530,11 @@ public data class V1CreateSubOrganizationIntentV6(
 @Serializable
 public data class V1CreateSubOrganizationIntentV7(
   /**
+   * Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
+  /**
    * Disable email auth for the sub-organization
    */
   @SerialName("disableEmailAuth")
@@ -2467,6 +2583,8 @@ public data class V1CreateSubOrganizationIntentV7(
 
 @Serializable
 public data class V1CreateSubOrganizationRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2560,6 +2678,8 @@ public data class V1CreateUserTagIntent(
 
 @Serializable
 public data class V1CreateUserTagRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2619,6 +2739,8 @@ public data class V1CreateUsersIntentV3(
 
 @Serializable
 public data class V1CreateUsersRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2665,6 +2787,8 @@ public data class V1CreateWalletAccountsIntent(
 
 @Serializable
 public data class V1CreateWalletAccountsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2711,6 +2835,8 @@ public data class V1CreateWalletIntent(
 
 @Serializable
 public data class V1CreateWalletRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2763,6 +2889,8 @@ public data class V1DeleteApiKeysIntent(
 
 @Serializable
 public data class V1DeleteApiKeysRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2804,6 +2932,8 @@ public data class V1DeleteAuthenticatorsIntent(
 
 @Serializable
 public data class V1DeleteAuthenticatorsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2840,6 +2970,8 @@ public data class V1DeleteFiatOnRampCredentialIntent(
 
 @Serializable
 public data class V1DeleteFiatOnRampCredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2876,6 +3008,8 @@ public data class V1DeleteInvitationIntent(
 
 @Serializable
 public data class V1DeleteInvitationRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2912,6 +3046,8 @@ public data class V1DeleteOauth2CredentialIntent(
 
 @Serializable
 public data class V1DeleteOauth2CredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -2953,6 +3089,8 @@ public data class V1DeleteOauthProvidersIntent(
 
 @Serializable
 public data class V1DeleteOauthProvidersRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3007,6 +3145,8 @@ public data class V1DeletePoliciesIntent(
 
 @Serializable
 public data class V1DeletePoliciesRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3043,6 +3183,8 @@ public data class V1DeletePolicyIntent(
 
 @Serializable
 public data class V1DeletePolicyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3079,6 +3221,8 @@ public data class V1DeletePrivateKeyTagsIntent(
 
 @Serializable
 public data class V1DeletePrivateKeyTagsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3125,6 +3269,8 @@ public data class V1DeletePrivateKeysIntent(
 
 @Serializable
 public data class V1DeletePrivateKeysRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3161,6 +3307,8 @@ public data class V1DeleteSmartContractInterfaceIntent(
 
 @Serializable
 public data class V1DeleteSmartContractInterfaceRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3197,6 +3345,8 @@ public data class V1DeleteSubOrganizationIntent(
 
 @Serializable
 public data class V1DeleteSubOrganizationRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3233,6 +3383,8 @@ public data class V1DeleteUserTagsIntent(
 
 @Serializable
 public data class V1DeleteUserTagsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3274,6 +3426,8 @@ public data class V1DeleteUsersIntent(
 
 @Serializable
 public data class V1DeleteUsersRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3315,6 +3469,8 @@ public data class V1DeleteWalletAccountsIntent(
 
 @Serializable
 public data class V1DeleteWalletAccountsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3356,6 +3512,8 @@ public data class V1DeleteWalletsIntent(
 
 @Serializable
 public data class V1DeleteWalletsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3553,6 +3711,8 @@ public data class V1EmailAuthIntentV3(
 
 @Serializable
 public data class V1EmailAuthRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3637,6 +3797,8 @@ public data class V1EthSendRawTransactionIntent(
 
 @Serializable
 public data class V1EthSendRawTransactionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3675,11 +3837,6 @@ public data class V1EthSendTransactionIntent(
   @SerialName("data")
   public val `data`: String? = null,
   /**
-   * Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true.
-   */
-  @SerialName("deadline")
-  public val deadline: String? = null,
-  /**
    * A wallet or private key address to sign with. This does not support private key IDs.
    */
   @SerialName("from")
@@ -3690,7 +3847,7 @@ public data class V1EthSendTransactionIntent(
   @SerialName("gasLimit")
   public val gasLimit: String? = null,
   /**
-   * The gas station delegate contract nonce. Only used when sponsor=true.
+   * The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture.
    */
   @SerialName("gasStationNonce")
   public val gasStationNonce: String? = null,
@@ -3728,6 +3885,8 @@ public data class V1EthSendTransactionIntent(
 
 @Serializable
 public data class V1EthSendTransactionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3742,6 +3901,24 @@ public data class V1EthSendTransactionRequest(
   public val timestampMs: String,
   @SerialName("type")
   public val type: String,
+)
+
+@Serializable
+public data class V1EthSendTransactionResult(
+  /**
+   * The send_transaction_status ID associated with the transaction submission for sponsored transactions
+   */
+  @SerialName("sendTransactionStatusId")
+  public val sendTransactionStatusId: String,
+)
+
+@Serializable
+public data class V1EthSendTransactionStatus(
+  /**
+   * The Ethereum transaction hash, if available.
+   */
+  @SerialName("txHash")
+  public val txHash: String? = null,
 )
 
 @Serializable
@@ -3760,6 +3937,8 @@ public data class V1ExportPrivateKeyIntent(
 
 @Serializable
 public data class V1ExportPrivateKeyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3806,6 +3985,8 @@ public data class V1ExportWalletAccountIntent(
 
 @Serializable
 public data class V1ExportWalletAccountRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -3857,6 +4038,8 @@ public data class V1ExportWalletIntent(
 
 @Serializable
 public data class V1ExportWalletRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -4140,6 +4323,34 @@ public data class V1GetBootProofRequest(
 )
 
 @Serializable
+public data class V1GetGasUsageRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetGasUsageResponse(
+  /**
+   * The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes`
+   */
+  @SerialName("usageUsd")
+  public val usageUsd: String,
+  /**
+   * The window duration (in minutes) for the organization or sub-organization.
+   */
+  @SerialName("windowDurationMinutes")
+  public val windowDurationMinutes: Long,
+  /**
+   * The window limit (in USD) for the organization or sub-organization.
+   */
+  @SerialName("windowLimitUsd")
+  public val windowLimitUsd: String,
+)
+
+@Serializable
 public data class V1GetLatestBootProofRequest(
   /**
    * Name of enclave app.
@@ -4363,6 +4574,39 @@ public data class V1GetPrivateKeysResponse(
 )
 
 @Serializable
+public data class V1GetSendTransactionStatusRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The unique identifier of a send transaction request.
+   */
+  @SerialName("sendTransactionStatusId")
+  public val sendTransactionStatusId: String,
+)
+
+@Serializable
+public data class V1GetSendTransactionStatusResponse(
+  /**
+   * Ethereum-specific transaction status.
+   */
+  @SerialName("eth")
+  public val eth: V1EthSendTransactionStatus? = null,
+  /**
+   * The error encountered when broadcasting or confirming the transaction, if any.
+   */
+  @SerialName("txError")
+  public val txError: String? = null,
+  /**
+   * The current status of the send transaction.
+   */
+  @SerialName("txStatus")
+  public val txStatus: String,
+)
+
+@Serializable
 public data class V1GetSmartContractInterfaceRequest(
   /**
    * Unique identifier for a given organization.
@@ -4382,7 +4626,7 @@ public data class V1GetSmartContractInterfaceResponse(
    * Object to be used in conjunction with policies to guard transaction signing.
    */
   @SerialName("smartContractInterface")
-  public val smartContractInterface: V1SmartContractInterface,
+  public val smartContractInterface: Externaldatav1SmartContractInterface,
 )
 
 @Serializable
@@ -4400,7 +4644,7 @@ public data class V1GetSmartContractInterfacesResponse(
    * A list of smart contract interfaces.
    */
   @SerialName("smartContractInterfaces")
-  public val smartContractInterfaces: List<V1SmartContractInterface>,
+  public val smartContractInterfaces: List<Externaldatav1SmartContractInterface>,
 )
 
 @Serializable
@@ -4681,6 +4925,8 @@ public data class V1ImportPrivateKeyIntent(
 
 @Serializable
 public data class V1ImportPrivateKeyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -4737,6 +4983,8 @@ public data class V1ImportWalletIntent(
 
 @Serializable
 public data class V1ImportWalletRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -4828,6 +5076,8 @@ public data class V1InitFiatOnRampIntent(
 
 @Serializable
 public data class V1InitFiatOnRampRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -4874,6 +5124,8 @@ public data class V1InitImportPrivateKeyIntent(
 
 @Serializable
 public data class V1InitImportPrivateKeyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -4910,6 +5162,8 @@ public data class V1InitImportWalletIntent(
 
 @Serializable
 public data class V1InitImportWalletRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5094,6 +5348,8 @@ public data class V1InitOtpAuthIntentV3(
 
 @Serializable
 public data class V1InitOtpAuthRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5253,6 +5509,8 @@ public data class V1InitOtpIntentV2(
 
 @Serializable
 public data class V1InitOtpRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5363,6 +5621,8 @@ public data class V1InitUserEmailRecoveryIntentV2(
 
 @Serializable
 public data class V1InitUserEmailRecoveryRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5755,9 +6015,20 @@ public data class V1ListUserTagsResponse(
 )
 
 @Serializable
+public data class V1LoginUsage(
+  /**
+   * Public key for authentication
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+)
+
+@Serializable
 public data class V1NOOPCodegenAnchorResponse(
   @SerialName("stamp")
   public val stamp: V1WebAuthnStamp,
+  @SerialName("tokenUsage")
+  public val tokenUsage: V1TokenUsage? = null,
 )
 
 @Serializable
@@ -5796,6 +6067,8 @@ public data class V1Oauth2AuthenticateIntent(
 
 @Serializable
 public data class V1Oauth2AuthenticateRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5909,6 +6182,8 @@ public data class V1OauthLoginIntent(
 
 @Serializable
 public data class V1OauthLoginRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -5983,6 +6258,8 @@ public data class V1OauthProviderParams(
 
 @Serializable
 public data class V1OauthRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6080,6 +6357,8 @@ public data class V1OtpAuthIntent(
 
 @Serializable
 public data class V1OtpAuthRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6118,10 +6397,10 @@ public data class V1OtpAuthResult(
 @Serializable
 public data class V1OtpLoginIntent(
   /**
-   * Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step.
+   * Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step.
    */
   @SerialName("clientSignature")
-  public val clientSignature: String? = null,
+  public val clientSignature: V1ClientSignature? = null,
   /**
    * Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used.
    */
@@ -6146,6 +6425,8 @@ public data class V1OtpLoginIntent(
 
 @Serializable
 public data class V1OtpLoginRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6340,6 +6621,8 @@ public data class V1RecoverUserIntent(
 
 @Serializable
 public data class V1RecoverUserRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6376,6 +6659,8 @@ public data class V1RejectActivityIntent(
 
 @Serializable
 public data class V1RejectActivityRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6403,6 +6688,8 @@ public data class V1RemoveOrganizationFeatureIntent(
 
 @Serializable
 public data class V1RemoveOrganizationFeatureRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6770,6 +7057,8 @@ public data class V1SetOrganizationFeatureIntent(
 
 @Serializable
 public data class V1SetOrganizationFeatureRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6845,6 +7134,8 @@ public data class V1SignRawPayloadIntentV2(
 
 @Serializable
 public data class V1SignRawPayloadRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6906,6 +7197,8 @@ public data class V1SignRawPayloadsIntent(
 
 @Serializable
 public data class V1SignRawPayloadsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6962,6 +7255,8 @@ public data class V1SignTransactionIntentV2(
 
 @Serializable
 public data class V1SignTransactionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -6985,6 +7280,20 @@ public data class V1SignTransactionResult(
 )
 
 @Serializable
+public data class V1SignupUsage(
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>? = null,
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>? = null,
+  @SerialName("email")
+  public val email: String? = null,
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParams>? = null,
+  @SerialName("phoneNumber")
+  public val phoneNumber: String? = null,
+)
+
+@Serializable
 public data class V1SimpleClientExtensionResults(
   @SerialName("appid")
   public val appid: Boolean? = null,
@@ -6992,49 +7301,6 @@ public data class V1SimpleClientExtensionResults(
   public val appidExclude: Boolean? = null,
   @SerialName("credProps")
   public val credProps: V1CredPropsAuthenticationExtensionsClientOutputs? = null,
-)
-
-@Serializable
-public data class V1SmartContractInterface(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
-   */
-  @SerialName("label")
-  public val label: String,
-  /**
-   * The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
-   */
-  @SerialName("notes")
-  public val notes: String,
-  /**
-   * The Organization the Smart Contract Interface belongs to.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * The address corresponding to the Smart Contract or Program.
-   */
-  @SerialName("smartContractAddress")
-  public val smartContractAddress: String,
-  /**
-   * The JSON corresponding to the Smart Contract Interface (ABI or IDL).
-   */
-  @SerialName("smartContractInterface")
-  public val smartContractInterface: String,
-  /**
-   * Unique identifier for a given Smart Contract Interface (ABI or IDL).
-   */
-  @SerialName("smartContractInterfaceId")
-  public val smartContractInterfaceId: String,
-  /**
-   * The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA).
-   */
-  @SerialName("type")
-  public val type: String,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -7077,6 +7343,8 @@ public data class V1StampLoginIntent(
 
 @Serializable
 public data class V1StampLoginRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7119,6 +7387,24 @@ public data class V1TestRateLimitsRequest(
    */
   @SerialName("organizationId")
   public val organizationId: String,
+)
+
+@Serializable
+public data class V1TokenUsage(
+  @SerialName("login")
+  public val login: V1LoginUsage? = null,
+  @SerialName("signup")
+  public val signup: V1SignupUsage? = null,
+  /**
+   * Unique identifier for the verification token
+   */
+  @SerialName("tokenId")
+  public val tokenId: String,
+  /**
+   * Type of token usage
+   */
+  @SerialName("type")
+  public val type: V1UsageType,
 )
 
 @Serializable
@@ -7259,6 +7545,8 @@ public data class V1UpdateFiatOnRampCredentialIntent(
 
 @Serializable
 public data class V1UpdateFiatOnRampCredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7310,6 +7598,8 @@ public data class V1UpdateOauth2CredentialIntent(
 
 @Serializable
 public data class V1UpdateOauth2CredentialRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7405,6 +7695,8 @@ public data class V1UpdatePolicyIntentV2(
 
 @Serializable
 public data class V1UpdatePolicyRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7465,6 +7757,8 @@ public data class V1UpdatePrivateKeyTagIntent(
 
 @Serializable
 public data class V1UpdatePrivateKeyTagRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7506,6 +7800,8 @@ public data class V1UpdateRootQuorumIntent(
 
 @Serializable
 public data class V1UpdateRootQuorumRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7543,6 +7839,8 @@ public data class V1UpdateUserEmailIntent(
 
 @Serializable
 public data class V1UpdateUserEmailRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7613,6 +7911,8 @@ public data class V1UpdateUserNameIntent(
 
 @Serializable
 public data class V1UpdateUserNameRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7659,6 +7959,8 @@ public data class V1UpdateUserPhoneNumberIntent(
 
 @Serializable
 public data class V1UpdateUserPhoneNumberRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7686,6 +7988,8 @@ public data class V1UpdateUserPhoneNumberResult(
 
 @Serializable
 public data class V1UpdateUserRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7737,6 +8041,8 @@ public data class V1UpdateUserTagIntent(
 
 @Serializable
 public data class V1UpdateUserTagRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7778,6 +8084,8 @@ public data class V1UpdateWalletIntent(
 
 @Serializable
 public data class V1UpdateWalletRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -7979,6 +8287,8 @@ public data class V1VerifyOtpIntent(
 
 @Serializable
 public data class V1VerifyOtpRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -8400,6 +8710,11 @@ public data class V1SignupRequest(
   @SerialName("authenticators")
   public val authenticators: List<V1AuthenticatorParamsV2>,
   /**
+   * Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
+  /**
    * A list of Oauth providers. This field, if not needed, should be an empty array in your request body.
    */
   @SerialName("oauthProviders")
@@ -8464,9 +8779,6 @@ public class V1DisableAuthProxyResult()
 
 @Serializable
 public class V1EnableAuthProxyIntent()
-
-@Serializable
-public class V1EthSendTransactionResult()
 
 @Serializable
 public class V1TestRateLimitsResponse()
@@ -8649,6 +8961,37 @@ public class TGetBootProofBody(
 public class TGetBootProofInput(
   @SerialName("body")
   public val body: TGetBootProofBody,
+)
+
+@Serializable
+public data class TGetGasUsageResponse(
+  /**
+   * The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes`
+   */
+  @SerialName("usageUsd")
+  public val usageUsd: String,
+  /**
+   * The window duration (in minutes) for the organization or sub-organization.
+   */
+  @SerialName("windowDurationMinutes")
+  public val windowDurationMinutes: Long,
+  /**
+   * The window limit (in USD) for the organization or sub-organization.
+   */
+  @SerialName("windowLimitUsd")
+  public val windowLimitUsd: String,
+)
+
+@Serializable
+public class TGetGasUsageBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+)
+
+@Serializable
+public class TGetGasUsageInput(
+  @SerialName("body")
+  public val body: TGetGasUsageBody,
 )
 
 @Serializable
@@ -8848,12 +9191,45 @@ public class TGetPrivateKeyInput(
 )
 
 @Serializable
+public data class TGetSendTransactionStatusResponse(
+  /**
+   * Ethereum-specific transaction status.
+   */
+  @SerialName("eth")
+  public val eth: V1EthSendTransactionStatus? = null,
+  /**
+   * The error encountered when broadcasting or confirming the transaction, if any.
+   */
+  @SerialName("txError")
+  public val txError: String? = null,
+  /**
+   * The current status of the send transaction.
+   */
+  @SerialName("txStatus")
+  public val txStatus: String,
+)
+
+@Serializable
+public class TGetSendTransactionStatusBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("sendTransactionStatusId")
+  public val sendTransactionStatusId: String,
+)
+
+@Serializable
+public class TGetSendTransactionStatusInput(
+  @SerialName("body")
+  public val body: TGetSendTransactionStatusBody,
+)
+
+@Serializable
 public data class TGetSmartContractInterfaceResponse(
   /**
    * Object to be used in conjunction with policies to guard transaction signing.
    */
   @SerialName("smartContractInterface")
-  public val smartContractInterface: V1SmartContractInterface,
+  public val smartContractInterface: Externaldatav1SmartContractInterface,
 )
 
 @Serializable
@@ -9095,7 +9471,7 @@ public data class TGetSmartContractInterfacesResponse(
    * A list of smart contract interfaces.
    */
   @SerialName("smartContractInterfaces")
-  public val smartContractInterfaces: List<V1SmartContractInterface>,
+  public val smartContractInterfaces: List<Externaldatav1SmartContractInterface>,
 )
 
 @Serializable
@@ -9724,6 +10100,8 @@ public class TCreateSubOrganizationBody(
   public val disableOtpEmailAuth: Boolean? = null,
   @SerialName("verificationToken")
   public val verificationToken: String? = null,
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
 )
 
 @Serializable
@@ -10334,8 +10712,6 @@ public class TEthSendTransactionBody(
   public val maxFeePerGas: String? = null,
   @SerialName("maxPriorityFeePerGas")
   public val maxPriorityFeePerGas: String? = null,
-  @SerialName("deadline")
-  public val deadline: String? = null,
   @SerialName("gasStationNonce")
   public val gasStationNonce: String? = null,
 )
@@ -10859,7 +11235,7 @@ public class TOtpLoginBody(
   @SerialName("invalidateExisting")
   public val invalidateExisting: Boolean? = null,
   @SerialName("clientSignature")
-  public val clientSignature: String? = null,
+  public val clientSignature: V1ClientSignature? = null,
 )
 
 @Serializable
@@ -11440,6 +11816,8 @@ public class TVerifyOtpInput(
 public data class TNOOPCodegenAnchorResponse(
   @SerialName("stamp")
   public val stamp: V1WebAuthnStamp,
+  @SerialName("tokenUsage")
+  public val tokenUsage: V1TokenUsage? = null,
 )
 
 @Serializable
@@ -11593,7 +11971,7 @@ public class ProxyTOtpLoginBody(
   @SerialName("organizationId")
   public val organizationId: String? = null,
   @SerialName("clientSignature")
-  public val clientSignature: String? = null,
+  public val clientSignature: V1ClientSignature? = null,
 )
 
 @Serializable
@@ -11670,6 +12048,8 @@ public class ProxyTSignupBody(
   public val oauthProviders: List<V1OauthProviderParams>,
   @SerialName("wallet")
   public val wallet: V1WalletParams? = null,
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
 )
 
 @Serializable

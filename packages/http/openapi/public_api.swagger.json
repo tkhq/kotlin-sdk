@@ -292,6 +292,38 @@
         "tags": ["Boot Proof"]
       }
     },
+    "/public/v1/query/get_gas_usage": {
+      "post": {
+        "summary": "Get gas usage and limits.",
+        "description": "Get gas usage and gas limits for either the parent organization or a sub-organization.",
+        "operationId": "PublicApiService_GetGasUsage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetGasUsageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetGasUsageRequest"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
+      }
+    },
     "/public/v1/query/get_latest_boot_proof": {
       "post": {
         "summary": "Get the latest boot proof for an app",
@@ -578,6 +610,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/query/get_send_transaction_status": {
+      "post": {
+        "summary": "Get send transaction status",
+        "description": "Get the status of a send transaction request.",
+        "operationId": "PublicApiService_GetSendTransactionStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSendTransactionStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSendTransactionStatusRequest"
+            }
+          }
+        ],
+        "tags": ["Send Transactions"]
       }
     },
     "/public/v1/query/get_smart_contract_interface": {
@@ -3878,6 +3942,60 @@
       },
       "required": ["threshold", "userIds"]
     },
+    "externaldatav1SignatureScheme": {
+      "type": "string",
+      "enum": ["SIGNATURE_SCHEME_EPHEMERAL_KEY_P256"]
+    },
+    "externaldatav1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "smartContractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "smartContractInterface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "smartContractAddress",
+        "smartContractInterface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "externaldatav1Timestamp": {
       "type": "object",
       "properties": {
@@ -4350,7 +4468,7 @@
       "type": "object",
       "properties": {
         "scheme": {
-          "$ref": "#/definitions/v1SignatureScheme",
+          "$ref": "#/definitions/externaldatav1SignatureScheme",
           "description": "Scheme of signing key."
         },
         "publicKey": {
@@ -4395,6 +4513,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ApproveActivityIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4613,6 +4734,32 @@
       },
       "required": ["bootProof"]
     },
+    "v1ClientSignature": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to create the signature."
+        },
+        "scheme": {
+          "$ref": "#/definitions/v1ClientSignatureScheme",
+          "description": "The signature scheme used to generate the client signature."
+        },
+        "message": {
+          "type": "string",
+          "description": "The message that was signed."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The cryptographic signature over the message."
+        }
+      },
+      "required": ["publicKey", "scheme", "message", "signature"]
+    },
+    "v1ClientSignatureScheme": {
+      "type": "string",
+      "enum": ["CLIENT_SIGNATURE_SCHEME_API_P256"]
+    },
     "v1Config": {
       "type": "object",
       "properties": {
@@ -4681,6 +4828,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateApiKeysIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4729,6 +4879,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4799,6 +4952,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateAuthenticatorsIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4867,6 +5023,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateFiatOnRampCredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4912,6 +5071,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateInvitationsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4964,6 +5126,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateOauth2CredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5013,6 +5178,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateOauthProvidersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5115,6 +5283,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePoliciesIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5224,6 +5395,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePolicyIntentV3"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5272,6 +5446,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePrivateKeyTagIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5338,6 +5515,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePrivateKeysIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5389,6 +5569,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateReadOnlySessionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5496,6 +5679,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateReadWriteSessionIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5583,7 +5769,7 @@
         },
         "smartContractInterface": {
           "type": "string",
-          "description": "ABI/IDL as a JSON string"
+          "description": "ABI/IDL as a JSON string. Limited to 400kb"
         },
         "type": {
           "$ref": "#/definitions/v1SmartContractInterfaceType"
@@ -5621,6 +5807,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5856,6 +6045,10 @@
         "verificationToken": {
           "type": "string",
           "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
         }
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
@@ -5877,6 +6070,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6025,6 +6221,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateUserTagIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6105,6 +6304,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateUsersIntentV3"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6161,6 +6363,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateWalletAccountsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6218,6 +6423,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateWalletIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6301,6 +6509,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteApiKeysIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6352,6 +6563,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteAuthenticatorsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6396,6 +6610,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteFiatOnRampCredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6437,6 +6654,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteInvitationIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6478,6 +6698,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteOauth2CredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6526,6 +6749,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteOauthProvidersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6593,6 +6819,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeletePoliciesIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6637,6 +6866,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeletePolicyIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6681,6 +6913,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeletePrivateKeyTagsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6739,6 +6974,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeletePrivateKeysIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6783,6 +7021,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6823,6 +7064,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteSubOrganizationIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6867,6 +7111,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteUserTagsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6921,6 +7168,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -6972,6 +7222,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteWalletAccountsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7023,6 +7276,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteWalletsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7217,6 +7473,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1EmailAuthIntentV3"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7310,6 +7569,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1EthSendRawTransactionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7341,7 +7603,9 @@
             "eip155:1",
             "eip155:11155111",
             "eip155:8453",
-            "eip155:84532"
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -7373,13 +7637,9 @@
           "type": "string",
           "description": "Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions."
         },
-        "deadline": {
-          "type": "string",
-          "description": "Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true."
-        },
         "gasStationNonce": {
           "type": "string",
-          "description": "The gas station delegate contract nonce. Only used when sponsor=true."
+          "description": "The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture."
         }
       },
       "required": ["from", "caip2", "to"]
@@ -7401,12 +7661,31 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1EthSendTransactionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1EthSendTransactionResult": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the transaction submission for sponsored transactions"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
+    },
+    "v1EthSendTransactionStatus": {
+      "type": "object",
+      "properties": {
+        "txHash": {
+          "type": "string",
+          "description": "The Ethereum transaction hash, if available."
+        }
+      }
     },
     "v1ExportPrivateKeyIntent": {
       "type": "object",
@@ -7439,6 +7718,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ExportPrivateKeyIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7488,6 +7770,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ExportWalletAccountIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7541,6 +7826,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ExportWalletIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -7943,6 +8231,35 @@
       },
       "required": ["organizationId", "ephemeralKey"]
     },
+    "v1GetGasUsageRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetGasUsageResponse": {
+      "type": "object",
+      "properties": {
+        "windowDurationMinutes": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The window duration (in minutes) for the organization or sub-organization."
+        },
+        "windowLimitUsd": {
+          "type": "string",
+          "description": "The window limit (in USD) for the organization or sub-organization."
+        },
+        "usageUsd": {
+          "type": "string",
+          "description": "The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes`"
+        }
+      },
+      "required": ["windowDurationMinutes", "windowLimitUsd", "usageUsd"]
+    },
     "v1GetLatestBootProofRequest": {
       "type": "object",
       "properties": {
@@ -8199,6 +8516,38 @@
       },
       "required": ["privateKeys"]
     },
+    "v1GetSendTransactionStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The unique identifier of a send transaction request."
+        }
+      },
+      "required": ["organizationId", "sendTransactionStatusId"]
+    },
+    "v1GetSendTransactionStatusResponse": {
+      "type": "object",
+      "properties": {
+        "txStatus": {
+          "type": "string",
+          "description": "The current status of the send transaction."
+        },
+        "eth": {
+          "$ref": "#/definitions/v1EthSendTransactionStatus",
+          "description": "Ethereum-specific transaction status."
+        },
+        "txError": {
+          "type": "string",
+          "description": "The error encountered when broadcasting or confirming the transaction, if any."
+        }
+      },
+      "required": ["txStatus"]
+    },
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -8217,7 +8566,7 @@
       "type": "object",
       "properties": {
         "smartContractInterface": {
-          "$ref": "#/definitions/v1SmartContractInterface",
+          "$ref": "#/definitions/externaldatav1SmartContractInterface",
           "description": "Object to be used in conjunction with policies to guard transaction signing."
         }
       },
@@ -8240,7 +8589,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterface"
+            "$ref": "#/definitions/externaldatav1SmartContractInterface"
           },
           "description": "A list of smart contract interfaces."
         }
@@ -8574,6 +8923,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ImportPrivateKeyIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8639,6 +8991,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1ImportWalletIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8732,6 +9087,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitFiatOnRampIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8781,6 +9139,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitImportPrivateKeyIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8822,6 +9183,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitImportWalletIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8989,6 +9353,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitOtpAuthIntentV3"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -9136,6 +9503,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitOtpIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -9239,6 +9609,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1InitUserEmailRecoveryIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -9784,6 +10157,16 @@
       },
       "required": ["userTags"]
     },
+    "v1LoginUsage": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for authentication"
+        }
+      },
+      "required": ["publicKey"]
+    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -9803,6 +10186,9 @@
       "properties": {
         "stamp": {
           "$ref": "#/definitions/v1WebAuthnStamp"
+        },
+        "tokenUsage": {
+          "$ref": "#/definitions/v1TokenUsage"
         }
       },
       "required": ["stamp"]
@@ -9859,6 +10245,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -9982,6 +10371,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1OauthLoginIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10067,6 +10459,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1OauthIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10222,6 +10617,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1OtpAuthIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10264,8 +10662,8 @@
           "description": "Invalidate all other previously generated Login API keys"
         },
         "clientSignature": {
-          "type": "string",
-          "description": "Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step."
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step."
         }
       },
       "required": ["verificationToken", "publicKey"]
@@ -10287,6 +10685,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1OtpLoginIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10555,6 +10956,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1RecoverUserIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10599,6 +11003,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1RejectActivityIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -10630,6 +11037,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1RemoveOrganizationFeatureIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11142,6 +11552,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1SetOrganizationFeatureIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11221,6 +11634,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1SignRawPayloadIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11285,6 +11701,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1SignRawPayloadsIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11352,6 +11771,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1SignTransactionIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11365,9 +11787,37 @@
       },
       "required": ["signedTransaction"]
     },
-    "v1SignatureScheme": {
-      "type": "string",
-      "enum": ["SIGNATURE_SCHEME_EPHEMERAL_KEY_P256"]
+    "v1SignupUsage": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          }
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          }
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          }
+        }
+      }
     },
     "v1SimpleClientExtensionResults": {
       "type": "object",
@@ -11382,56 +11832,6 @@
           "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
         }
       }
-    },
-    "v1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
     },
     "v1SmartContractInterfaceReference": {
       "type": "object",
@@ -11498,6 +11898,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1StampLoginIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11537,6 +11940,26 @@
     },
     "v1TestRateLimitsResponse": {
       "type": "object"
+    },
+    "v1TokenUsage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1UsageType",
+          "description": "Type of token usage"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Unique identifier for the verification token"
+        },
+        "signup": {
+          "$ref": "#/definitions/v1SignupUsage"
+        },
+        "login": {
+          "$ref": "#/definitions/v1LoginUsage"
+        }
+      },
+      "required": ["type", "tokenId"]
     },
     "v1TransactionType": {
       "type": "string",
@@ -11703,6 +12126,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateFiatOnRampCredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11761,6 +12187,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateOauth2CredentialIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11852,6 +12281,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdatePolicyIntentV2"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11921,6 +12353,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdatePrivateKeyTagIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -11970,6 +12405,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateRootQuorumIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12012,6 +12450,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateUserEmailIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12086,6 +12527,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateUserNameIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12135,6 +12579,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateUserPhoneNumberIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12166,6 +12613,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateUserIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12225,6 +12675,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateUserTagIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12270,6 +12723,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1UpdateWalletIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -12283,6 +12739,10 @@
         }
       },
       "required": ["walletId"]
+    },
+    "v1UsageType": {
+      "type": "string",
+      "enum": ["USAGE_TYPE_SIGNUP", "USAGE_TYPE_LOGIN"]
     },
     "v1User": {
       "type": "object",
@@ -12530,6 +12990,9 @@
         },
         "parameters": {
           "$ref": "#/definitions/v1VerifyOtpIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]

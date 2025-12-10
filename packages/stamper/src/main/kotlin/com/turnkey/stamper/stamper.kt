@@ -47,6 +47,7 @@ class Stamper private constructor(
                 )
                 "X-Stamp" to value
             }
+
             passkeyManager != null -> {
                 val value = PasskeyStampBuilder.stamp(
                     payloadSha256 = digest,
@@ -54,7 +55,19 @@ class Stamper private constructor(
                 )
                 "X-Stamp-Webauthn" to value
             }
+
             else -> throw StampError.UnknownError("Unable to stamp request: no credentials configured")
         }
+    }
+
+    fun sign(payload: String, format: SignatureFormat = SignatureFormat.der): String {
+        val payloadBytes = payload.toByteArray(Charsets.UTF_8)
+        val digest = MessageDigest.getInstance("SHA-256").digest(payloadBytes)
+
+        return if (apiPrivateKey != null) ApiKeyStamper.sign(
+            digest,
+            apiPrivateKey,
+            format
+        ) else throw StampError.UnknownError("No private key found")
     }
 }

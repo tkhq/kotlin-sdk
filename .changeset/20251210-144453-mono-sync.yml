@@ -1,0 +1,6 @@
+title: Mono Sync
+packages:
+  http: patch
+  types: patch
+changelog: |-
+  Synced `types` and `http client` with v2025.12.2 of `mono`

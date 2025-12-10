@@ -32,8 +32,8 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data object InvalidSession: TurnkeyKotlinError("Invalid session") {
         private fun readResolve(): Any = InvalidSession
     }
-
     data class InvalidResponse(val s: String): TurnkeyKotlinError("Invalid response: $s")
+    data class InvalidParameter(val s: String): TurnkeyKotlinError("Invalid parameter(s): $s")
     data class FailedToRefreshSession(val t: Throwable) : TurnkeyKotlinError("Error refreshing session", t)
     data class FailedToSignRawPayload(val t: Throwable) : TurnkeyKotlinError("Failed to sign using SignRawPayload", t)
     data class FailedToLoginWithOAuth(val t: Throwable) : TurnkeyKotlinError("Failed to login with OAuth", t)
@@ -63,4 +63,5 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null): Exce
     data class InvalidMessage (val s: String) : TurnkeyKotlinError("Invalid sign message payload: $s")
     data class FailedToPurgeSession(val t: Throwable) : TurnkeyKotlinError("Failed to purge session", t)
     data class OAuthStateMismatch(val s: String) : TurnkeyKotlinError("OAuth state mismatch: $s")
+    data class FailedToBuildClientSignature(val t: Throwable) : TurnkeyKotlinError("Failed to build client signature payload", t)
 }

@@ -1,0 +1,5 @@
+title: Sign Functionality
+packages:
+  stamper: patch
+changelog: |-
+  Added a `sign` function to the Api Key Stamper for signing client signatures and such.
