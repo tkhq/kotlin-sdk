@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2025-12-11
+### Patch Changes
+- Made `com.turnkey.passkey` an API level implementation for `sdk-kotlin` that way passkey functionality is accessible through sdk-kotlin.
+### Minor Changes
+- Added client signature support for OTP authentication support
+- Moved `get_accounts` call from `verifyOtp` to `loginOrSignUpWithOtp`
+- **BREAKING**: `verifyOtp` changed to no longer check for existing sub-orgs, this functionality was moved to `loginOrSignUpWithOtp`
+  - `verifyOtp` no longer takes `contact` or `otpType` as params
+  - `verifyOtp` no longer returns a `suborganizationId`
+
 ## 0.2.0 — 2025-12-02
 ### Patch Changes
 - Added public key and provider name to the onSuccess callback provided by handle OAuth methods

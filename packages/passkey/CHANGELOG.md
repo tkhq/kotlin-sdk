@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — 2025-12-11
+### Patch Changes
+- Updated dependencies:
+ - `com.turnkey.types@v0.1.2`
+
 ## 0.1.1 — 2025-11-19
 ### Patch Changes
 - Re-signing artifacts to ensure signature verification works with our uploaded key

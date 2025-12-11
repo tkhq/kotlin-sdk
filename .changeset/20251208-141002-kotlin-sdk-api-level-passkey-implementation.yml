@@ -1,5 +1,0 @@
-title: Kotlin SDK API level passkey implementation
-packages:
-  sdk-kotlin: patch
-changelog: |-
-  Made `com.turnkey.passkey` an API level implementation for `sdk-kotlin` that way passkey functionality is accessible through sdk-kotlin.
