@@ -60,7 +60,7 @@ object ApiKeyStamper {
     fun sign(
         payloadSha256: ByteArray,
         privateKeyHex: String,
-        format: SignatureFormat = SignatureFormat.der
+        format: SignatureFormat,
     ): String {
         if (payloadSha256.size != 32) {
             throw ApiKeyStampError.InvalidDigestLength(payloadSha256.size)

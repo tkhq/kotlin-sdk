@@ -2,4 +2,4 @@ title: Sign Functionality
 packages:
   stamper: patch
 changelog: |-
-  Added a `sign` function to the Api Key Stamper for signing client signatures and such.
+  Added a `sign` function to the API Key Stamper for signing arbitrary payloads.

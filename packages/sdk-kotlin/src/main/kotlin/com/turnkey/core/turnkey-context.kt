@@ -993,6 +993,7 @@ object TurnkeyContext {
     /** Verifies the OTP for the given contact
      * @param otpCode OTP code to verify.
      * @param otpId OTP ID received from initOtp.
+     * @param publicKey Public key the verification token is bound to for ownership verification.
      */
     suspend fun verifyOtp(
         otpCode: String,
