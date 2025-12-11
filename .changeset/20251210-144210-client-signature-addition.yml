@@ -4,4 +4,6 @@ packages:
 changelog: |-
   Added client signature support for OTP authentication support
   - Moved `get_accounts` call from `verifyOtp` to `loginOrSignUpWithOtp`
-  - **BREAKING**: `verifyOtp` no longer takes `contact` or `otpType`
+  - **BREAKING**: `verifyOtp` changed to no longer check for existing sub-orgs, this functionality was moved to `loginOrSignUpWithOtp`
+    - `verifyOtp` no longer takes `contact` or `otpType` as params
+    - `verifyOtp` no longer returns a `suborganizationId`
