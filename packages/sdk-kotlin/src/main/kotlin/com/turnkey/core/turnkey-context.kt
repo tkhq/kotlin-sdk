@@ -36,10 +36,12 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import com.turnkey.models.*
 import com.turnkey.crypto.generateP256KeyPair
+import com.turnkey.internal.ClientSignature
 import com.turnkey.internal.encryptWalletToBundle
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
 import com.turnkey.passkey.createPasskey
+import com.turnkey.stamper.SignatureFormat
 import com.turnkey.stamper.Stamper
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetWalletKitConfigBody
@@ -48,6 +50,7 @@ import com.turnkey.types.ProxyTInitOtpBody
 import com.turnkey.types.ProxyTOAuth2AuthenticateBody
 import com.turnkey.types.ProxyTOAuthLoginBody
 import com.turnkey.types.ProxyTOtpLoginBody
+import com.turnkey.types.ProxyTSignupBody
 import com.turnkey.types.ProxyTVerifyOtpBody
 import com.turnkey.types.TCreateWalletBody
 import com.turnkey.types.TExportWalletBody
@@ -58,6 +61,8 @@ import com.turnkey.types.TInitImportWalletBody
 import com.turnkey.types.TSignRawPayloadBody
 import com.turnkey.types.TStampLoginBody
 import com.turnkey.types.V1AddressFormat
+import com.turnkey.types.V1ClientSignature
+import com.turnkey.types.V1ClientSignatureScheme
 import com.turnkey.types.V1CreateWalletResult
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1ImportWalletResult
@@ -78,6 +83,7 @@ import okhttp3.OkHttpClient
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID
+import kotlin.math.sign
 
 object TurnkeyContext {
     @Volatile
@@ -987,34 +993,25 @@ object TurnkeyContext {
     /** Verifies the OTP for the given contact
      * @param otpCode OTP code to verify.
      * @param otpId OTP ID received from initOtp.
-     * @param contact contact information (e.g., phone number or email address).
-     * @param otpType type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS).
+     * @param publicKey Public key the verification token is bound to for ownership verification.
      */
     suspend fun verifyOtp(
         otpCode: String,
         otpId: String,
-        contact: String,
-        otpType: OtpType
+        publicKey: String? = null
     ): VerifyOtpResult {
+        val resolvedPublicKey = publicKey ?: createKeyPair()
+
         val verifyOtpRes = client.proxyVerifyOtp(
             ProxyTVerifyOtpBody(
                 otpId,
-                otpCode
+                otpCode,
+                resolvedPublicKey
             )
         )
         if (verifyOtpRes.verificationToken.isEmpty()) throw TurnkeyKotlinError.InvalidResponse("Failed to verify OTP, missing verification token in response.")
 
-        val accountRes = client.proxyGetAccount(
-            ProxyTGetAccountBody(
-                filterType = otpTypeToFilterTypeMap.getValue(otpType).name,
-                filterValue = contact,
-                verificationToken = verifyOtpRes.verificationToken
-            )
-        )
-
-        val subOrganizationId = accountRes.organizationId
         return VerifyOtpResult(
-            subOrganizationId = subOrganizationId,
             verificationToken = verifyOtpRes.verificationToken
         )
     }
@@ -1033,17 +1030,33 @@ object TurnkeyContext {
         publicKey: String? = null,
         sessionKey: String? = null,
     ): LoginWithOtpResult {
-        var generatedPublicKey: String?
-
         try {
-            generatedPublicKey = publicKey ?: createKeyPair()
+            val sessionPublicKey = publicKey ?: createKeyPair()
+
+            val (message, clientSignaturePublicKey) = ClientSignature.forLogin(
+                verificationToken,
+                sessionPublicKey
+            )
+
+            val clientSignaturePrivKey = KeyPairStore.getPrivateHex(appContext, clientSignaturePublicKey)
+            val stamper = Stamper(apiPublicKey = clientSignaturePublicKey, apiPrivateKey = clientSignaturePrivKey)
+
+            val signature = stamper.sign(message, SignatureFormat.raw)
+
+            val clientSignature = V1ClientSignature(
+                message = message,
+                publicKey = clientSignaturePublicKey,
+                scheme = V1ClientSignatureScheme.CLIENT_SIGNATURE_SCHEME_API_P256,
+                signature = signature
+            )
 
             val res = client.proxyOtpLogin(
                 ProxyTOtpLoginBody(
                     organizationId = organizationId,
-                    publicKey = generatedPublicKey,
+                    publicKey = sessionPublicKey,
                     verificationToken = verificationToken,
-                    invalidateExisting = invalidateExisting
+                    invalidateExisting = invalidateExisting,
+                    clientSignature = clientSignature
                 )
             )
 
@@ -1082,7 +1095,45 @@ object TurnkeyContext {
 
         val updatedCreateSubOrgParams =
             Helpers.getCreateSubOrgParams(createSubOrgParams, runtimeConfig, overrideParams)
-        val signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
+
+        // build sign up body without client signature first
+        var signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
+
+        val (message, clientSignaturePublicKey) = ClientSignature.forSignUp(
+            verificationToken = verificationToken,
+            email = signUpBody.userEmail,
+            phoneNumber = signUpBody.userPhoneNumber,
+            apiKeys = signUpBody.apiKeys,
+            authenticators = signUpBody.authenticators,
+            oauthProviders = signUpBody.oauthProviders
+        )
+
+        val clientSignaturePrivKey =
+            KeyPairStore.getPrivateHex(appContext, clientSignaturePublicKey)
+        val stamper = Stamper(apiPublicKey = clientSignaturePublicKey, clientSignaturePrivKey)
+        val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
+
+        val clientSignature = V1ClientSignature(
+            message = message,
+            publicKey = clientSignaturePublicKey,
+            scheme = V1ClientSignatureScheme.CLIENT_SIGNATURE_SCHEME_API_P256,
+            signature = signature
+        )
+
+        // add client signature to sign up body
+        signUpBody = ProxyTSignupBody(
+            apiKeys = signUpBody.apiKeys,
+            authenticators = signUpBody.authenticators,
+            oauthProviders = signUpBody.oauthProviders,
+            organizationName = signUpBody.organizationName,
+            userEmail = signUpBody.userEmail,
+            userPhoneNumber = signUpBody.userPhoneNumber,
+            userName = signUpBody.userName,
+            userTag = signUpBody.userTag,
+            verificationToken = signUpBody.verificationToken,
+            wallet = signUpBody.wallet,
+            clientSignature = clientSignature
+        )
 
         try {
             val res = client.proxySignup(signUpBody)
@@ -1125,18 +1176,29 @@ object TurnkeyContext {
         createSubOrgParams: CreateSubOrgParams? = null
     ): LoginOrSignUpWithOtpResult {
         try {
+            val resolvedPublicKey = publicKey ?: createKeyPair()
+
             val verifyRes = verifyOtp(
                 otpCode = otpCode,
                 otpId = otpId,
-                contact = contact,
-                otpType = otpType
+                publicKey = resolvedPublicKey,
             )
-            if (verifyRes.subOrganizationId.isNullOrEmpty()) {
+
+            val accountRes = client.proxyGetAccount(
+                ProxyTGetAccountBody(
+                    filterType = otpTypeToFilterTypeMap.getValue(otpType).name,
+                    filterValue = contact,
+                    verificationToken = verifyRes.verificationToken
+                )
+            )
+            val subOrganizationId = accountRes.organizationId
+
+            if (subOrganizationId.isNullOrEmpty()) {
                 val signUpRes = signUpWithOtp(
                     verificationToken = verifyRes.verificationToken,
                     contact = contact,
                     otpType = otpType,
-                    publicKey = publicKey,
+                    publicKey = resolvedPublicKey,
                     sessionKey = sessionKey,
                     createSubOrgParams = createSubOrgParams,
                     invalidateExisting = invalidateExisting
@@ -1146,9 +1208,9 @@ object TurnkeyContext {
             } else {
                 val loginRes = loginWithOtp(
                     verificationToken = verifyRes.verificationToken,
-                    organizationId = verifyRes.subOrganizationId,
+                    organizationId = subOrganizationId,
                     invalidateExisting = invalidateExisting,
-                    publicKey = publicKey,
+                    publicKey = resolvedPublicKey,
                     sessionKey = sessionKey
                 )
                 return LoginOrSignUpWithOtpResult(sessionJwt = loginRes.sessionJwt)

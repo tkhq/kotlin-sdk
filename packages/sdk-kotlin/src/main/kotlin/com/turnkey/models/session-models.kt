@@ -46,3 +46,14 @@ data class Wallet (
     val name: String,
     val accounts: List<V1WalletAccount>
 )
+
+@Serializable
+data class VerificationToken (
+    val contact: String,
+    val exp: Double,
+    val id: String,
+    @SerialName("public_key")
+    val publicKey: String?,
+    @SerialName("verification_type")
+    val verificationType: String
+)

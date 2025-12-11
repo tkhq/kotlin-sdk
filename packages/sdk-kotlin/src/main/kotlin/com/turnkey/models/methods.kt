@@ -5,8 +5,7 @@ data class InitOtpResult(
 )
 
 data class VerifyOtpResult (
-    val subOrganizationId: String? = null,
-    val verificationToken: String,
+    val verificationToken: String
 )
 
 data class LoginWithOtpResult(

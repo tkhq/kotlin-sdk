@@ -129,6 +129,8 @@ import com.turnkey.types.TGetAuthenticatorsBody
 import com.turnkey.types.TGetAuthenticatorsResponse
 import com.turnkey.types.TGetBootProofBody
 import com.turnkey.types.TGetBootProofResponse
+import com.turnkey.types.TGetGasUsageBody
+import com.turnkey.types.TGetGasUsageResponse
 import com.turnkey.types.TGetLatestBootProofBody
 import com.turnkey.types.TGetLatestBootProofResponse
 import com.turnkey.types.TGetOauth2CredentialBody
@@ -151,6 +153,8 @@ import com.turnkey.types.TGetPrivateKeyBody
 import com.turnkey.types.TGetPrivateKeyResponse
 import com.turnkey.types.TGetPrivateKeysBody
 import com.turnkey.types.TGetPrivateKeysResponse
+import com.turnkey.types.TGetSendTransactionStatusBody
+import com.turnkey.types.TGetSendTransactionStatusResponse
 import com.turnkey.types.TGetSmartContractInterfaceBody
 import com.turnkey.types.TGetSmartContractInterfaceResponse
 import com.turnkey.types.TGetSmartContractInterfacesBody
@@ -513,6 +517,36 @@ public class TurnkeyClient(
   }
 
   /**
+   * POST `/public/v1/query/get_gas_usage` (operationId: PublicApiService_GetGasUsage)
+   */
+  public suspend fun getGasUsage(input: TGetGasUsageBody): TGetGasUsageResponse {
+    val url = "$apiBaseUrl/public/v1/query/get_gas_usage"
+    if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
+    val bodyJson = json.encodeToString(TGetGasUsageBody.serializer(), input)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_gas_usage: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(TGetGasUsageResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun stampGetGasUsage(input: TGetGasUsageBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
+    val url = "$apiBaseUrl/public/v1/query/get_gas_usage"
+    val bodyJson = json.encodeToString(TGetGasUsageBody.serializer(), input)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  /**
    * POST `/public/v1/query/get_latest_boot_proof` (operationId: PublicApiService_GetLatestBootProof)
    */
   public suspend fun getLatestBootProof(input: TGetLatestBootProofBody): TGetLatestBootProofResponse {
@@ -777,6 +811,36 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
     val url = "$apiBaseUrl/public/v1/query/get_private_key"
     val bodyJson = json.encodeToString(TGetPrivateKeyBody.serializer(), input)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  /**
+   * POST `/public/v1/query/get_send_transaction_status` (operationId: PublicApiService_GetSendTransactionStatus)
+   */
+  public suspend fun getSendTransactionStatus(input: TGetSendTransactionStatusBody): TGetSendTransactionStatusResponse {
+    val url = "$apiBaseUrl/public/v1/query/get_send_transaction_status"
+    if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
+    val bodyJson = json.encodeToString(TGetSendTransactionStatusBody.serializer(), input)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_send_transaction_status: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(TGetSendTransactionStatusResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun stampGetSendTransactionStatus(input: TGetSendTransactionStatusBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpErrors.StamperNotInitialized
+    val url = "$apiBaseUrl/public/v1/query/get_send_transaction_status"
+    val bodyJson = json.encodeToString(TGetSendTransactionStatusBody.serializer(), input)
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)

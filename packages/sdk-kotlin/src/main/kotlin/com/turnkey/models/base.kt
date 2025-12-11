@@ -104,3 +104,8 @@ data class Defaults(
     val encoding: V1PayloadEncoding,
     val hashFunction: V1HashFunction
 )
+
+data class ClientSignaturePayload (
+    val message: String,
+    val clientSignaturePublicKey: String
+)
