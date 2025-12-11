@@ -13,7 +13,7 @@ dependencies {
 }
 
 group = "com.turnkey"
-version = "0.1.1"
+version = "0.1.2"
 
 mavenPublishing {
     coordinates("com.turnkey", "types", version.toString())

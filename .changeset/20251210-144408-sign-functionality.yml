@@ -1,5 +1,0 @@
-title: Sign Functionality
-packages:
-  stamper: patch
-changelog: |-
-  Added a `sign` function to the API Key Stamper for signing arbitrary payloads.

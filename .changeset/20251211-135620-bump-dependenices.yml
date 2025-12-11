@@ -1,6 +1,0 @@
-title: Bump Dependenices
-packages:
-  passkey: patch
-changelog: |-
-  Updated dependencies:
-   - `com.turnkey.types@v0.1.2`
