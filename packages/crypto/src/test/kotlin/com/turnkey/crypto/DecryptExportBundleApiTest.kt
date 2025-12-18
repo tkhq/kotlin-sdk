@@ -1,7 +1,7 @@
 package com.turnkey.crypto
 
-import com.turnkey.utils.CryptoError
-import com.turnkey.utils.KeyFormat
+import com.turnkey.crypto.utils.CryptoError
+import com.turnkey.crypto.models.KeyFormat
 import kotlin.test.*
 
 class DecryptExportBundleApiTest {
@@ -37,7 +37,7 @@ class DecryptExportBundleApiTest {
                 returnMnemonic = false
             )
         }
-        assertTrue(ex is CryptoError.DecodingFailed)
+        assertTrue(ex is CryptoError.OperationFailed)
     }
 
     @Test

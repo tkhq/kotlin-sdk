@@ -1,6 +1,6 @@
 package com.turnkey.crypto
 
-import com.turnkey.utils.CryptoError
+import com.turnkey.crypto.utils.CryptoError
 import kotlin.test.*
 
 class EncryptWalletApiTest {
@@ -16,7 +16,7 @@ class EncryptWalletApiTest {
                 dangerouslyOverrideSignerPublicKey = null
             )
         }
-        assertTrue(ex is CryptoError.DecodingFailed)
+        assertTrue(ex is CryptoError.OperationFailed)
     }
 
     @Test

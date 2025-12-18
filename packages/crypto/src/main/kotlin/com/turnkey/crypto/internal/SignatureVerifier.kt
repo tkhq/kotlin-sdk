@@ -1,4 +1,4 @@
-package com.turnkey.internal
+package com.turnkey.crypto.internal
 
 import java.math.BigInteger
 import java.security.AlgorithmParameters
@@ -10,12 +10,22 @@ import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint
 import java.security.spec.ECPublicKeySpec
 import java.security.MessageDigest
-import com.turnkey.utils.CryptoError
-import com.turnkey.utils.TurnkeyConstants
+import com.turnkey.crypto.utils.CryptoError
+import com.turnkey.crypto.utils.TurnkeyConstants
 import com.turnkey.encoding.decodeHex
 
+/**
+ * Verifies an ECDSA signature from the Turnkey enclave.
+ *
+ * @param enclaveQuorumPublic Hex-encoded uncompressed P-256 public key (65 bytes)
+ * @param publicSignature Hex-encoded DER signature (ECDSA r,s)
+ * @param signedData Hex-encoded payload that was signed
+ * @param dangerouslyOverrideSignerPublicKey Optional override for testing (do not use in production)
+ * @return true if signature is valid
+ * @throws CryptoError if signature verification fails or signer mismatch
+ */
 @Throws(CryptoError::class)
-fun verifyEnclaveSignature(
+internal fun verifyEnclaveSignature(
     enclaveQuorumPublic: String,   // hex, X9.62 uncompressed point (65 bytes for P-256)
     publicSignature: String,       // hex, DER-encoded ECDSA signature (r,s)
     signedData: String,            // hex payload that was signed

@@ -1,12 +1,11 @@
 package com.turnkey.crypto
 
-import com.turnkey.internal.P256
-import com.turnkey.internal.base58CheckEncode
-import com.turnkey.internal.bigIntToFixed
-import com.turnkey.internal.decryptCredentialBundle
-import com.turnkey.internal.ecPointCompressedToUncompressed
-import com.turnkey.internal.hpkeDecrypt
-import com.turnkey.internal.hpkeEncrypt
+import com.turnkey.crypto.internal.P256
+import com.turnkey.crypto.internal.bigIntToFixed
+import com.turnkey.crypto.internal.ecPointCompressedToUncompressed
+import com.turnkey.crypto.internal.hpkeDecrypt
+import com.turnkey.crypto.internal.hpkeEncrypt
+import com.turnkey.encoding.encodeBase58Check
 import kotlin.test.*
 import java.math.BigInteger
 import java.security.*
@@ -96,7 +95,7 @@ class HpkeCryptoTest {
         val ciphertext = bundleBytes.copyOfRange(33, bundleBytes.size)
 
         // Build Base58Check payload: [33B compressed enc || ciphertext]
-        val b58 = base58CheckEncode(compressed + ciphertext)
+        val b58 = encodeBase58Check(compressed + ciphertext)
 
         // Call the API under test
         val result = decryptCredentialBundle(

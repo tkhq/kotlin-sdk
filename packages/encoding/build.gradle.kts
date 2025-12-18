@@ -16,6 +16,7 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.launcher)
     implementation(kotlin("stdlib-jdk8"))
+    implementation(libs.bitcoinj.core)
     testImplementation(kotlin("test"))
 }
 

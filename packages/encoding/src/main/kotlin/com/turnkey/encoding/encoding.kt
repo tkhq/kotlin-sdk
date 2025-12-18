@@ -74,3 +74,56 @@ private val SECURE_RANDOM = SecureRandom()
 
 /** Cryptographically secure random byte array. */
 fun randomBytes(count: Int): ByteArray = ByteArray(count).also { SECURE_RANDOM.nextBytes(it) }
+
+/* ---------- Base58Check ---------- */
+
+/**
+ * Decodes a Base58Check-encoded string to its payload bytes.
+ * Verifies the 4-byte checksum and removes it from the result.
+ *
+ * @param s Base58Check-encoded string
+ * @return Decoded payload bytes (without checksum)
+ * @throws IllegalArgumentException if checksum verification fails
+ */
+@Throws(IllegalArgumentException::class)
+fun decodeBase58Check(s: String): ByteArray {
+    val decoded = org.bitcoinj.core.Base58.decodeChecked(s)
+    return decoded
+}
+
+/**
+ * Encodes payload bytes to Base58Check format.
+ * Adds a 4-byte double-SHA256 checksum before encoding.
+ *
+ * @param payload Bytes to encode
+ * @return Base58Check-encoded string
+ */
+fun encodeBase58Check(payload: ByteArray): String {
+    val checksum = sha256(sha256(payload)).copyOfRange(0, 4)
+    return org.bitcoinj.core.Base58.encode(payload + checksum)
+}
+
+private fun sha256(bytes: ByteArray): ByteArray =
+    java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
+
+/* ---------- UTF-8 Strict ---------- */
+
+/**
+ * Strictly decodes bytes as UTF-8, throwing on invalid sequences.
+ * Unlike standard UTF-8 decoding, this rejects malformed input and unmappable characters.
+ *
+ * @param bytes Input byte array to decode
+ * @return Decoded UTF-8 string
+ * @throws TurnkeyDecodingException.InvalidUTF8 if bytes contain invalid UTF-8 sequences
+ */
+@Throws(TurnkeyDecodingException::class)
+fun decodeUtf8Strict(bytes: ByteArray): String {
+    val decoder = java.nio.charset.StandardCharsets.UTF_8.newDecoder()
+        .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+        .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+    return try {
+        decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString()
+    } catch (e: java.nio.charset.CharacterCodingException) {
+        throw TurnkeyDecodingException.InvalidUTF8(e)
+    }
+}
