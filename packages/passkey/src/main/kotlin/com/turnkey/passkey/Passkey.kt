@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import com.turnkey.passkey.internal.AssertionResult
 import com.turnkey.passkey.internal.PasskeyOperationRunner
 import com.turnkey.passkey.internal.PasskeyRequestBuilder
+import com.turnkey.passkey.utils.TurnkeyPasskeyError
 import com.turnkey.types.V1Attestation
 import kotlinx.serialization.Serializable
 
@@ -34,16 +35,20 @@ suspend fun createPasskey(
     rpId: String,
     excludeCredentials: List<ByteArray>? = emptyList(),
 ): PasskeyRegistrationResult {
-    val service = PasskeyRequestBuilder(
-        rpId = rpId,
-        activity = activity
-    )
-    val excludeCredentials = excludeCredentials ?: emptyList()
-    val runner = PasskeyOperationRunner(activity = activity, service = service)
-    return runner.register(
-        user = user,
-        exclude = excludeCredentials,
-    )
+    try {
+        val service = PasskeyRequestBuilder(
+            rpId = rpId,
+            activity = activity
+        )
+        val excludeCredentials = excludeCredentials ?: emptyList()
+        val runner = PasskeyOperationRunner(activity = activity, service = service)
+        return runner.register(
+            user = user,
+            exclude = excludeCredentials,
+        )
+    } catch (t: Throwable) {
+        throw TurnkeyPasskeyError.wrap(t)
+    }
 }
 
 suspend fun createPasskey(

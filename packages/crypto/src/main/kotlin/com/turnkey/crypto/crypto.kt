@@ -5,7 +5,6 @@ import com.turnkey.encoding.decodeHex
 import com.turnkey.encoding.decodeUtf8Strict
 import com.turnkey.encoding.base58CheckEncode
 import com.turnkey.encoding.toHexString
-import com.turnkey.crypto.internal.P256
 import com.turnkey.crypto.internal.bigIntToFixed
 import com.turnkey.crypto.internal.decodeBundleOuter
 import com.turnkey.crypto.internal.decodeSignedInner
@@ -19,6 +18,11 @@ import com.turnkey.crypto.models.P256KeyPair
 import com.turnkey.crypto.models.RawP256KeyPair
 import com.turnkey.crypto.utils.TurnkeyCryptoError
 import kotlinx.serialization.json.Json
+import org.bouncycastle.asn1.nist.NISTNamedCurves
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair
+import org.bouncycastle.crypto.params.ECDomainParameters
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters
+import org.bouncycastle.crypto.params.ECPublicKeyParameters
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.AlgorithmParameters
@@ -32,6 +36,36 @@ import java.security.spec.ECPoint
 import java.security.spec.ECPrivateKeySpec
 import java.security.spec.ECPublicKeySpec
 import kotlin.jvm.Throws
+
+object P256 {
+    private val x9 = NISTNamedCurves.getByName("P-256")
+    val domain = ECDomainParameters(x9.curve, x9.g, x9.n, x9.h)
+
+    /** Compute Q = d*G and return ECPublicKeyParameters. */
+    fun publicFromScalar(d: ByteArray): ECPublicKeyParameters {
+        val q = domain.g.multiply(BigInteger(1, d)).normalize()
+        return ECPublicKeyParameters(q, domain)
+    }
+
+    /** Decompress 33-byte compressed point → 65-byte uncompressed (X9.62). */
+    fun decompress(compressed: ByteArray): ByteArray =
+        domain.curve.decodePoint(compressed).getEncoded(false)
+
+    /** Compress 65-byte uncompressed point → 33-byte compressed (X9.62). */
+    fun compress(uncompressed: ByteArray): ByteArray =
+        domain.curve.decodePoint(uncompressed).getEncoded(true)
+
+    /** Parse 65-byte uncompressed (0x04 || X || Y) into ECPublicKeyParameters. */
+    fun publicFromUncompressed(uncompressed: ByteArray): ECPublicKeyParameters =
+        ECPublicKeyParameters(domain.curve.decodePoint(uncompressed), domain)
+
+    /** Make AsymmetricCipherKeyPair from private scalar. */
+    fun keyPairFromScalar(d: ByteArray): AsymmetricCipherKeyPair {
+        val priv = ECPrivateKeyParameters(BigInteger(1, d), domain)
+        val pub = publicFromScalar(d)
+        return AsymmetricCipherKeyPair(pub, priv)
+    }
+}
 
 /**
  * Generates a new P-256 (secp256r1) key pair.

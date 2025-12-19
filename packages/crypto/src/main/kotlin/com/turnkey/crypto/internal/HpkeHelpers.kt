@@ -1,5 +1,6 @@
 package com.turnkey.crypto.internal
 
+import com.turnkey.crypto.P256
 import com.turnkey.crypto.utils.TurnkeyCryptoError
 import com.turnkey.crypto.utils.TurnkeyConstants.hpkeInfo
 import com.turnkey.encoding.decodeHex
@@ -44,38 +45,8 @@ internal fun decodeSignedInner(hexStr: String): SignedInner {
     return json.decodeFromString<SignedInner>(bytes.decodeToString())
 }
 
-internal object P256 {
-    private val x9 = NISTNamedCurves.getByName("P-256")
-    val domain = ECDomainParameters(x9.curve, x9.g, x9.n, x9.h)
-
-    /** Compute Q = d*G and return ECPublicKeyParameters. */
-    fun publicFromScalar(d: ByteArray): ECPublicKeyParameters {
-        val q = domain.g.multiply(BigInteger(1, d)).normalize()
-        return ECPublicKeyParameters(q, domain)
-    }
-
-    /** Decompress 33-byte compressed point → 65-byte uncompressed (X9.62). */
-    fun decompress(compressed: ByteArray): ByteArray =
-        domain.curve.decodePoint(compressed).getEncoded(false)
-
-    /** Compress 65-byte uncompressed point → 33-byte compressed (X9.62). */
-    fun compress(uncompressed: ByteArray): ByteArray =
-        domain.curve.decodePoint(uncompressed).getEncoded(true)
-
-    /** Parse 65-byte uncompressed (0x04 || X || Y) into ECPublicKeyParameters. */
-    fun publicFromUncompressed(uncompressed: ByteArray): ECPublicKeyParameters =
-        ECPublicKeyParameters(domain.curve.decodePoint(uncompressed), domain)
-
-    /** Make AsymmetricCipherKeyPair from private scalar. */
-    fun keyPairFromScalar(d: ByteArray): AsymmetricCipherKeyPair {
-        val priv = ECPrivateKeyParameters(BigInteger(1, d), domain)
-        val pub = publicFromScalar(d)
-        return AsymmetricCipherKeyPair(pub, priv)
-    }
-}
-
 /** Converts 65-byte uncompressed point to 33-byte compressed format. */
-internal fun ecPointUncompressedToCompressed(uncompressed: ByteArray): ByteArray = 
+internal fun ecPointUncompressedToCompressed(uncompressed: ByteArray): ByteArray =
     P256.compress(uncompressed)
 
 /** Converts 33-byte compressed point to 65-byte uncompressed format. */
