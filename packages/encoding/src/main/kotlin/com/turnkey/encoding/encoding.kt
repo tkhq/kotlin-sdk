@@ -124,5 +124,3 @@ fun decodeUtf8Strict(bytes: ByteArray): String = try {
 } catch (e: Exception) {
     throw TurnkeyEncodingError.wrap(e)
 }
-    throw TurnkeyEncodingError.wrap(e)
-}
