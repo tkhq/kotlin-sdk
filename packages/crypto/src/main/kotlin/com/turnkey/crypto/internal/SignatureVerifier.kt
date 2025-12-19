@@ -10,7 +10,7 @@ import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint
 import java.security.spec.ECPublicKeySpec
 import java.security.MessageDigest
-import com.turnkey.crypto.utils.CryptoError
+import com.turnkey.crypto.utils.TurnkeyCryptoError
 import com.turnkey.crypto.utils.TurnkeyConstants
 import com.turnkey.encoding.decodeHex
 
@@ -22,9 +22,9 @@ import com.turnkey.encoding.decodeHex
  * @param signedData Hex-encoded payload that was signed
  * @param dangerouslyOverrideSignerPublicKey Optional override for testing (do not use in production)
  * @return true if signature is valid
- * @throws CryptoError if signature verification fails or signer mismatch
+ * @throws TurnkeyCryptoError if signature verification fails or signer mismatch
  */
-@Throws(CryptoError::class)
+@Throws(TurnkeyCryptoError::class)
 internal fun verifyEnclaveSignature(
     enclaveQuorumPublic: String,   // hex, X9.62 uncompressed point (65 bytes for P-256)
     publicSignature: String,       // hex, DER-encoded ECDSA signature (r,s)
@@ -33,20 +33,20 @@ internal fun verifyEnclaveSignature(
 ): Boolean {
     val expectedKey = dangerouslyOverrideSignerPublicKey ?: TurnkeyConstants.PRODUCTION_SIGNER_PUBLIC_KEY
     if (enclaveQuorumPublic != expectedKey) {
-        throw CryptoError.SignerMismatch(expected = expectedKey, found = enclaveQuorumPublic)
+        throw TurnkeyCryptoError.SignerMismatch(expected = expectedKey, found = enclaveQuorumPublic)
     }
 
     val pubKeyBytes = try { decodeHex(enclaveQuorumPublic) }
-    catch (_: Throwable) { throw CryptoError.InvalidHexString(enclaveQuorumPublic) }
+    catch (_: Throwable) { throw TurnkeyCryptoError.InvalidHexString(enclaveQuorumPublic) }
 
     val sigDer = try { decodeHex(publicSignature) }
-    catch (_: Throwable) { throw CryptoError.InvalidHexString(publicSignature) }
+    catch (_: Throwable) { throw TurnkeyCryptoError.InvalidHexString(publicSignature) }
 
     val payload = try { decodeHex(signedData) }
-    catch (_: Throwable) { throw CryptoError.InvalidHexString(signedData) }
+    catch (_: Throwable) { throw TurnkeyCryptoError.InvalidHexString(signedData) }
 
     val publicKey = try { p256PublicKeyFromX963(pubKeyBytes) }
-    catch (e: Throwable) { throw CryptoError.InvalidPublicKey(e) }
+    catch (e: Throwable) { throw TurnkeyCryptoError.InvalidPublicKey(e) }
 
     // use "NONEwithECDSA" and feed the digest bytes.
     val digest = MessageDigest.getInstance("SHA-256").digest(payload)

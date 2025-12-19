@@ -1,6 +1,6 @@
 package com.turnkey.crypto.internal
 
-import com.turnkey.crypto.utils.CryptoError
+import com.turnkey.crypto.utils.TurnkeyCryptoError
 import com.turnkey.crypto.utils.TurnkeyConstants.hpkeInfo
 import com.turnkey.encoding.decodeHex
 import com.turnkey.encoding.toHexString
@@ -156,12 +156,12 @@ internal fun hpkeDecrypt(
  *
  * @param secretScalar 32-byte secret scalar for Ed25519 key
  * @return 32-byte Ed25519 public key
- * @throws CryptoError.InvalidPrivateLength if scalar is not 32 bytes
+ * @throws TurnkeyCryptoError.InvalidPrivateLength if scalar is not 32 bytes
  */
-@Throws(CryptoError::class)
+@Throws(TurnkeyCryptoError::class)
 internal fun deriveEd25519PublicKey(secretScalar: ByteArray): ByteArray {
     if (secretScalar.size != 32) {
-        throw CryptoError.InvalidPrivateLength(32, secretScalar.size)
+        throw TurnkeyCryptoError.InvalidPrivateLength(32, secretScalar.size)
     }
     val privateKey = Ed25519PrivateKeyParameters(secretScalar, 0)
     return privateKey.generatePublicKey().encoded

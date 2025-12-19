@@ -17,7 +17,7 @@ import com.turnkey.crypto.internal.verifyEnclaveSignature
 import com.turnkey.crypto.models.KeyFormat
 import com.turnkey.crypto.models.P256KeyPair
 import com.turnkey.crypto.models.RawP256KeyPair
-import com.turnkey.crypto.utils.CryptoError
+import com.turnkey.crypto.utils.TurnkeyCryptoError
 import kotlinx.serialization.json.Json
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
@@ -80,15 +80,15 @@ fun generateP256KeyPair(): RawP256KeyPair{
  * @param encryptedBundle Base58Check-encoded bundle containing the encapsulated key and ciphertext.
  * @param ephemeralPrivateKey The ephemeral P-256 private key used for decryption.
  * @return P256KeyPair containing the decrypted credential as Java EC key pair.
- * @throws CryptoError if decryption fails or bundle format is invalid.
+ * @throws TurnkeyCryptoError if decryption fails or bundle format is invalid.
  */
-@Throws(CryptoError::class)
+@Throws(TurnkeyCryptoError::class)
 fun decryptCredentialBundle(
     encryptedBundle: String,
     ephemeralPrivateKey: ECPrivateKey
 ): P256KeyPair = try {
     val decoded = base58CheckDecode(encryptedBundle)
-    if (decoded.size <= 33) throw CryptoError.InvalidCompressedKeyLength(decoded.size)
+    if (decoded.size <= 33) throw TurnkeyCryptoError.InvalidCompressedKeyLength(decoded.size)
 
     val compressedEncapped = decoded.copyOfRange(0, 33)
     val ciphertext = decoded.copyOfRange(33, decoded.size)
@@ -105,7 +105,7 @@ fun decryptCredentialBundle(
     )
 
     // Interpret plaintext as raw P-256 signing private key, derive pub:
-    if (plaintext.size != 32) throw CryptoError.InvalidPrivateLength(32, plaintext.size)
+    if (plaintext.size != 32) throw TurnkeyCryptoError.InvalidPrivateLength(32, plaintext.size)
 
     // Build ECPrivateKey on secp256r1
     val ecSpec: ECParameterSpec = AlgorithmParameters.getInstance("EC")
@@ -126,7 +126,7 @@ fun decryptCredentialBundle(
 
     P256KeyPair(publicKey = pubKey, privateKey = privKey)
 } catch (e: Exception) {
-    throw CryptoError.wrap(e)
+    throw TurnkeyCryptoError.wrap(e)
 }
 
 /**
@@ -138,9 +138,9 @@ fun decryptCredentialBundle(
  * @param dangerouslyOverrideSignerPublicKey Optional override of the signer public key (for dev/test).
  * @param keyFormat The output format for Solana or other keys.
  * @return The decrypted payload as either a mnemonic or hex string.
- * @throws CryptoError if any validation, decoding, or decryption fails.
+ * @throws TurnkeyCryptoError if any validation, decoding, or decryption fails.
  */
-@Throws(CryptoError::class)
+@Throws(TurnkeyCryptoError::class)
 fun decryptExportBundle(
     exportBundle: String,
     organizationId: String,
@@ -152,10 +152,10 @@ fun decryptExportBundle(
     val keyBytes = try {
         decodeHex(embeddedPrivateKey)
     }
-    catch (_: Exception) { throw CryptoError.InvalidHexString(embeddedPrivateKey) }
+    catch (_: Exception) { throw TurnkeyCryptoError.InvalidHexString(embeddedPrivateKey) }
 
     // Basic sanity check: P-256 private key should be 32 bytes.
-    if (keyBytes.size != 32) throw CryptoError.InvalidHexString(embeddedPrivateKey)
+    if (keyBytes.size != 32) throw TurnkeyCryptoError.InvalidHexString(embeddedPrivateKey)
 
     val d = BigInteger(1, keyBytes)
 
@@ -168,7 +168,7 @@ fun decryptExportBundle(
         val spec = ECPrivateKeySpec(d, ecSpec)
         KeyFactory.getInstance("EC").generatePrivate(spec) as ECPrivateKey
     } catch (e: Exception) {
-        throw CryptoError.InvalidPrivateKey(e)
+        throw TurnkeyCryptoError.InvalidPrivateKey(e)
     }
 
     // Parse outer JSON
@@ -180,16 +180,16 @@ fun decryptExportBundle(
         outer.data,
         dangerouslyOverrideSignerPublicKey
     )
-    if (!ok) throw CryptoError.SignatureVerificationFailed()
+    if (!ok) throw TurnkeyCryptoError.SignatureVerificationFailed()
 
     val inner = decodeSignedInner(outer.data)
 
     if (inner.organizationId != organizationId) {
-        throw CryptoError.OrgIdMismatch(organizationId, inner.organizationId)
+        throw TurnkeyCryptoError.OrgIdMismatch(organizationId, inner.organizationId)
     }
 
-    val encappedHex = inner.encappedPublic ?: throw CryptoError.MissingEncappedPublic()
-    val ciphertextHex = inner.ciphertext ?: throw CryptoError.MissingCiphertext()
+    val encappedHex = inner.encappedPublic ?: throw TurnkeyCryptoError.MissingEncappedPublic()
+    val ciphertextHex = inner.ciphertext ?: throw TurnkeyCryptoError.MissingCiphertext()
 
     val ct = decodeHex(ciphertextHex)
     val ek = decodeHex(encappedHex)
@@ -200,10 +200,10 @@ fun decryptExportBundle(
 
     when {
         keyFormat == KeyFormat.solana && !returnMnemonic -> {
-            if (plaintext.size != 32) throw CryptoError.InvalidPrivateLength(32, plaintext.size)
+            if (plaintext.size != 32) throw TurnkeyCryptoError.InvalidPrivateLength(32, plaintext.size)
 
             val pubKey = deriveEd25519PublicKey(plaintext)
-            if (pubKey.size != 32) throw CryptoError.InvalidPublicLength(32, pubKey.size)
+            if (pubKey.size != 32) throw TurnkeyCryptoError.InvalidPublicLength(32, pubKey.size)
 
             base58CheckEncode(plaintext + pubKey)
         }
@@ -216,7 +216,7 @@ fun decryptExportBundle(
         }
     }
 } catch (e: Exception) {
-    throw CryptoError.wrap(e)
+    throw TurnkeyCryptoError.wrap(e)
 }
 
 /**
@@ -228,9 +228,9 @@ fun decryptExportBundle(
  *  @param organizationId The expected organization ID to verify against.
  *  @param dangerouslyOverrideSignerPublicKey Optional override of the signer public key (for dev/test).
  *  @return The encrypted bundle as a JSON string.
- *  @throws CryptoError if validation or encryption fails.
+ *  @throws TurnkeyCryptoError if validation or encryption fails.
  */
-@Throws(CryptoError::class)
+@Throws(TurnkeyCryptoError::class)
 fun encryptWalletToBundle(
     mnemonic: String,
     importBundle: String,
@@ -246,24 +246,24 @@ fun encryptWalletToBundle(
         outer.data,
         dangerouslyOverrideSignerPublicKey
     )
-    if (!ok) throw CryptoError.SignatureVerificationFailed()
+    if (!ok) throw TurnkeyCryptoError.SignatureVerificationFailed()
 
     val inner = decodeSignedInner(outer.data)
 
     if (inner.organizationId != organizationId) {
-        throw CryptoError.OrgIdMismatch(organizationId, inner.organizationId)
+        throw TurnkeyCryptoError.OrgIdMismatch(organizationId, inner.organizationId)
     }
     if (inner.userId != userId) {
-        throw CryptoError.UserIdMismatch(userId, inner.userId)
+        throw TurnkeyCryptoError.UserIdMismatch(userId, inner.userId)
     }
 
-    val targetHex = inner.targetPublic ?: throw CryptoError.MissingEncappedPublic()
+    val targetHex = inner.targetPublic ?: throw TurnkeyCryptoError.MissingEncappedPublic()
 
     val plaintext = mnemonic.toByteArray(StandardCharsets.UTF_8)
 
     val bundleBytes = hpkeEncrypt(plaintext, targetHex)
 
-    if (bundleBytes.size <= 33) throw CryptoError.InvalidCompressedKeyLength(plaintext.size)
+    if (bundleBytes.size <= 33) throw TurnkeyCryptoError.InvalidCompressedKeyLength(plaintext.size)
 
     val compressed = bundleBytes.copyOfRange(0, 33)
     val cipher = bundleBytes.copyOfRange(33, bundleBytes.size)
@@ -272,5 +272,5 @@ fun encryptWalletToBundle(
     val json = mapOf("encappedPublic" to uncompressedPub.toHexString(), "ciphertext" to cipher.toHexString())
     Json.encodeToString(json)
 } catch (e: Exception) {
-    throw CryptoError.wrap(e)
+    throw TurnkeyCryptoError.wrap(e)
 }

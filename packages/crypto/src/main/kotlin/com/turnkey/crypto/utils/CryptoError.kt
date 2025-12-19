@@ -4,7 +4,7 @@ package com.turnkey.crypto.utils
  * Base exception class for all Turnkey crypto operations.
  * Wraps underlying errors with descriptive messages, similar to TurnkeyReactNativeError.
  */
-sealed class CryptoError(
+sealed class TurnkeyCryptoError(
     message: String,
     cause: Throwable? = null
 ) : Exception(
@@ -12,58 +12,58 @@ sealed class CryptoError(
     cause
 ) {
     data class InvalidCompressedKeyLength(val found: Int, override val cause: Throwable? = null) : 
-        CryptoError("Compressed key must be 33 bytes. found=$found", cause)
+        TurnkeyCryptoError("Compressed key must be 33 bytes. found=$found", cause)
     
     data class InvalidPrivateLength(val expected: Int, val found: Int, override val cause: Throwable? = null) :
-        CryptoError("Private key must be $expected bytes, found $found", cause)
+        TurnkeyCryptoError("Private key must be $expected bytes, found $found", cause)
     
     data class InvalidPublicLength(val expected: Int, val found: Int, override val cause: Throwable? = null) :
-        CryptoError("Public key must be $expected bytes, found $found", cause)
+        TurnkeyCryptoError("Public key must be $expected bytes, found $found", cause)
     
     data class InvalidHexString(val s: String, override val cause: Throwable? = null) : 
-        CryptoError("Invalid hex string: $s", cause)
+        TurnkeyCryptoError("Invalid hex string: $s", cause)
     
     data class MissingEncappedPublic(override val cause: Throwable? = null): 
-        CryptoError("Signed payload lacked \"encappedPublic\"", cause)
+        TurnkeyCryptoError("Signed payload lacked \"encappedPublic\"", cause)
     
     data class MissingCiphertext(override val cause: Throwable? = null): 
-        CryptoError("Signed payload lacked \"ciphertext\"", cause)
+        TurnkeyCryptoError("Signed payload lacked \"ciphertext\"", cause)
     
     data class OrgIdMismatch(val expected: String, val found: String?, override val cause: Throwable? = null) :
-        CryptoError("organizationId mismatch. expected=$expected found=$found", cause)
+        TurnkeyCryptoError("organizationId mismatch. expected=$expected found=$found", cause)
     
     data class UserIdMismatch(val expected: String, val found: String?, override val cause: Throwable? = null) :
-        CryptoError("userId mismatch. expected=$expected found=$found", cause)
+        TurnkeyCryptoError("userId mismatch. expected=$expected found=$found", cause)
     
     data class SignatureVerificationFailed(override val cause: Throwable? = null) : 
-        CryptoError("Signature verification failed", cause)
+        TurnkeyCryptoError("Signature verification failed", cause)
     
     data class EncodingFailed(override val cause: Throwable) :
-        CryptoError("JSON encoding failed", cause)
+        TurnkeyCryptoError("JSON encoding failed", cause)
     
     data class DecodingFailed(override val cause: Throwable) : 
-        CryptoError("Decoding failed", cause)
+        TurnkeyCryptoError("Decoding failed", cause)
     
     data class SignerMismatch(val expected: String, val found: String?, override val cause: Throwable? = null) :
-        CryptoError("Signer mismatch. expected=$expected found=$found", cause)
+        TurnkeyCryptoError("Signer mismatch. expected=$expected found=$found", cause)
     
     data class InvalidPublicKey(override val cause: Throwable) : 
-        CryptoError("Invalid public key", cause)
+        TurnkeyCryptoError("Invalid public key", cause)
     
     data class InvalidPrivateKey(override val cause: Throwable) : 
-        CryptoError("Invalid private key", cause)
+        TurnkeyCryptoError("Invalid private key", cause)
 
     data class OperationFailed(override val cause: Throwable) : 
-        CryptoError("Operation failed", cause)
+        TurnkeyCryptoError("Operation failed", cause)
     
     companion object {
         /**
-         * wrapper that preserves CryptoError types but wraps other exceptions
+         * wrapper that preserves TurnkeyCryptoError types but wraps other exceptions
          * we use this in high-level API functions to handle all exceptions
          */
-        fun wrap(e: Throwable): CryptoError {
+        fun wrap(e: Throwable): TurnkeyCryptoError {
             return when (e) {
-                is CryptoError -> e  // Already a CryptoError, pass through
+                is TurnkeyCryptoError -> e  // Already a TurnkeyCryptoError, pass through
                 else -> OperationFailed(e)  // Wrap other exceptions
             }
         }
