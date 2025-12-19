@@ -1,4 +1,4 @@
-package com.turnkey.utils
+package com.turnkey.passkey.utils
 
 import com.turnkey.encoding.toBase64Url
 import kotlinx.serialization.json.Json
