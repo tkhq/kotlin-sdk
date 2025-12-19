@@ -1,36 +1,44 @@
 package com.turnkey.crypto
 
+import com.turnkey.encoding.base58CheckDecode
 import com.turnkey.encoding.decodeHex
+import com.turnkey.encoding.decodeUtf8Strict
+import com.turnkey.encoding.base58CheckEncode
 import com.turnkey.encoding.toHexString
+import com.turnkey.crypto.internal.P256
+import com.turnkey.crypto.internal.bigIntToFixed
+import com.turnkey.crypto.internal.decodeBundleOuter
+import com.turnkey.crypto.internal.decodeSignedInner
+import com.turnkey.crypto.internal.deriveEd25519PublicKey
+import com.turnkey.crypto.internal.ecPointCompressedToUncompressed
+import com.turnkey.crypto.internal.hpkeDecrypt
+import com.turnkey.crypto.internal.hpkeEncrypt
+import com.turnkey.crypto.internal.verifyEnclaveSignature
+import com.turnkey.crypto.models.KeyFormat
+import com.turnkey.crypto.models.P256KeyPair
+import com.turnkey.crypto.models.RawP256KeyPair
+import com.turnkey.crypto.utils.CryptoError
+import kotlinx.serialization.json.Json
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.security.AlgorithmParameters
+import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.ECParameterSpec
+import java.security.spec.ECPoint
 import java.security.spec.ECPrivateKeySpec
-import com.turnkey.internal.bigIntToFixed
-import com.turnkey.internal.decryptCredentialBundle
-import com.turnkey.internal.decryptExportBundle
-import com.turnkey.internal.encryptWalletToBundle
-import com.turnkey.utils.KeyFormat
+import java.security.spec.ECPublicKeySpec
 import kotlin.jvm.Throws
-import com.turnkey.utils.CryptoError
-import java.security.KeyFactory
 
-
-data class RawP256KeyPair(
-    val publicKeyUncompressed: String, // 0x04 || X(32) || Y(32) -> 65 bytes hex
-    val publicKeyCompressed: String,   // 0x02/0x03 || X(32)     -> 33 bytes hex
-    val privateKey: String             // raw scalar d (32 bytes hex)
-)
-
-data class P256KeyPair(
-    val publicKey: ECPublicKey,
-    val privateKey: ECPrivateKey,
-)
-
+/**
+ * Generates a new P-256 (secp256r1) key pair.
+ *
+ * @return RawP256KeyPair containing the public key in both uncompressed and compressed formats,
+ *         along with the private key scalar in hex format.
+ */
 fun generateP256KeyPair(): RawP256KeyPair{
     val kpg = KeyPairGenerator.getInstance("EC")
     kpg.initialize(ECGenParameterSpec("secp256r1"))
@@ -66,9 +74,59 @@ fun generateP256KeyPair(): RawP256KeyPair{
     )
 }
 
-@Throws(IllegalArgumentException::class)
-fun decryptCredentialBundle(encryptedBundle: String, ephemeralPrivateKey: ECPrivateKey): P256KeyPair {
-    return decryptCredentialBundle(encryptedBundle, ephemeralPrivateKey)
+/**
+ * Decrypts a credential bundle encrypted with HPKE.
+ *
+ * @param encryptedBundle Base58Check-encoded bundle containing the encapsulated key and ciphertext.
+ * @param ephemeralPrivateKey The ephemeral P-256 private key used for decryption.
+ * @return P256KeyPair containing the decrypted credential as Java EC key pair.
+ * @throws CryptoError if decryption fails or bundle format is invalid.
+ */
+@Throws(CryptoError::class)
+fun decryptCredentialBundle(
+    encryptedBundle: String,
+    ephemeralPrivateKey: ECPrivateKey
+): P256KeyPair = try {
+    val decoded = base58CheckDecode(encryptedBundle)
+    if (decoded.size <= 33) throw CryptoError.InvalidCompressedKeyLength(decoded.size)
+
+    val compressedEncapped = decoded.copyOfRange(0, 33)
+    val ciphertext = decoded.copyOfRange(33, decoded.size)
+
+    // Decompress to X9.62 uncompressed for HPKE
+    val encappedUncompressed = P256.decompress(compressedEncapped)
+
+    // extract scalar value (s) and left-pad to 32 bytes
+    val receiverPrivScalar = bigIntToFixed(ephemeralPrivateKey.s, 32)
+    val plaintext = hpkeDecrypt(
+        ciphertext = ciphertext,
+        encappedUncompressed = encappedUncompressed,
+        receiverPrivScalar = receiverPrivScalar,
+    )
+
+    // Interpret plaintext as raw P-256 signing private key, derive pub:
+    if (plaintext.size != 32) throw CryptoError.InvalidPrivateLength(32, plaintext.size)
+
+    // Build ECPrivateKey on secp256r1
+    val ecSpec: ECParameterSpec = AlgorithmParameters.getInstance("EC")
+        .apply { init(ECGenParameterSpec("secp256r1")) }
+        .getParameterSpec(ECParameterSpec::class.java)
+
+    val d = BigInteger(1, plaintext)
+    val kf = KeyFactory.getInstance("EC")
+
+    val privKey = kf.generatePrivate(ECPrivateKeySpec(d, ecSpec)) as ECPrivateKey
+
+    val q = P256.publicFromScalar(plaintext).q.normalize()
+    val pubSpec = ECPublicKeySpec(
+        ECPoint(q.affineXCoord.toBigInteger(), q.affineYCoord.toBigInteger()),
+        ecSpec
+    )
+    val pubKey = kf.generatePublic(pubSpec) as ECPublicKey
+
+    P256KeyPair(publicKey = pubKey, privateKey = privKey)
+} catch (e: Exception) {
+    throw CryptoError.wrap(e)
 }
 
 /**
@@ -90,7 +148,7 @@ fun decryptExportBundle(
     dangerouslyOverrideSignerPublicKey: String? = null,
     keyFormat: KeyFormat? = null,
     returnMnemonic: Boolean = false,
-): String {
+): String = try {
     val keyBytes = try {
         decodeHex(embeddedPrivateKey)
     }
@@ -113,14 +171,52 @@ fun decryptExportBundle(
         throw CryptoError.InvalidPrivateKey(e)
     }
 
-    return decryptExportBundle(
-        exportBundle = exportBundle,
-        organizationId = organizationId,
-        embeddedPrivateKey = ecPrivate, // raw scalar d (big-endian)
-        dangerouslyOverrideSignerPublicKey = dangerouslyOverrideSignerPublicKey,
-        keyFormat = keyFormat,
-        returnMnemonic = returnMnemonic,
+    // Parse outer JSON
+    val outer = decodeBundleOuter(exportBundle)
+
+    val ok = verifyEnclaveSignature(
+        outer.enclaveQuorumPublic,
+        outer.dataSignature,
+        outer.data,
+        dangerouslyOverrideSignerPublicKey
     )
+    if (!ok) throw CryptoError.SignatureVerificationFailed()
+
+    val inner = decodeSignedInner(outer.data)
+
+    if (inner.organizationId != organizationId) {
+        throw CryptoError.OrgIdMismatch(organizationId, inner.organizationId)
+    }
+
+    val encappedHex = inner.encappedPublic ?: throw CryptoError.MissingEncappedPublic()
+    val ciphertextHex = inner.ciphertext ?: throw CryptoError.MissingCiphertext()
+
+    val ct = decodeHex(ciphertextHex)
+    val ek = decodeHex(encappedHex)
+
+    // extract scalar value (s) and left-pad to 32 bytes
+    val receiverPrivScalar = bigIntToFixed(ecPrivate.s, 32)
+    val plaintext = hpkeDecrypt(ct, ek, receiverPrivScalar)
+
+    when {
+        keyFormat == KeyFormat.solana && !returnMnemonic -> {
+            if (plaintext.size != 32) throw CryptoError.InvalidPrivateLength(32, plaintext.size)
+
+            val pubKey = deriveEd25519PublicKey(plaintext)
+            if (pubKey.size != 32) throw CryptoError.InvalidPublicLength(32, pubKey.size)
+
+            base58CheckEncode(plaintext + pubKey)
+        }
+        returnMnemonic -> {
+            val mnemonic = decodeUtf8Strict(plaintext)
+            mnemonic
+        }
+        else -> {
+            plaintext.toHexString()
+        }
+    }
+} catch (e: Exception) {
+    throw CryptoError.wrap(e)
 }
 
 /**
@@ -140,7 +236,41 @@ fun encryptWalletToBundle(
     importBundle: String,
     userId: String,
     organizationId: String,
-    dangerouslyOverrideSignerPublicKey: String? = null
-): String {
-    return encryptWalletToBundle(mnemonic, importBundle, userId, organizationId, dangerouslyOverrideSignerPublicKey)
+    dangerouslyOverrideSignerPublicKey: String?
+): String = try {
+    val outer = decodeBundleOuter(importBundle)
+
+    val ok = verifyEnclaveSignature(
+        outer.enclaveQuorumPublic,
+        outer.dataSignature,
+        outer.data,
+        dangerouslyOverrideSignerPublicKey
+    )
+    if (!ok) throw CryptoError.SignatureVerificationFailed()
+
+    val inner = decodeSignedInner(outer.data)
+
+    if (inner.organizationId != organizationId) {
+        throw CryptoError.OrgIdMismatch(organizationId, inner.organizationId)
+    }
+    if (inner.userId != userId) {
+        throw CryptoError.UserIdMismatch(userId, inner.userId)
+    }
+
+    val targetHex = inner.targetPublic ?: throw CryptoError.MissingEncappedPublic()
+
+    val plaintext = mnemonic.toByteArray(StandardCharsets.UTF_8)
+
+    val bundleBytes = hpkeEncrypt(plaintext, targetHex)
+
+    if (bundleBytes.size <= 33) throw CryptoError.InvalidCompressedKeyLength(plaintext.size)
+
+    val compressed = bundleBytes.copyOfRange(0, 33)
+    val cipher = bundleBytes.copyOfRange(33, bundleBytes.size)
+
+    val uncompressedPub = ecPointCompressedToUncompressed(compressed)
+    val json = mapOf("encappedPublic" to uncompressedPub.toHexString(), "ciphertext" to cipher.toHexString())
+    Json.encodeToString(json)
+} catch (e: Exception) {
+    throw CryptoError.wrap(e)
 }

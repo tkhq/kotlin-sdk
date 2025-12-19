@@ -18,7 +18,6 @@ dependencies {
     testImplementation(platform(libs.junit.bom))
     testRuntimeOnly(libs.junit.launcher)
     implementation(libs.bcprov.jdk15to18)
-    implementation(libs.bitcoinj.core)
     implementation(libs.kotlinx.serialization.json)
 }
 

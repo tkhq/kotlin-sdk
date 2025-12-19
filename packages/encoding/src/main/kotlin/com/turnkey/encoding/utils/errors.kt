@@ -9,4 +9,8 @@ sealed class TurnkeyDecodingException(message: String) : IllegalArgumentExceptio
     /** Invalid hex character with index for easier debugging. */
     data class InvalidHexCharacter(val char: Char, val index: Int) :
         TurnkeyDecodingException("Invalid hex character '$char' at index $index")
+
+    /** Invalid UTF-8 byte sequence. */
+    data class InvalidUTF8(override val cause: Throwable) :
+        TurnkeyDecodingException("Invalid UTF-8 encoding: ${cause.message}")
 }
