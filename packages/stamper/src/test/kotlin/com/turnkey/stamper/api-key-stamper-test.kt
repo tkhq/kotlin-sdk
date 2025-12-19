@@ -2,9 +2,9 @@ package com.turnkey.stamper
 
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.encoding.toHexString
-import com.turnkey.internal.ApiKeyStamper
-import com.turnkey.utils.ApiKeyStampError
-import com.turnkey.utils.StampError
+import com.turnkey.stamper.internal.ApiKeyStamper
+import com.turnkey.stamper.utils.ApiKeyStampError
+import com.turnkey.stamper.utils.StampError
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive

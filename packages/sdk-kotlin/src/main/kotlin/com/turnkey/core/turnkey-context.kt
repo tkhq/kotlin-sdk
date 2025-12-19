@@ -41,7 +41,7 @@ import com.turnkey.internal.encryptWalletToBundle
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
 import com.turnkey.passkey.createPasskey
-import com.turnkey.stamper.SignatureFormat
+import com.turnkey.stamper.utils.errors.SignatureFormat
 import com.turnkey.stamper.Stamper
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetWalletKitConfigBody
@@ -83,7 +83,6 @@ import okhttp3.OkHttpClient
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import java.util.UUID
-import kotlin.math.sign
 
 object TurnkeyContext {
     @Volatile

@@ -11,7 +11,7 @@ import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.passkey.PasskeyRegistrationResult
 import com.turnkey.types.V1Attestation
 import com.turnkey.types.V1AuthenticatorTransport
-import com.turnkey.passkey.utils.PasskeyError
+import com.turnkey.passkey.utils.TurnkeyPasskeyError
 import com.turnkey.passkey.utils.buildCreatePublicKeyOptionsJson
 import com.turnkey.passkey.utils.buildGetPublicKeyOptionsJson
 import kotlinx.serialization.SerialName
@@ -120,14 +120,14 @@ class PasskeyRequestBuilder(
     }
 
     /** Parse **registration** result (Create) into an attestation form. */
-    @Throws(PasskeyError::class)
+    @Throws(TurnkeyPasskeyError::class)
     fun handleRegistrationResult(credential: CreatePublicKeyCredentialResponse): PasskeyRegistrationResult {
         try {
             val regJson = credential.registrationResponseJson
             val parsed = try {
                 json.decodeFromString(PublicKeyCredentialCreateJson.serializer(), regJson)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val resp = parsed.response
@@ -141,14 +141,14 @@ class PasskeyRequestBuilder(
                 val bytes = decodeBase64Url(resp.clientDataJSONB64url)
                 String(bytes, Charsets.UTF_8)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
             val challenge = try {
                 json.decodeFromString(ClientData.serializer(), clientDataJsonUtf8).challenge
             } catch (e: Throwable) {
                 val elem = json.parseToJsonElement(clientDataJsonUtf8)
                 elem.jsonObject["challenge"]?.jsonPrimitive?.content
-                    ?: throw PasskeyError.DecodeFailed(e)
+                    ?: throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val transports = resp.transports?.mapNotNull {
@@ -171,12 +171,12 @@ class PasskeyRequestBuilder(
             )
             return PasskeyRegistrationResult(challenge = challenge, attestation = attestation)
         } catch (t: Throwable) {
-            throw PasskeyError.HandleRegistrationResultFailed(t)
+            throw TurnkeyPasskeyError.HandleRegistrationResultFailed(t)
         }
     }
 
     /** Parse **assertion** result (Get) into the AssertionResult model. */
-    @Throws(PasskeyError::class)
+    @Throws(TurnkeyPasskeyError::class)
     fun handleAssertionResult(credential: PublicKeyCredential): AssertionResult {
         try {
             val authJson = credential.authenticationResponseJson
@@ -184,7 +184,7 @@ class PasskeyRequestBuilder(
             val parsed = try {
                 json.decodeFromString(PublicKeyCredentialAuthJson.serializer(), authJson)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val resp = parsed.response
@@ -194,19 +194,19 @@ class PasskeyRequestBuilder(
             val authenticatorData = try {
                 decodeBase64Url(resp.authenticatorDataB64url)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val signature = try {
                 decodeBase64Url(resp.signatureB64url)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val clientDataBytes = try {
                 decodeBase64Url(resp.clientDataJSONB64url)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             val userHandle = resp.userHandleB64url?.let {
@@ -223,7 +223,7 @@ class PasskeyRequestBuilder(
             val credentialId = try {
                 decodeBase64Url(credIdB64)
             } catch (e: Throwable) {
-                throw PasskeyError.DecodeFailed(e)
+                throw TurnkeyPasskeyError.DecodeFailed(e)
             }
 
             return AssertionResult(
@@ -234,7 +234,7 @@ class PasskeyRequestBuilder(
                 userHandle = userHandle
             )
         } catch (t: Throwable) {
-            throw PasskeyError.HandleAssertionResultFailed(t)
+            throw TurnkeyPasskeyError.HandleAssertionResultFailed(t)
         }
     }
 }

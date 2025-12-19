@@ -8,7 +8,7 @@ import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PublicKeyCredential
-import com.turnkey.passkey.utils.PasskeyError
+import com.turnkey.passkey.utils.TurnkeyPasskeyError
 import com.turnkey.passkey.PasskeyRegistrationResult
 import com.turnkey.passkey.PasskeyUser
 import kotlinx.coroutines.sync.Mutex
@@ -55,7 +55,7 @@ class PasskeyOperationRunner(
                 return service.handleRegistrationResult(createResp as CreatePublicKeyCredentialResponse)
             }
         } catch (t: Throwable) {
-            throw PasskeyError.RegistrationFailed(t)
+            throw TurnkeyPasskeyError.RegistrationFailed(t)
         }
     }
 
@@ -88,7 +88,7 @@ class PasskeyOperationRunner(
                 service.handleAssertionResult(pk)
             }
         } catch (t: Throwable) {
-            throw PasskeyError.AssertionFailed(t)
+            throw TurnkeyPasskeyError.AssertionFailed(t)
         }
     }
 
