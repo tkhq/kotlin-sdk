@@ -1,9 +1,9 @@
 package com.turnkey.encoding
 
-import com.turnkey.encoding.utils.TurnkeyDecodingException
-import java.security.SecureRandom
+import com.turnkey.encoding.internal.SECURE_RANDOM
+import com.turnkey.encoding.internal.hexNibbleOrThrow
+import com.turnkey.encoding.utils.TurnkeyEncodingError
 import java.util.Base64
-
 
 /** Lowercase hex string for this byte array. */
 fun ByteArray.toHexString(): String {
@@ -21,14 +21,14 @@ fun ByteArray.toHexString(): String {
 /** Decode even-length hex string to bytes; returns null on error. */
 fun String.hexToBytesOrNull(): ByteArray? = try {
     decodeHex(this)
-} catch (_: IllegalArgumentException) {
+} catch (_: TurnkeyEncodingError) {
     null
 }
 
-/** Decode even-length hex string to bytes; throws TurnkeyDecodingException on error. */
-@Throws(TurnkeyDecodingException::class)
-fun decodeHex(hex: String): ByteArray {
-    if (hex.length % 2 != 0) throw TurnkeyDecodingException.OddLengthString
+/** Decode even-length hex string to bytes; throws TurnkeyEncodingError on error. */
+@Throws(TurnkeyEncodingError::class)
+fun decodeHex(hex: String): ByteArray = try {
+    if (hex.length % 2 != 0) throw TurnkeyEncodingError.OddLengthString(hex.length)
     val out = ByteArray(hex.length / 2)
     var i = 0
     var j = 0
@@ -37,45 +37,37 @@ fun decodeHex(hex: String): ByteArray {
         val lo = hex[i++].hexNibbleOrThrow(i - 1)
         out[j++] = ((hi shl 4) or lo).toByte()
     }
-    return out
+    out
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
 }
 
-private fun Char.hexNibbleOrThrow(index: Int): Int {
-    val d = Character.digit(this, 16)
-    if (d == -1) throw TurnkeyDecodingException.InvalidHexCharacter(this, index)
-    return d
-}
-
-/* ---------- Base64 URL (RFC 4648, no padding) ---------- */
-
-/** Base64url (URL-safe) string without padding */
+/** Base64url (URL-safe) string without padding. */
 fun ByteArray.toBase64Url(): String =
     Base64.getUrlEncoder().withoutPadding().encodeToString(this)
 
 /** Decode a base64url string (with or without padding); returns null on error. */
 fun String.base64UrlToBytesOrNull(): ByteArray? = try {
     decodeBase64Url(this)
-} catch (_: IllegalArgumentException) {
+} catch (_: TurnkeyEncodingError) {
     null
 }
 
-/** Decode a base64url string (with or without padding); throws IllegalArgumentException on invalid input. */
-@Throws(IllegalArgumentException::class)
-fun decodeBase64Url(b64url: String): ByteArray {
+/** Decode a base64url string (with or without padding); throws TurnkeyEncodingError on invalid input. */
+@Throws(TurnkeyEncodingError::class)
+fun decodeBase64Url(b64url: String): ByteArray = try {
     // java.util.Base64 URL decoder expects proper padding; add it if missing
     val padNeeded = (4 - (b64url.length % 4)) % 4
     val padded = if (padNeeded == 0) b64url else b64url + "=".repeat(padNeeded)
-    return Base64.getUrlDecoder().decode(padded)
+    Base64.getUrlDecoder().decode(padded)
+} catch (e: IllegalArgumentException) {
+    throw TurnkeyEncodingError.InvalidBase64Url(b64url, e)
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
 }
-
-/* ---------- Secure random ---------- */
-
-private val SECURE_RANDOM = SecureRandom()
 
 /** Cryptographically secure random byte array. */
 fun randomBytes(count: Int): ByteArray = ByteArray(count).also { SECURE_RANDOM.nextBytes(it) }
-
-/* ---------- Base58Check ---------- */
 
 /**
  * Decodes a Base58Check-encoded string to its payload bytes.
@@ -83,12 +75,13 @@ fun randomBytes(count: Int): ByteArray = ByteArray(count).also { SECURE_RANDOM.n
  *
  * @param s Base58Check-encoded string
  * @return Decoded payload bytes (without checksum)
- * @throws IllegalArgumentException if checksum verification fails
+ * @throws TurnkeyEncodingError.InvalidBase58Check if checksum verification fails
  */
-@Throws(IllegalArgumentException::class)
-fun base58CheckDecode(s: String): ByteArray {
-    val decoded = org.bitcoinj.core.Base58.decodeChecked(s)
-    return decoded
+@Throws(TurnkeyEncodingError::class)
+fun base58CheckDecode(s: String): ByteArray = try {
+    org.bitcoinj.core.Base58.decodeChecked(s)
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
 }
 
 /**
@@ -98,15 +91,19 @@ fun base58CheckDecode(s: String): ByteArray {
  * @param payload Bytes to encode
  * @return Base58Check-encoded string
  */
-fun base58CheckEncode(payload: ByteArray): String {
+fun base58CheckEncode(payload: ByteArray): String = try {
     val checksum = sha256(sha256(payload)).copyOfRange(0, 4)
-    return org.bitcoinj.core.Base58.encode(payload + checksum)
+    org.bitcoinj.core.Base58.encode(payload + checksum)
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
 }
 
-private fun sha256(bytes: ByteArray): ByteArray =
+/** Compute SHA-256 hash of the input bytes. */
+fun sha256(bytes: ByteArray): ByteArray = try {
     java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
-
-/* ---------- UTF-8 Strict ---------- */
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
+}
 
 /**
  * Strictly decodes bytes as UTF-8, throwing on invalid sequences.
@@ -114,16 +111,16 @@ private fun sha256(bytes: ByteArray): ByteArray =
  *
  * @param bytes Input byte array to decode
  * @return Decoded UTF-8 string
- * @throws TurnkeyDecodingException.InvalidUTF8 if bytes contain invalid UTF-8 sequences
+ * @throws TurnkeyEncodingError.InvalidUTF8 if bytes contain invalid UTF-8 sequences
  */
-@Throws(TurnkeyDecodingException::class)
-fun decodeUtf8Strict(bytes: ByteArray): String {
+@Throws(TurnkeyEncodingError::class)
+fun decodeUtf8Strict(bytes: ByteArray): String = try {
     val decoder = java.nio.charset.StandardCharsets.UTF_8.newDecoder()
         .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
         .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
-    return try {
-        decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString()
-    } catch (e: java.nio.charset.CharacterCodingException) {
-        throw TurnkeyDecodingException.InvalidUTF8(e)
-    }
+    decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString()
+} catch (e: java.nio.charset.CharacterCodingException) {
+    throw TurnkeyEncodingError.InvalidUTF8(e)
+} catch (e: Exception) {
+    throw TurnkeyEncodingError.wrap(e)
 }

@@ -1,7 +1,7 @@
 package com.turnkey.encoding
 
 import kotlin.test.*
-import com.turnkey.encoding.utils.TurnkeyDecodingException
+import com.turnkey.encoding.utils.TurnkeyEncodingError
 
 class BytesTest {
 
@@ -28,15 +28,16 @@ class BytesTest {
 
     @Test
     fun decodeHex_oddLength_throws() {
-        val ex = assertFailsWith<TurnkeyDecodingException> { decodeHex("abc") }
-        assertTrue(ex is TurnkeyDecodingException.OddLengthString)
+        val ex = assertFailsWith<TurnkeyEncodingError> { decodeHex("abc") }
+        assertTrue(ex is TurnkeyEncodingError.OddLengthString)
+        assertEquals(3, (ex as TurnkeyEncodingError.OddLengthString).length)
     }
 
     @Test
     fun decodeHex_invalidChar_throws_with_char_and_index() {
-        val ex = assertFailsWith<TurnkeyDecodingException> { decodeHex("0x") }
+        val ex = assertFailsWith<TurnkeyEncodingError> { decodeHex("0x") }
         when (ex) {
-            is TurnkeyDecodingException.InvalidHexCharacter -> {
+            is TurnkeyEncodingError.InvalidHexCharacter -> {
                 assertEquals('x', ex.char)
                 assertEquals(1, ex.index)
             }
@@ -89,7 +90,7 @@ class BytesTest {
     @Test
     fun base64Url_invalid_returns_null_or_throws() {
         assertNull("!!".base64UrlToBytesOrNull())
-        assertFailsWith<IllegalArgumentException> { decodeBase64Url("!!") }
+        assertFailsWith<TurnkeyEncodingError> { decodeBase64Url("!!") }
     }
 
     /* ---------- Random bytes ---------- */
