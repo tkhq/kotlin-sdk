@@ -86,7 +86,7 @@ fun randomBytes(count: Int): ByteArray = ByteArray(count).also { SECURE_RANDOM.n
  * @throws IllegalArgumentException if checksum verification fails
  */
 @Throws(IllegalArgumentException::class)
-fun decodeBase58Check(s: String): ByteArray {
+fun base58CheckDecode(s: String): ByteArray {
     val decoded = org.bitcoinj.core.Base58.decodeChecked(s)
     return decoded
 }
@@ -98,7 +98,7 @@ fun decodeBase58Check(s: String): ByteArray {
  * @param payload Bytes to encode
  * @return Base58Check-encoded string
  */
-fun encodeBase58Check(payload: ByteArray): String {
+fun base58CheckEncode(payload: ByteArray): String {
     val checksum = sha256(sha256(payload)).copyOfRange(0, 4)
     return org.bitcoinj.core.Base58.encode(payload + checksum)
 }

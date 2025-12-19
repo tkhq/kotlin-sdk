@@ -1,9 +1,9 @@
 package com.turnkey.crypto
 
-import com.turnkey.encoding.decodeBase58Check
+import com.turnkey.encoding.base58CheckDecode
 import com.turnkey.encoding.decodeHex
 import com.turnkey.encoding.decodeUtf8Strict
-import com.turnkey.encoding.encodeBase58Check
+import com.turnkey.encoding.base58CheckEncode
 import com.turnkey.encoding.toHexString
 import com.turnkey.crypto.internal.P256
 import com.turnkey.crypto.internal.bigIntToFixed
@@ -87,7 +87,7 @@ fun decryptCredentialBundle(
     encryptedBundle: String,
     ephemeralPrivateKey: ECPrivateKey
 ): P256KeyPair = try {
-    val decoded = decodeBase58Check(encryptedBundle)
+    val decoded = base58CheckDecode(encryptedBundle)
     if (decoded.size <= 33) throw CryptoError.InvalidCompressedKeyLength(decoded.size)
 
     val compressedEncapped = decoded.copyOfRange(0, 33)
@@ -205,7 +205,7 @@ fun decryptExportBundle(
             val pubKey = deriveEd25519PublicKey(plaintext)
             if (pubKey.size != 32) throw CryptoError.InvalidPublicLength(32, pubKey.size)
 
-            encodeBase58Check(plaintext + pubKey)
+            base58CheckEncode(plaintext + pubKey)
         }
         returnMnemonic -> {
             val mnemonic = decodeUtf8Strict(plaintext)

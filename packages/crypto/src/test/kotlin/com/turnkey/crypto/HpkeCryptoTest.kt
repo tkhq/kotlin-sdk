@@ -5,7 +5,7 @@ import com.turnkey.crypto.internal.bigIntToFixed
 import com.turnkey.crypto.internal.ecPointCompressedToUncompressed
 import com.turnkey.crypto.internal.hpkeDecrypt
 import com.turnkey.crypto.internal.hpkeEncrypt
-import com.turnkey.encoding.encodeBase58Check
+import com.turnkey.encoding.base58CheckEncode
 import kotlin.test.*
 import java.math.BigInteger
 import java.security.*
@@ -95,7 +95,7 @@ class HpkeCryptoTest {
         val ciphertext = bundleBytes.copyOfRange(33, bundleBytes.size)
 
         // Build Base58Check payload: [33B compressed enc || ciphertext]
-        val b58 = encodeBase58Check(compressed + ciphertext)
+        val b58 = base58CheckEncode(compressed + ciphertext)
 
         // Call the API under test
         val result = decryptCredentialBundle(
