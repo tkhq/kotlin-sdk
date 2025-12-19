@@ -2,8 +2,8 @@ package com.turnkey.passkey
 
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.encoding.toBase64Url
-import com.turnkey.utils.buildCreatePublicKeyOptionsJson
-import com.turnkey.utils.buildGetPublicKeyOptionsJson
+import com.turnkey.passkey.utils.buildCreatePublicKeyOptionsJson
+import com.turnkey.passkey.utils.buildGetPublicKeyOptionsJson
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive

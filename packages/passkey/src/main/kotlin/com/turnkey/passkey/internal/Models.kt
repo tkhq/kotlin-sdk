@@ -1,4 +1,4 @@
-package com.turnkey.passkey
+package com.turnkey.passkey.internal
 
 data class AssertionResult (
     val credentialId: ByteArray,

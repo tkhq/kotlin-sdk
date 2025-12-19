@@ -2,8 +2,9 @@ package com.turnkey.passkey
 
 import android.app.Activity
 import androidx.fragment.app.Fragment
-import com.turnkey.internal.PasskeyOperationRunner
-import com.turnkey.internal.PasskeyRequestBuilder
+import com.turnkey.passkey.internal.AssertionResult
+import com.turnkey.passkey.internal.PasskeyOperationRunner
+import com.turnkey.passkey.internal.PasskeyRequestBuilder
 import com.turnkey.types.V1Attestation
 import kotlinx.serialization.Serializable
 
