@@ -1,4 +1,4 @@
-package com.turnkey.models
+package com.turnkey.core.models
 
 import com.turnkey.types.V1ApiKeyCurve
 import com.turnkey.types.V1Attestation

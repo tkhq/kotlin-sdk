@@ -16,7 +16,7 @@ import com.turnkey.stamper.utils.errors.TurnkeyStamperError
 import org.bouncycastle.crypto.params.ECDomainParameters
 
 
-object ApiKeyStamper {
+internal object ApiKeyStamper {
     @Throws(TurnkeyStamperError::class)
     fun stamp(
         payloadSha256: ByteArray,

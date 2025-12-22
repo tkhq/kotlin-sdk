@@ -1,10 +1,10 @@
-package com.turnkey.internal.storage.sessions
+package com.turnkey.core.internal.storage.sessions
 
 import android.content.Context
-import com.turnkey.internal.storage.primitives.LocalStore
-import com.turnkey.models.Storage
-import com.turnkey.models.StorageError
-import com.turnkey.models.ValueStore
+import com.turnkey.core.internal.storage.primitives.LocalStore
+import com.turnkey.core.models.Storage
+import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.ValueStore
 
 /**
  * Stores and retrieves the session key of the currently selected session.

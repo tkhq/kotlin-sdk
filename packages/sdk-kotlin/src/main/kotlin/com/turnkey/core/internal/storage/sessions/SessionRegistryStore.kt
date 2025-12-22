@@ -1,12 +1,12 @@
-package com.turnkey.internal.storage.sessions
+package com.turnkey.core.internal.storage.sessions
 
 import android.content.Context
 import android.util.Log
-import com.turnkey.internal.storage.keys.KeyPairStore
-import com.turnkey.internal.storage.primitives.LocalStore
-import com.turnkey.models.Session
-import com.turnkey.models.StorageError
-import com.turnkey.models.Storage
+import com.turnkey.core.internal.storage.keys.KeyPairStore
+import com.turnkey.core.internal.storage.primitives.LocalStore
+import com.turnkey.core.models.Session
+import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.Storage
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write

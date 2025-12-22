@@ -15,7 +15,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.security.SecureRandom
 
-class PasskeyOperationRunner(
+internal class PasskeyOperationRunner(
     private val activity: Activity,
     private val service: PasskeyRequestBuilder,
     private val credentialManager: CredentialManager = CredentialManager.create(activity)

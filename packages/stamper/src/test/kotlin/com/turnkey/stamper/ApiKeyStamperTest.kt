@@ -3,8 +3,7 @@ package com.turnkey.stamper
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.encoding.toHexString
 import com.turnkey.stamper.internal.ApiKeyStamper
-import com.turnkey.stamper.utils.ApiKeyStampError
-import com.turnkey.stamper.utils.StampError
+import com.turnkey.stamper.utils.errors.TurnkeyStamperError
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -40,8 +39,7 @@ private fun compressedHex(pub: ECPublicKey): String {
     return (byteArrayOf(prefix) + x).toHexString()
 }
 
-class ApiKeyStamperIntegrationTest {
-
+class ApiKeyStamperTest {
     @Test
     fun apiKey_stamp_and_verify_signature() = runTest {
         // Generate a P-256 keypair
@@ -102,7 +100,7 @@ class ApiKeyStamperIntegrationTest {
         val digest = MessageDigest.getInstance("SHA-256").digest("x".encodeToByteArray())
 
         val ex = assertFails { ApiKeyStamper.stamp(digest, wrongPubHex, dHex) }
-        assertTrue(ex is ApiKeyStampError.MismatchedPublicKey)
+        assertTrue(ex is TurnkeyStamperError.FailedToStamp)
     }
 
     @Test
@@ -112,7 +110,8 @@ class ApiKeyStamperIntegrationTest {
         val badPriv = "abcd" // wrong length
 
         val ex = assertFails { ApiKeyStamper.stamp(digest, pubHex, badPriv) }
-        assertTrue(ex is ApiKeyStampError.InvalidPrivateKey || ex is ApiKeyStampError.InvalidHexCharacter)
+        print(ex)
+        assertTrue(ex is TurnkeyStamperError.FailedToStamp)
     }
 
     @Test
@@ -139,6 +138,7 @@ class ApiKeyStamperIntegrationTest {
     fun stamper_unknown_mode_throws() = runTest {
         val s = Stamper()
         val ex = assertFails { s.stamp("anything") }
-        assertTrue(ex is StampError.UnknownError)
+        print(ex)
+        assertTrue(ex is TurnkeyStamperError.OperationFailed)
     }
 }

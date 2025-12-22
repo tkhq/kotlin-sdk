@@ -6,17 +6,14 @@ import android.view.*
 import android.widget.FrameLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.example.kotlin_demo_wallet.R
 import com.example.kotlin_demo_wallet.databinding.ComponentImportBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.textfield.TextInputEditText
 import com.turnkey.core.TurnkeyContext
 import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1Curve
 import com.turnkey.types.V1PathFormat
 import com.turnkey.types.V1WalletAccountParams
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 

@@ -1,6 +1,5 @@
 package com.turnkey.crypto
 
-import com.turnkey.crypto.internal.P256
 import com.turnkey.crypto.internal.bigIntToFixed
 import com.turnkey.crypto.internal.ecPointCompressedToUncompressed
 import com.turnkey.crypto.internal.hpkeDecrypt

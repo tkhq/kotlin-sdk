@@ -1,4 +1,4 @@
-package com.turnkey.models
+package com.turnkey.core.models
 
 sealed class StorageError(message: String, cause: Throwable? = null) : Exception(message, cause) {
     data object InvalidJWT : StorageError("Invalid JWT format or payload") {
