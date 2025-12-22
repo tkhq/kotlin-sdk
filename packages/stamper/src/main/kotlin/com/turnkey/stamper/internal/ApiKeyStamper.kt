@@ -12,7 +12,7 @@ import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
 import com.turnkey.encoding.toBase64Url
 import com.turnkey.stamper.utils.SignatureFormat
-import com.turnkey.stamper.utils.errors.TurnkeyStamperError
+import com.turnkey.stamper.utils.TurnkeyStamperError
 import org.bouncycastle.crypto.params.ECDomainParameters
 
 

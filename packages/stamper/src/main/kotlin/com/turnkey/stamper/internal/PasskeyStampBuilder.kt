@@ -2,7 +2,7 @@ package com.turnkey.stamper.internal
 
 import com.turnkey.encoding.toBase64Url
 import com.turnkey.passkey.PasskeyStamper
-import com.turnkey.stamper.utils.errors.TurnkeyStamperError
+import com.turnkey.stamper.utils.TurnkeyStamperError
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

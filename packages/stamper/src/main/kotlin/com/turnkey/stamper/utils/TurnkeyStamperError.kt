@@ -1,4 +1,4 @@
-package com.turnkey.stamper.utils.errors
+package com.turnkey.stamper.utils
 
 sealed class TurnkeyStamperError(
     message: String, cause: Throwable? = null
