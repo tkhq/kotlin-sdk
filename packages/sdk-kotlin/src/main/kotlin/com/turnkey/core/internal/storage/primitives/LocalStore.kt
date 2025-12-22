@@ -1,8 +1,8 @@
-package com.turnkey.internal.storage.primitives
+package com.turnkey.core.internal.storage.primitives
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.turnkey.models.StorageError
+import com.turnkey.core.models.StorageError
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 

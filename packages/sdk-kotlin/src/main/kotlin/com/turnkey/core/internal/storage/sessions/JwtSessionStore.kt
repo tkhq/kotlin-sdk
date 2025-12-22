@@ -1,10 +1,10 @@
-package com.turnkey.internal.storage.sessions
+package com.turnkey.core.internal.storage.sessions
 
 import android.content.Context
-import com.turnkey.internal.storage.primitives.LocalStore
-import com.turnkey.models.KeyValueStore
-import com.turnkey.models.StorageError
-import com.turnkey.models.Session
+import com.turnkey.core.internal.storage.primitives.LocalStore
+import com.turnkey.core.models.KeyValueStore
+import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.Session
 
 /**
  * Stores and retrieves decoded Turnkey session JWTs by session key.

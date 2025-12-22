@@ -66,13 +66,12 @@ private data class PublicKeyCredentialAuthJson(
  * - rpId: relying party identifier (domain)
  * - activity: used by Credential Manager UI
  */
-class PasskeyRequestBuilder(
+internal class PasskeyRequestBuilder(
     private val rpId: String,
     private val activity: Activity,
     private val credentialManager: CredentialManager = CredentialManager.create(activity),
     private val json: Json = Json { ignoreUnknownKeys = true }
 ) {
-
     /**
      * Build a WebAuthn **registration** (create) request for Credential Manager.
      *

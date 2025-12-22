@@ -10,7 +10,7 @@ import com.example.kotlin_demo_wallet.databinding.ActivityMainBinding
 import com.example.kotlin_demo_wallet.ui.auth.AuthBottomSheet
 import com.example.kotlin_demo_wallet.ui.dashboard.DashboardFragment
 import com.turnkey.core.TurnkeyContext
-import com.turnkey.models.AuthState
+import com.turnkey.core.models.AuthState
 import kotlinx.coroutines.launch
 
 private fun Group.setVisible(visible: Boolean) {

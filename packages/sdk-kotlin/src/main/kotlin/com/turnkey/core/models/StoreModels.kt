@@ -1,4 +1,4 @@
-package com.turnkey.models
+package com.turnkey.core.models
 
 import android.content.Context
 

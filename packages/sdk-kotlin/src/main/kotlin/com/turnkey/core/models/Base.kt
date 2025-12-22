@@ -1,4 +1,4 @@
-package com.turnkey.models
+package com.turnkey.core.models
 
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1PayloadEncoding

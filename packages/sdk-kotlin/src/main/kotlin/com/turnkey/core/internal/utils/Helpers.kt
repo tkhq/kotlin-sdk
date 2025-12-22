@@ -1,85 +1,42 @@
-package com.turnkey.internal
+package com.turnkey.core.internal.utils
 
 import android.app.Activity
 import androidx.browser.customtabs.CustomTabsIntent
-import com.turnkey.encoding.decodeBase64Url
+import androidx.core.net.toUri
+import com.turnkey.core.models.ChallengePair
+import com.turnkey.core.models.CreateSubOrgApiKey
+import com.turnkey.core.models.CreateSubOrgAuthenticator
+import com.turnkey.core.models.CreateSubOrgParams
+import com.turnkey.core.models.Defaults
+import com.turnkey.core.models.OAuthOverrideParams
+import com.turnkey.core.models.OtpOverrireParams
+import com.turnkey.core.models.OtpType
+import com.turnkey.core.models.OverrideParams
+import com.turnkey.core.models.PasskeyOverrideParams
+import com.turnkey.core.models.TurnkeyConfig
+import com.turnkey.core.models.VerificationToken
+import com.turnkey.core.models.Wallet
+import com.turnkey.encoding.toBase64Url
 import com.turnkey.http.TurnkeyClient
-import com.turnkey.models.CreateSubOrgApiKey
-import com.turnkey.models.CreateSubOrgAuthenticator
-import com.turnkey.models.CreateSubOrgParams
-import com.turnkey.models.OAuthOverrideParams
-import com.turnkey.models.OtpOverrireParams
-import com.turnkey.models.OtpType
-import com.turnkey.models.OverrideParams
-import com.turnkey.models.PasskeyOverrideParams
-import com.turnkey.models.StorageError
-import com.turnkey.models.TurnkeyConfig
-import com.turnkey.models.Wallet
 import com.turnkey.types.ProxyTSignupBody
 import com.turnkey.types.TGetWalletAccountsBody
+import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1ApiKeyCurve
 import com.turnkey.types.V1ApiKeyParamsV2
 import com.turnkey.types.V1AuthenticatorParamsV2
+import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1OauthProviderParams
 import com.turnkey.types.V1Pagination
+import com.turnkey.types.V1PayloadEncoding
 import com.turnkey.types.V1Wallet
 import com.turnkey.types.V1WalletAccount
 import com.turnkey.types.V1WalletParams
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.json.Json
-import androidx.core.net.toUri
-import com.turnkey.encoding.toBase64Url
-import com.turnkey.models.ChallengePair
-import com.turnkey.models.ClientSignaturePayload
-import com.turnkey.models.Defaults
-import com.turnkey.models.TurnkeyKotlinError
-import com.turnkey.models.VerificationToken
-import com.turnkey.types.V1AddressFormat
-import com.turnkey.types.V1HashFunction
-import com.turnkey.types.V1LoginUsage
-import com.turnkey.types.V1PayloadEncoding
-import com.turnkey.types.V1SignupUsage
-import com.turnkey.types.V1TokenUsage
-import com.turnkey.types.V1UsageType
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Locale
-
-object JwtDecoder {
-    /**
-     * Decode a JWT's payload (2nd segment) as type [T].
-     *
-     * - Validates the 3-part structure.
-     * - Base64URL-decodes the payload.
-     * - Parses JSON into [T] (unknown fields are ignored by default).
-     *
-     * @throws StorageError.InvalidJWT if structure or base64 is invalid
-     * @throws StorageError.DecodingFailed if JSON parsing fails
-     */
-    @Throws(StorageError::class)
-    inline fun <reified T> decode(
-        jwt: String,
-        json: Json = Json { ignoreUnknownKeys = true }
-    ): T {
-        val parts = jwt.split('.')
-        if (parts.size != 3) throw StorageError.InvalidJWT
-
-        val payloadB64Url = parts[1]
-        val bytes = try {
-            decodeBase64Url(payloadB64Url)
-        } catch (_: Throwable) {
-            throw StorageError.InvalidJWT
-        }
-
-        return try {
-            json.decodeFromString<T>(bytes.toString(Charsets.UTF_8))
-        } catch (e: Throwable) {
-            throw StorageError.DecodingFailed(e)
-        }
-    }
-}
 
 object Helpers {
     suspend fun fetchAllWalletAccountsWithCursor(client: TurnkeyClient, organizationId: String): MutableList<V1WalletAccount> =
@@ -391,90 +348,5 @@ object Helpers {
 
     fun decodeVerificationToken(verificationToken: String): VerificationToken {
         return JwtDecoder.decode<VerificationToken>(verificationToken)
-    }
-}
-
-/**
- * Utils for building client signature payloads for our OTP auth flows
- *
- * Client signature ensures two things:
- * 1. Only the owner of the public key in the verification token's  claim can use the token
- * 2. the intent has not been tampered with and was directly approved by the key owner
- */
-object ClientSignature {
-    /**
-     * Creates a client signature payload for login flows
-     *
-     * @param verificationToken the JWT verification token to decode
-     * @param sessionPublicKey optional public key to use instead of the one in the token
-     * @return ClientSignaturePayload - a tuple containing the JSON string to sign and the public key for client signature
-     * @throws `TurnkeyKotlinError.FailedToBuildClientSignature`
-     */
-    fun forLogin(
-        verificationToken: String,
-        sessionPublicKey: String? = null
-    ): ClientSignaturePayload {
-        try {
-            val decoded = Helpers.decodeVerificationToken(verificationToken)
-
-            if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
-            val verificationPublicKey = decoded.publicKey
-
-            // if a sessionPublicKey is passed in, we use it instead
-            val resolvedSessionPublicKey = sessionPublicKey ?: verificationPublicKey
-
-            val usage = V1LoginUsage(resolvedSessionPublicKey)
-            val payload = V1TokenUsage(login = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_LOGIN)
-
-            val jsonString: String = Json.encodeToString(V1TokenUsage.serializer(), payload)
-
-            return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
-        } catch (t: Throwable) {
-            throw TurnkeyKotlinError.FailedToBuildClientSignature(t)
-        }
-    }
-
-    /**
-     * Creates a client signature payload for sign up
-     *
-     * @param verificationToken the jwt verification token to decode
-     * @param email optional email address
-     * @param phoneNumber optional phone number
-     * @param apiKeys optional array of api keys
-     * @param authenticators optional list of authenticators
-     * @param oauthProviders optional list of OAuth providers
-     * @return `ClientSignaturePayload` - a tuple containing the JSON string to sign and the public key for client signature
-     * @throws `TurnkeyKotlinErrors.FailedToBuildClientSignature`
-     */
-    fun forSignUp(
-        verificationToken: String,
-        email: String? = null,
-        phoneNumber: String? = null,
-        apiKeys: List<V1ApiKeyParamsV2>? = null,
-        authenticators: List<V1AuthenticatorParamsV2>? = null,
-        oauthProviders: List<V1OauthProviderParams>? = null
-    ): ClientSignaturePayload {
-        try {
-            val decoded = Helpers.decodeVerificationToken(verificationToken)
-
-            if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
-            val verificationPublicKey = decoded.publicKey
-
-            val usage = V1SignupUsage(
-                apiKeys = apiKeys,
-                authenticators = authenticators,
-                email = email,
-                phoneNumber = phoneNumber,
-                oauthProviders = oauthProviders
-            )
-
-            val payload = V1TokenUsage(signup = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_SIGNUP)
-
-            val jsonString: String = Json.encodeToString(V1TokenUsage.serializer(), payload)
-
-            return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
-        } catch (t: Throwable) {
-            throw TurnkeyKotlinError.FailedToBuildClientSignature(t)
-        }
     }
 }

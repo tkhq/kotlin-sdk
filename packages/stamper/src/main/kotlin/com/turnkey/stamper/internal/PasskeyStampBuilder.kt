@@ -14,7 +14,7 @@ private data class PasskeyStampJson(
     val signature: String
 )
 
-object PasskeyStampBuilder {
+internal object PasskeyStampBuilder {
     /**
      * Core builder: stamp WebAuthn using a generic assertion client (test-friendly).
      *

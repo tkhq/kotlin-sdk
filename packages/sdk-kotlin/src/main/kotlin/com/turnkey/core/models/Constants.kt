@@ -1,4 +1,4 @@
-package com.turnkey.models
+package com.turnkey.core.models
 
 object SessionStorage {
     const val DEFAULT_SESSION_KEY = "com.turnkey.sdk.session"

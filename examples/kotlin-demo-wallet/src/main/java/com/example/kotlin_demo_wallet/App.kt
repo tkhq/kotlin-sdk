@@ -2,11 +2,11 @@ package com.example.kotlin_demo_wallet
 
 import android.app.Application
 import com.turnkey.core.TurnkeyContext
-import com.turnkey.models.AuthConfig
-import com.turnkey.models.CreateSubOrgParams
-import com.turnkey.models.CustomWallet
-import com.turnkey.models.MethodCreateSubOrgParams
-import com.turnkey.models.TurnkeyConfig
+import com.turnkey.core.models.AuthConfig
+import com.turnkey.core.models.CreateSubOrgParams
+import com.turnkey.core.models.CustomWallet
+import com.turnkey.core.models.MethodCreateSubOrgParams
+import com.turnkey.core.models.TurnkeyConfig
 import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1Curve
 import com.turnkey.types.V1PathFormat

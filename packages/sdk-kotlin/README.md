@@ -122,12 +122,11 @@ Each helper opens a Custom Tab to the provider, waits for your deep‑link, then
 
 > **_IMPORTANT:_**
 > You must add the OAuth redirect activity to your `AndroidManifest.xml`!
+
 ```xml
-<activity
-    android:name="com.turnkey.core.OAuthRedirectActivity"
-    android:launchMode="singleTop"
-    android:noHistory="true"
-    android:exported="true">
+
+<activity android:name="com.turnkey.core.OAuthRedirectActivity" android:launchMode="singleTop"
+    android:noHistory="true" android:exported="true">
     <intent-filter>
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />

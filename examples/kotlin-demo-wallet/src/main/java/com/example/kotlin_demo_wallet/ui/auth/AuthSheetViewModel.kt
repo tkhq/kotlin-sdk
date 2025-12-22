@@ -4,7 +4,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.turnkey.core.TurnkeyContext
-import com.turnkey.models.OtpType
+import com.turnkey.core.models.OtpType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
