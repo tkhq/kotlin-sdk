@@ -4,7 +4,7 @@ import com.turnkey.stamper.internal.ApiKeyStamper
 import com.turnkey.stamper.internal.PasskeyStampBuilder
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.stamper.utils.SignatureFormat
-import com.turnkey.stamper.utils.errors.TurnkeyStamperError
+import com.turnkey.stamper.utils.TurnkeyStamperError
 import java.security.MessageDigest
 
 class Stamper private constructor(

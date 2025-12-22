@@ -23,7 +23,6 @@ import utils.definitions
 import utils.extractLatestVersions
 import utils.toScreamingSnake
 import java.nio.file.Path
-import javax.validation.metadata.MethodType
 
 fun generateClientFile(
     apis: List<Triple<SpecCfg, OpenAPI, JsonObject>>,
@@ -33,7 +32,7 @@ fun generateClientFile(
     className: String,
 ) {
     val stamperClass = ClassName("com.turnkey.stamper", "Stamper")
-    val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyHttpErrors")
+    val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyHttpError")
     val okHttpClient = ClassName("okhttp3", "OkHttpClient")
     val requestCls = ClassName("okhttp3", "Request")
     val toMediaType = MemberName("okhttp3.MediaType.Companion", "toMediaType")
@@ -56,6 +55,7 @@ fun generateClientFile(
     val clientVersionHdr = ClassName("com.turnkey.http", "Version")
 
     val activityResponseCls = ClassName("com.turnkey.types", "V1ActivityResponse")
+    val activityCls = ClassName("com.turnkey.types", "V1Activity")
 
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
@@ -141,6 +141,68 @@ fun generateClientFile(
             .build()
     )
 
+    // Generate the reified activity helper function
+    typeBuilder.addFunction(
+        FunSpec.builder("activity")
+            .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND, KModifier.INLINE)
+            .addTypeVariable(
+                com.squareup.kotlinpoet.TypeVariableName.invoke("TBodyType").copy(reified = true)
+            )
+            .addParameter("url", String::class)
+            .addParameter("body", com.squareup.kotlinpoet.TypeVariableName.invoke("TBodyType"))
+            .addParameter("activityType", String::class)
+            .returns(activityCls)
+            .addCode(
+                """
+                if (stamper == null) throw %T.StamperNotInitialized()
+
+                val inputJson = json.encodeToJsonElement(kotlinx.serialization.serializer<TBodyType>(), body)
+                val obj = inputJson.%M
+                val orgIdElem = obj["organizationId"]
+                val tsElem = obj["timestampMs"]
+
+                val params = kotlinx.serialization.json.buildJsonObject {
+                    obj.forEach { (k, v) ->
+                        if (k != "organizationId" && k != "timestampMs") put(k, v)
+                    }
+                }
+                val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()
+
+                val bodyObj = kotlinx.serialization.json.buildJsonObject {
+                    put("parameters", params)
+                    orgIdElem?.let { put("organizationId", it) }
+                    put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts))
+                    put("type", kotlinx.serialization.json.JsonPrimitive(activityType))
+                }
+                val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
+                val (hName, hValue) = stamper.stamp(bodyJson)
+
+                val req = %T.Builder()
+                    .url(url)
+                    .post(bodyJson.%M("application/json".%M()))
+                    .header(hName, hValue)
+                    .header("X-Client-Version", %T.VERSION)
+                    .build()
+
+                val resp = http.newCall(req).%M()
+
+                return resp.use {
+                    if (!it.isSuccessful) {
+                        val errBody = %M(%T.IO) {
+                            kotlin.runCatching { it.body.string() }.getOrNull()
+                        }
+                        throw RuntimeException("HTTP error calling ${'$'}activityType request\nError: ${'$'}errBody\nCode: ${'$'}{it.code}")
+                    }
+                    val text = %M(%T.IO) { it.body.string() }
+                    json.decodeFromString<%T>(text).activity
+                }
+                """.trimIndent(),
+                errorClass, jsonObject, jsonPrimitive, requestCls, toReqBody, toMediaType, clientVersionHdr,
+                awaitM, withContextM, dispatchersCls, withContextM, dispatchersCls, activityResponseCls
+            )
+            .build()
+    )
+
     // For each spec and each operation, generate a method.
     apis.forEach { (cfg, openAPI, swagger) ->
         val opPrefix = cfg.prefix
@@ -198,10 +260,10 @@ fun generateClientFile(
                             // ----- POST WITH JSON BODY -----
                             addParameter("input", bodyDto!!)
                             if (isProxy) addStatement(
-                                "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId",
+                                "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId()",
                                 errorClass
                             ) else addStatement(
-                                "if (stamper == null) throw %T.StamperNotInitialized", errorClass
+                                "if (stamper == null) throw %T.StamperNotInitialized()", errorClass
                             )
                             addStatement(
                                 "val bodyJson = json.encodeToString(%T.serializer(), input)",
@@ -226,15 +288,12 @@ fun generateClientFile(
                         } else if (kind == OperationKind.Activity || kind == OperationKind.ActivityDecision) {
                             // ----- POST WITH JSON BODY -----
                             addParameter("input", bodyDto!!)
-                            if (isProxy) addStatement(
-                                "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId",
-                                errorClass
-                            ) else addStatement(
-                                "if (stamper == null) throw %T.StamperNotInitialized",
-                                errorClass
-                            )
 
                             if (isProxy) {
+                                addStatement(
+                                    "if (authProxyConfigId.isNullOrBlank()) throw %T.MissingAuthProxyConfigId()",
+                                    errorClass
+                                )
                                 // proxy unchanged
                                 addStatement(
                                     "val bodyJson = json.encodeToString(%T.serializer(), input)",
@@ -247,60 +306,41 @@ fun generateClientFile(
                                     "X-Client-Version", clientVersionHdr
                                 )
                             } else {
-                                // ------ PUBLIC: build activity envelope ------
-                                addStatement(
-                                    "val inputElem = json.encodeToJsonElement(%T.serializer(), input)",
-                                    bodyDto
-                                )
-                                addStatement("val obj = inputElem.%M", jsonObject)
+                                // ------ PUBLIC: use activity helper ------
+                                val activityResultType = respSchemaRef?.let { ref ->
+                                    val schemaName = opId.substringAfter("_")
 
-                                // extract organizationId and timestampMs if present
-                                addStatement("val orgIdElem = obj[%S]", "organizationId")
-                                addStatement("val tsElem = obj[%S]", "timestampMs")
+                                    val snake = schemaName.toScreamingSnake()
+                                    val versioned =
+                                        VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                    val versionSuffix = Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
 
-                                // parameters = all fields except organizationId/timestampMs
-                                addStatement(
-                                    "val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != %S && k != %S) put(k, v) } }",
-                                    "organizationId",
-                                    "timestampMs"
-                                )
+                                    // search for intents matching the above version
+                                    val candidate = versionSuffix?.let { suf ->
+                                        defs.keys.firstOrNull { k ->
+                                            k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                        }
+                                    }
 
-                                // timestamp fallback to now
-                                addStatement(
-                                    "val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()",
-                                    jsonPrimitive
-                                )
-
-                                // type = ACTIVITY_TYPE_<OP_ID in SNAKE>
+                                    val resultName =
+                                        candidate
+                                            ?.removePrefix("v1")
+                                            ?.replaceFirstChar { it.lowercase() }
+                                            ?: latestVersions["${schemaName}Result"]?.formattedKeyName
+                                    "${opPrefix.ifBlank { "" }}$resultName"
+                                }
                                 val snake = rawId.substringAfter("_").toScreamingSnake()
-                                val versioned =
-                                    VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                val versioned = VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
                                 addStatement("val activityType = %S", versioned)
+                                addStatement("val activityRes = activity<%T>(url, input, activityType)", bodyDto)
 
-                                // compose final body
-                                addStatement(
-                                    "val bodyObj = kotlinx.serialization.json.buildJsonObject { " +
-                                            "put(%S, params); " +                                        // parameters
-                                            "orgIdElem?.let { put(%S, it) }; " +                          // organizationId (optional)
-                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(ts)); " +    // timestampMs
-                                            "put(%S, kotlinx.serialization.json.JsonPrimitive(activityType)) " + // type
-                                            "}",
-                                    "parameters", "organizationId", "timestampMs", "type"
-                                )
-                                addStatement("val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)")
-
-                                // stamp & request
-                                addStatement("val (hName, hValue) = stamper.stamp(bodyJson)")
-                                addStatement(
-                                    "val req = %T.Builder().url(url).post(bodyJson.%M(%S.%M())).header(hName, hValue).header(%S, %T.VERSION).build()",
-                                    requestCls, toReqBody, "application/json", toMediaType,
-                                    "X-Client-Version", clientVersionHdr
-                                )
+                                if (kind == OperationKind.Activity) addStatement("return %T(activity = activityRes, result = activityRes.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\"))", respType)
+                                else addStatement("return %T(activity = activityRes)", respType)
                             }
                         } else {
                             // ----- POST WITH NO BODY (noop / anchor / ping) -----
                             addStatement(
-                                "if (stamper == null) throw %T.StamperNotInitialized",
+                                "if (stamper == null) throw %T.StamperNotInitialized()",
                                 errorClass
                             )
                             addStatement("val bodyJson = %S", "{}")
@@ -322,53 +362,68 @@ fun generateClientFile(
                             }
                         }
 
-                        addStatement("val call = http.newCall(req)")
-                        addStatement("val resp = call.%M()", awaitM)
-                        beginControlFlow("resp.use {")
-                        beginControlFlow("if (!it.isSuccessful)")
-                        addStatement(
-                            "val errBody = %M(%T.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }",
-                            withContextM, dispatchersCls
-                        )
-                        addStatement("throw RuntimeException(%P + it.code)", "HTTP error from $path: ")
-                        endControlFlow()
-                        addStatement(
-                            "val text = %M(%T.IO) { it.body.string() }",
-                            withContextM, dispatchersCls
-                        )
-                        if (respType == UNIT) {
-                            addStatement("return Unit")
-                        } else if (kind == OperationKind.Activity && !isProxy) {
-                            val activityResultType = respSchemaRef?.let { ref ->
-                                val schemaName = opId.substringAfter("_")
+                        if (isProxy || kind != OperationKind.Activity && kind != OperationKind.ActivityDecision) {
+                            addStatement("val call = http.newCall(req)")
+                            addStatement("val resp = call.%M()", awaitM)
+                            beginControlFlow("resp.use {")
+                            beginControlFlow("if (!it.isSuccessful)")
+                            addStatement(
+                                "val errBody = %M(%T.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }",
+                                withContextM, dispatchersCls
+                            )
+                            addStatement(
+                                "throw RuntimeException(%P + it.code)",
+                                "HTTP error from $path: "
+                            )
+                            endControlFlow()
+                            addStatement(
+                                "val text = %M(%T.IO) { it.body.string() }",
+                                withContextM, dispatchersCls
+                            )
+                            if (respType == UNIT) {
+                                addStatement("return Unit")
+                            } else if (kind == OperationKind.Activity && !isProxy) {
+                                val activityResultType = respSchemaRef?.let { ref ->
+                                    val schemaName = opId.substringAfter("_")
 
-                                val snake = schemaName.toScreamingSnake()
-                                val versioned =
-                                    VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
-                                val versionSuffix = Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
+                                    val snake = schemaName.toScreamingSnake()
+                                    val versioned =
+                                        VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                    val versionSuffix =
+                                        Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
 
-                                // search for intents matching the above version
-                                val candidate = versionSuffix?.let { suf ->
-                                    defs.keys.firstOrNull { k ->
-                                        k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                    // search for intents matching the above version
+                                    val candidate = versionSuffix?.let { suf ->
+                                        defs.keys.firstOrNull { k ->
+                                            k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                        }
                                     }
+
+                                    val resultName =
+                                        candidate
+                                            ?.removePrefix("v1")
+                                            ?.replaceFirstChar { it.lowercase() }
+                                            ?: latestVersions["${schemaName}Result"]?.formattedKeyName
+                                    "${opPrefix.ifBlank { "" }}$resultName"
                                 }
 
-                                val resultName =
-                                    candidate
-                                        ?.removePrefix("v1")
-                                        ?.replaceFirstChar { it.lowercase() }
-                                        ?: latestVersions["${schemaName}Result"]?.formattedKeyName
-                                "${opPrefix.ifBlank { "" }}$resultName"
+                                addStatement(
+                                    "val response = json.decodeFromString(%T.serializer(), text)",
+                                    activityResponseCls
+                                )
+                                addStatement("val result = response.activity.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\")")
+                                addStatement(
+                                    "return %T(activity = response.activity, result = result)",
+                                    respType
+                                )
+                            } else {
+                                addStatement(
+                                    "return json.decodeFromString(%T.serializer(), text)",
+                                    respType
+                                )
                             }
-
-                            addStatement("val response = json.decodeFromString(%T.serializer(), text)", activityResponseCls)
-                            addStatement("val result = response.activity.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\")")
-                            addStatement("return %T(activity = response.activity, result = result)", respType)
-                        } else {
-                            addStatement("return json.decodeFromString(%T.serializer(), text)", respType)
+                            endControlFlow()
                         }
-                        endControlFlow()
                     }
                     .build()
                 typeBuilder.addFunction(funSpec)
@@ -383,7 +438,7 @@ fun generateClientFile(
                         .returns(tSignedReqCls)
                         .apply {
                             addStatement(
-                                "if (stamper == null) throw %T.StamperNotInitialized",
+                                "if (stamper == null) throw %T.StamperNotInitialized()",
                                 errorClass
                             )
                             // Build URL from the correct base (public or proxy base, but we only expose stamp for public)

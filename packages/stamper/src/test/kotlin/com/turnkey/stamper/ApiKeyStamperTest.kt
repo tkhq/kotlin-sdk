@@ -3,7 +3,7 @@ package com.turnkey.stamper
 import com.turnkey.encoding.decodeBase64Url
 import com.turnkey.encoding.toHexString
 import com.turnkey.stamper.internal.ApiKeyStamper
-import com.turnkey.stamper.utils.errors.TurnkeyStamperError
+import com.turnkey.stamper.utils.TurnkeyStamperError
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
