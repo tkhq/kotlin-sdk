@@ -164,7 +164,7 @@ sealed class TurnkeyKotlinError(message: String, cause: Throwable? = null) :
     data class FailedToUpdateSession(override val cause: Throwable) :
             TurnkeyKotlinError("Failed to update session", cause)
     data class FailedToScheduleExpiryTimer(val s: String, override val cause: Throwable) :
-            TurnkeyKotlinError("Failed to schedule expiry timer for session key ", cause)
+            TurnkeyKotlinError("Failed to schedule expiry timer for session key $s", cause)
 
     data class FailedToGetAuthProxyConfig(override val cause: Throwable) :
             TurnkeyKotlinError("Failed to get auth proxy config", cause)

@@ -219,6 +219,41 @@ examples/
   kotlin-demo-wallet/
 ```
 
+## Which package should I use?
+
+This SDK is designed in layers, allowing you to choose the right level of abstraction for your needs. Here's how to decide:
+
+### Use `sdk-kotlin` (Highest Level) if:
+- **You want the fastest integration** - Get up and running in minutes with a familiar API
+- **You want everything handled for you** - Automatic session management, key-pair storage, expiry timers, and state management via Kotlin Flow
+- **You're building a standard mobile app** - The singleton pattern and built-in storage work great for typical Android apps
+- **You need OAuth, Passkey, or OTP authentication** - High-level methods handle the complete flow for you
+
+**Trade-off**: Less flexibility in architecture. Uses a global singleton pattern which may not fit all app structures.
+
+### Use `http` (Mid Level) if:
+- **You need dependency injection** - Works seamlessly with Hilt, Koin, or any other DI framework
+- **You need fine-grained control over session management** - Manage sessions, storage, and expiry logic yourself
+- **You want to write unit tests with mocked clients** - Easily inject test doubles and mock HTTP responses
+- **You have custom storage requirements** - Use your own database, encrypted preferences, or remote storage
+- **You need to integrate with existing architecture** - No singletons, just plain Kotlin classes you control
+
+**Trade-off**: You'll need to implement session storage, key management, and state handling yourself.
+
+### Use `crypto` + `stamper` (Lowest Level) if:
+- **You need signing primitives** - Direct access to P-256 key generation, signing, and encryption utilities
+- **You need the most fine-grained control** - Build your own HTTP client, session management, and authentication flows
+- **You're building non-standard integrations** - Server-side Kotlin, custom protocols, or embedded systems
+- **You want zero opinions** - Just the cryptographic building blocks with no framework assumptions
+- **You're integrating Turnkey into existing infrastructure** - Use only the pieces you need
+
+**Trade-off**: You'll build everything from scratch. Only use this if you have specific requirements that the higher-level packages can't meet.
+
+---
+
+>[!NOTE]
+>**Recommendation**: Start with `sdk-kotlin` for the fastest path to production. If you hit architectural constraints, drop down to `http`. Only use `crypto` + `stamper` if you have specialized needs. You can also mix and match packages to fit your specific requirements!
+
 ## Development
 
 ### Requirements
