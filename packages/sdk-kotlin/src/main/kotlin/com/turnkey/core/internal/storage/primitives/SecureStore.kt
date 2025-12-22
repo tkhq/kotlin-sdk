@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.errors.TurnkeyStorageError
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -50,7 +50,7 @@ object SecureStore {
 
     private fun decrypt(b64: String): ByteArray {
         val blob = Base64.decode(b64, Base64.NO_WRAP)
-        if (blob.size < IV_LEN + 16) throw StorageError.InvalidCiphertext
+        if (blob.size < IV_LEN + 16) throw TurnkeyStorageError.InvalidCiphertext()
         val iv = blob.copyOfRange(0, IV_LEN)
         val ct = blob.copyOfRange(IV_LEN, blob.size)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -62,7 +62,7 @@ object SecureStore {
      * Store data under (service, account).
      * `accessible` and `itemClass` are accepted for parity; ignored on Android.
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun set(
         context: Context,
         data: ByteArray,
@@ -72,7 +72,7 @@ object SecureStore {
         // Compose a single key as "<account>::<service>".
         val key = "$account::$service"
         val enc = try { encrypt(data) } catch (t: Throwable) {
-            throw StorageError.KeychainAddFailed(-1)
+            throw TurnkeyStorageError.KeychainAddFailed(-1)
         }
         prefs(context).edit().putString(key, enc).apply()
     }
@@ -80,7 +80,7 @@ object SecureStore {
     /**
      * Get data for (service, account). Returns null if not found.
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun get(
         context: Context,
         service: String,
@@ -89,7 +89,7 @@ object SecureStore {
         val key = "$account::$service"
         val b64 = prefs(context).getString(key, null) ?: return null
         return try { decrypt(b64) } catch (t: Throwable) {
-            throw StorageError.KeychainFetchFailed(-1)
+            throw TurnkeyStorageError.KeychainFetchFailed(-1)
         }
     }
 
@@ -106,13 +106,13 @@ object SecureStore {
             .map { it.removePrefix("$account::") }
             .toList()
     } catch (t: Throwable) {
-        throw StorageError.KeychainListKeysFailed(-1)
+        throw TurnkeyStorageError.KeychainListKeysFailed(-1)
     }
 
     /**
      * Delete data for (service, account). No-op if missing.
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun delete(
         context: Context,
         service: String,
@@ -120,7 +120,7 @@ object SecureStore {
     ) {
         val key = "$account::$service"
         val ok = prefs(context).edit().remove(key).commit()
-        if (!ok) throw StorageError.KeychainDeleteFailed(-1)
+        if (!ok) throw TurnkeyStorageError.KeychainDeleteFailed(-1)
     }
 
     /**
@@ -130,6 +130,6 @@ object SecureStore {
         context: Context
     ) {
         val ok = prefs(context).edit().clear().commit()
-        if (!ok) throw StorageError.KeychainDeleteFailed(-1)
+        if (!ok) throw TurnkeyStorageError.KeychainDeleteFailed(-1)
     }
 }

@@ -3,7 +3,7 @@ package com.turnkey.core.internal.storage.sessions
 import android.content.Context
 import com.turnkey.core.internal.storage.primitives.LocalStore
 import com.turnkey.core.models.Storage
-import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.errors.TurnkeyStorageError
 import com.turnkey.core.models.ValueStore
 
 /**
@@ -11,12 +11,12 @@ import com.turnkey.core.models.ValueStore
  * Persists active session across app launches
  */
 object SelectedSessionStore: ValueStore<String> {
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     override fun save(context: Context, value: String) {
         LocalStore.set(context, Storage.SELECTED_SESSION_KEY, value)
     }
 
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     override fun load(context: Context): String? {
         return LocalStore.get(context, Storage.SELECTED_SESSION_KEY)
     }
