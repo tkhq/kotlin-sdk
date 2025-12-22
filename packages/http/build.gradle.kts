@@ -41,8 +41,8 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val publicSpec: String = file("$projectDir/openapi/public_api.swagger.json").absolutePath
-val proxySpec: String = file("$projectDir/openapi/auth_proxy.swagger.json").absolutePath
+val publicSpec: String = file("$rootDir/openapi/public_api.swagger.json").absolutePath
+val proxySpec: String = file("$rootDir/openapi/auth_proxy.swagger.json").absolutePath
 val out: String = file("$projectDir/src/main/kotlin").absolutePath
 
 val clientCodegen = tasks.register<JavaExec>("client-codegen") {
@@ -68,7 +68,11 @@ val clientCodegen = tasks.register<JavaExec>("client-codegen") {
 tasks.register("regenerateHttpClient") {
     group = "clientCodegen"
     description = "Generate client"
-    dependsOn(clientCodegen)
+    // we need the models to be generated first since the client depends on them
+    dependsOn(
+        clientCodegen,
+        ":packages:types:regenerateModels" 
+    )
 }
 
 kotlin {
