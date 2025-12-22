@@ -178,17 +178,33 @@ gpg: Good signature from "Turnkey Kotlin Publishers <kotlin-publishers@turnkey.i
 
 ## Code generation
 
-This repo uses a **tools** module to generate models and the typed HTTP client from Swagger.
+This repo uses a **tools** module to generate models and the typed HTTP client from OpenAPI specs.
 
-| Artifact  | Task                                            | Inputs                                                                                             | Outputs                                                           |
-|-----------|-------------------------------------------------|----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| **types** | `./gradlew :packages:types:regenerateModels`    | `packages/types/openapi/public_api.swagger.json`, `packages/types/openapi/auth_proxy.swagger.json` | `packages/types/src/main/kotlin/com/turnkey/types/Models.kt`      |
-| **http**  | `./gradlew :packages:http:regenerateHttpClient` | `packages/http/openapi/public_api.swagger.json`, `packages/http/openapi/auth_proxy.swagger.json`   | `packages/http/src/main/kotlin/com/turnkey/http/TurnkeyClient.kt` |
+### Quick start
 
-> Exact task names/flags live in each module’s `build.gradle(.kts)` and are documented in the package READMEs.
+Generate both types and HTTP client:
+```bash
+./gradlew generate
+```
 
-## Repository layout
+Or run individually:
+```bash
+./gradlew :packages:types:regenerateModels
+./gradlew :packages:http:regenerateHttpClient
+```
 
+### Details
+
+| Artifact  | Generator                  | Inputs                                                     | Outputs                                                           |
+|-----------|----------------------------|------------------------------------------------------------|-------------------------------------------------------------------|
+| **types** | `TypesGenerator.kt`        | `openapi/public_api.swagger.json`, `openapi/auth_proxy.swagger.json` | `packages/types/src/main/kotlin/com/turnkey/types/Models.kt`      |
+| **http**  | `ClientGenerator.kt`       | `openapi/public_api.swagger.json`, `openapi/auth_proxy.swagger.json` | `packages/http/src/main/kotlin/com/turnkey/http/TurnkeyClient.kt` |
+
+**OpenAPI specs** are stored in `openapi/` at the repository root (single source of truth).
+
+**Generators** live in `packages/tools/src/main/kotlin/com/turnkey/tools/`.
+
+> Exact task configuration lives in each module's `build.gradle.kts` and is documented in the package READMEs.
 ```
 packages/
   encoding/

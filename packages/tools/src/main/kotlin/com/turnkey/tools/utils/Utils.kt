@@ -1,4 +1,4 @@
-package utils
+package com.turnkey.tools.utils
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -14,7 +14,20 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.nio.file.Files
 import java.nio.file.Path
+
+/** Find the project root by walking up until we find openapi/ directory */
+fun findProjectRoot(): Path {
+    var current = Path.of("").toAbsolutePath()
+    while (current != null) {
+        if (Files.exists(current.resolve("openapi"))) {
+            return current
+        }
+        current = current.parent ?: break
+    }
+    error("Could not find project root (looking for openapi/ directory)")
+}
 
 private val STRING = ClassName("kotlin", "String")
 private val INT    = ClassName("kotlin", "Int")
@@ -148,26 +161,6 @@ fun TypeSpec.Builder.addSerializableAnnotations(): TypeSpec.Builder {
 /** One spec input + an optional prefix applied to operation/type names. */
 data class SpecCfg(val path: Path, val prefix: String)
 
-object VersionedActivityTypes {
-    val map: Map<String, String> = mapOf(
-        "ACTIVITY_TYPE_CREATE_AUTHENTICATORS" to "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
-        "ACTIVITY_TYPE_CREATE_API_KEYS" to "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
-        "ACTIVITY_TYPE_CREATE_POLICY" to "ACTIVITY_TYPE_CREATE_POLICY_V3",
-        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS" to "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION" to "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
-        "ACTIVITY_TYPE_CREATE_USERS" to "ACTIVITY_TYPE_CREATE_USERS_V3",
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD" to "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-        "ACTIVITY_TYPE_SIGN_TRANSACTION" to "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-        "ACTIVITY_TYPE_EMAIL_AUTH" to "ACTIVITY_TYPE_EMAIL_AUTH_V2",
-        "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION" to "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
-        "ACTIVITY_TYPE_UPDATE_POLICY" to "ACTIVITY_TYPE_UPDATE_POLICY_V2",
-        "ACTIVITY_TYPE_INIT_OTP_AUTH" to "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
-    )
-
-    /** Fallbacks to the input if there’s no versioned entry. */
-    fun resolve(type: String): String = map[type] ?: type
-}
-
 data class LatestVersion(
     val fullName: String,
     val formattedKeyName: String,
@@ -246,3 +239,19 @@ fun jsonItems(schema: JsonObject?): JsonObject? =
 
 fun jsonAdditionalProperties(schema: JsonObject?): JsonElement? =
     schema?.get("additionalProperties")
+
+/** Parse OpenAPI JSON file */
+fun readJson(path: Path): JsonObject {
+    val jsonLoose = kotlinx.serialization.json.Json {
+        ignoreUnknownKeys = false
+        isLenient = true
+        allowSpecialFloatingPointValues = true
+    }
+    val raw = java.nio.file.Files.readString(path)
+    val el = try {
+        jsonLoose.parseToJsonElement(raw)
+    } catch (e: Exception) {
+        error("Failed to parse JSON at $path: ${e.message}")
+    }
+    return el as? JsonObject ?: error("Top-level JSON must be an object at $path")
+}

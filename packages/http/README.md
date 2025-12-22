@@ -72,33 +72,9 @@ src/main/kotlin/
 
 ## Code generation
 
-This package uses a custom generator to produce the Kotlin client from Swagger. The code generation scripts are found in the `tools` module.
+`TurnkeyClient.kt` is generated from OpenAPI specs.
 
-### Quick Start
-
-From the repo root:
-```bash
-./gradlew :packages:http:regenerateHttpClient
-```
-
----
-
-> If you run into this error:
-
-```bash
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-  25 (or any other number for that matter)
-```
-
-> It means the JVM toolchain version you are using is incompatible, please use JVM toolchain 24 or earlier.
-
----
-
-### What gets generated
-
-`TurnkeyClient.kt` – the HTTP client (OkHttp + coroutines)
+To sync the client with updated OpenAPI specs, see the [**tools** package README](../tools/README.md).
 
 ## Concurrency & networking
 

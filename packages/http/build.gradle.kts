@@ -41,26 +41,18 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val publicSpec: String = file("$rootDir/openapi/public_api.swagger.json").absolutePath
-val proxySpec: String = file("$rootDir/openapi/auth_proxy.swagger.json").absolutePath
-val out: String = file("$projectDir/src/main/kotlin").absolutePath
-
 val clientCodegen = tasks.register<JavaExec>("client-codegen") {
     group = "client-codegen"
     description = "Generate single-file TurnkeyClient from Swagger"
-    mainClass.set("ClientCodegenKt")
+    mainClass.set("com.turnkey.tools.ClientGeneratorKt")
     classpath = project(":packages:tools").configurations.named("runtimeClasspath").get() +
             project(":packages:tools").sourceSets["main"].output
 
     args(
-        "--spec", publicSpec,   "--prefix", "",        // public
-        "--spec", proxySpec,            "--prefix", "Proxy",   // proxy (also used as model name prefix)
-        "--out", out,
+        "--out", file("$projectDir/src/main/kotlin").absolutePath,
         "--pkg", "com.turnkey.http",
-        "--modelsPkg", "com.turnkey.types",
-        "--class", "TurnkeyClient",
-        "--typesFileName", "Models",
-        "--warning-mode", "all"
+        "--models-pkg", "com.turnkey.types",
+        "--client-class-name", "TurnkeyClient"
     )
 }
 
@@ -68,11 +60,7 @@ val clientCodegen = tasks.register<JavaExec>("client-codegen") {
 tasks.register("regenerateHttpClient") {
     group = "clientCodegen"
     description = "Generate client"
-    // we need the models to be generated first since the client depends on them
-    dependsOn(
-        clientCodegen,
-        ":packages:types:regenerateModels" 
-    )
+    dependsOn(clientCodegen)
 }
 
 kotlin {
