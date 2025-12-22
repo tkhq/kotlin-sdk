@@ -1,22 +1,63 @@
 # com.turnkey.tools
 
-## _**For internal use only**_
+**Internal build tooling** – not published to Maven Central.
 
-Holds the codegen scripts for both client generation & types generation.
+Contains code generators that produce:
+- **Models.kt** (types package) from OpenAPI specs
+- **TurnkeyClient.kt** (http package) from OpenAPI specs
 
-To run these codegen scripts, run the following tasks in the repo root (`http` or `types`)
+## Structure
 
-### Client Codegen
+```
+com/turnkey/tools/
+  ├── ClientGenerator.kt   # HTTP client codegen (main entry point)
+  ├── TypesGenerator.kt    # Types/models codegen (main entry point)
+  └── utils/
+      └── Utils.kt         # Shared utilities (parsing, mapping, etc.)
+```
 
+## Running codegen
+
+### Generate everything
+
+```bash
+./gradlew generate
+```
+
+This runs both `regenerateModels` and `regenerateHttpClient` in the correct order.
+
+### Generate individually
+
+**Types only:**
+```bash
+./gradlew :packages:types:regenerateModels
+```
+
+**HTTP client only:**
 ```bash
 ./gradlew :packages:http:regenerateHttpClient
 ```
 
-### Types Codegen
+## Inputs
 
-```bash
-./gradlew :projects:types:regenerateModels
-```
+Both generators read from:
+- `openapi/public_api.swagger.json` (Turnkey public API)
+- `openapi/auth_proxy.swagger.json` (Turnkey auth proxy)
+
+## Configuration
+
+Generators accept arguments via Gradle task configuration:
+
+**TypesGenerator** (`packages/types/build.gradle.kts`):
+- `--out` - Output directory
+- `--pkg` - Package name (e.g., `com.turnkey.types`)
+- `--types-file-name` - Output filename without `.kt` (default: `Models`)
+
+**ClientGenerator** (`packages/http/build.gradle.kts`):
+- `--out` - Output directory
+- `--pkg` - Package name (e.g., `com.turnkey.http`)
+- `--models-pkg` - Models package for imports (e.g., `com.turnkey.types`)
+- `--client-class-name` - Generated class name (default: `TurnkeyClient`)
 
 ---
 

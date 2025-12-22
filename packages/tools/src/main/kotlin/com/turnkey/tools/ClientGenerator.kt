@@ -1,4 +1,4 @@
-package generators
+package com.turnkey.tools
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -12,17 +12,61 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.asTypeName
+import com.turnkey.tools.utils.GENERATED_FILE_HEADER
+import com.turnkey.tools.utils.OperationKind
+import com.turnkey.tools.utils.SpecCfg
+import com.turnkey.tools.utils.VersionedActivityTypes
+import com.turnkey.tools.utils.capitalizeLeading
+import com.turnkey.tools.utils.classifyOperation
+import com.turnkey.tools.utils.definitions
+import com.turnkey.tools.utils.extractLatestVersions
+import com.turnkey.tools.utils.findProjectRoot
+import com.turnkey.tools.utils.readJson
+import com.turnkey.tools.utils.toScreamingSnake
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.parser.core.models.ParseOptions
+import io.swagger.v3.parser.converter.SwaggerConverter
 import kotlinx.serialization.json.JsonObject
-import utils.OperationKind
-import utils.SpecCfg
-import utils.VersionedActivityTypes
-import utils.capitalizeLeading
-import utils.classifyOperation
-import utils.definitions
-import utils.extractLatestVersions
-import utils.toScreamingSnake
+import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+
+/** Entry point for generating Turnkey HTTP client from OpenAPI specs */
+fun main(args: Array<String>) {
+    val argv = args.toList()
+    fun arg(name: String, default: String? = null): String =
+        argv.getOrNull(argv.indexOf(name) + 1) ?: default
+        ?: error("Missing $name")
+
+    // Find project root (contains openapi/ directory)
+    val projectRoot = findProjectRoot()
+    
+    // Hardcoded conventions for Turnkey API specs
+    val specs = listOf(
+        SpecCfg(projectRoot.resolve("openapi/public_api.swagger.json"), prefix = ""),
+        SpecCfg(projectRoot.resolve("openapi/auth_proxy.swagger.json"), prefix = "Proxy")
+    )
+    
+    // Configurable parameters
+    val outRoot = Path.of(arg("--out"))
+    val pkg = arg("--pkg")
+    val modelsPkg = arg("--models-pkg")
+    val clientClass = arg("--client-class-name", "TurnkeyClient")
+
+    specs.forEach { require(Files.exists(it.path)) { "Spec not found: ${it.path}" } }
+    outRoot.createDirectories()
+
+    // Parse all specs → OpenAPI 3
+    val apis = specs.map { s -> Triple(s, parseToOpenApi3(s.path), readJson(s.path)) }
+    generateClientFile(apis, outRoot, pkg, modelsPkg, clientClass)
+}
+
+/** Convert Swagger 2.0 to OpenAPI 3 for easier traversal. */
+private fun parseToOpenApi3(spec: Path): OpenAPI {
+    val opts = ParseOptions().apply { isResolve = true; isFlatten = true }
+    return SwaggerConverter().readLocation(spec.toString(), null, opts).openAPI
+        ?: error("Failed to parse/convert spec: $spec")
+}
 
 fun generateClientFile(
     apis: List<Triple<SpecCfg, OpenAPI, JsonObject>>,
@@ -525,6 +569,7 @@ fun generateClientFile(
     }
 
     FileSpec.builder(pkg, className)
+        .addFileComment(GENERATED_FILE_HEADER)
         .addAnnotation(
             AnnotationSpec.builder(Suppress::class)
                 .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE) // -> @file:Suppress(...)

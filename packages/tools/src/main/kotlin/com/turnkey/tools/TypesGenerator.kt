@@ -1,10 +1,60 @@
-package generators
+package com.turnkey.tools
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.turnkey.tools.utils.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.*
-import utils.*
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.createDirectories
+
+/** Entry point for generating Turnkey API types from OpenAPI specs */
+fun main(args: Array<String>) {
+    val argv = args.toList()
+    fun arg(name: String, default: String? = null): String =
+        argv.getOrNull(argv.indexOf(name) + 1) ?: default
+        ?: error("Missing $name")
+
+    // Find project root (contains openapi/ directory)
+    val projectRoot = findProjectRoot()
+    
+    // Hardcoded conventions for Turnkey API specs
+    val specs = listOf(
+        SpecCfg(projectRoot.resolve("openapi/public_api.swagger.json"), prefix = ""),
+        SpecCfg(projectRoot.resolve("openapi/auth_proxy.swagger.json"), prefix = "Proxy")
+    )
+    
+    // Configurable parameters
+    val outRoot = Path.of(arg("--out"))
+    val pkg = arg("--pkg")
+    val typesFileName = arg("--types-file-name", "Models")
+
+    specs.forEach { require(Files.exists(it.path)) { "Spec not found: ${it.path}" } }
+    outRoot.createDirectories()
+
+    // Parse all specs → OpenAPI 3
+    val swaggerSpecs: List<Pair<SpecCfg, JsonObject>> = specs.map { it to readJson(it.path) }
+
+    val fileBuilder = FileSpec.builder(pkg, typesFileName)
+        .addFileComment(GENERATED_FILE_HEADER)
+        .addImport("kotlinx.serialization", "Serializable", "SerialName")
+        .addImport("kotlinx.serialization.json", "JsonElement")
+
+    generateDefinitionsFromComponents(swaggerSpecs, fileBuilder, pkg)
+    generateApiTypes(swaggerSpecs, fileBuilder, pkg)
+    fileBuilder.addAnnotation(
+        AnnotationSpec.builder(Suppress::class)
+            .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE) // -> @file:Suppress(...)
+            .addMember("%S", "unused")
+            .addMember("%S", "UNUSED_PARAMETER")
+            .addMember("%S", "UNUSED_VARIABLE")
+            .addMember("%S", "RedundantVisibilityModifier")
+            .addMember("%S", "MemberVisibilityCanBePrivate")
+            .addMember("%S", "RedundantSuspendModifier")
+            .build()
+    ).build().writeTo(outRoot.toFile())
+}
 
 /* -------------------------------------------------------------------------- */
 /*                           TYPE MAPPING (JSON)                               */

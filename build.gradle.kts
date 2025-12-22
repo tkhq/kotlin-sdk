@@ -233,3 +233,13 @@ tasks.register<CreateChangesetTask>("createChangeset") {
     modules.set(publishable)
     rootDirProp.set(layout.projectDirectory)
 }
+
+// Codegen tasks
+tasks.register("generate") {
+    group = "codegen"
+    description = "Generate all code from OpenAPI specs (types + http client)"
+    dependsOn(
+        ":packages:types:regenerateModels",
+        ":packages:http:regenerateHttpClient"
+    )
+}
