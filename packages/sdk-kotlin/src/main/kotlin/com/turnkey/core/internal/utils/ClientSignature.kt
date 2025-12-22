@@ -1,7 +1,7 @@
 package com.turnkey.core.internal.utils
 
 import com.turnkey.core.models.ClientSignaturePayload
-import com.turnkey.core.models.TurnkeyKotlinError
+import com.turnkey.core.models.errors.TurnkeyKotlinError
 import com.turnkey.types.V1ApiKeyParamsV2
 import com.turnkey.types.V1AuthenticatorParamsV2
 import com.turnkey.types.V1LoginUsage

@@ -2,7 +2,7 @@ package com.turnkey.core.internal.storage.primitives
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.errors.TurnkeyStorageError
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 
@@ -19,23 +19,23 @@ object LocalStore {
         encodeDefaults = true
     }
 
-    @Throws(StorageError.KeyEncodingFailed::class)
+    @Throws(TurnkeyStorageError.KeyEncodingFailed::class)
     inline fun <reified T> set(context: Context, key: String, value: T) {
         try {
             val blob = json.encodeToString(serializer<T>(), value)
             prefs(context).edit().putString(key, blob).apply()
         } catch (t: Throwable) {
-            throw StorageError.KeyEncodingFailed(key, t)
+            throw TurnkeyStorageError.KeyEncodingFailed(key, t)
         }
     }
 
-    @Throws(StorageError.DecodingFailed::class)
+    @Throws(TurnkeyStorageError.DecodingFailed::class)
     inline fun <reified T> get(context: Context, key: String): T? {
         val blob = prefs(context).getString(key, null) ?: return null
         return try {
             json.decodeFromString(serializer<T>(), blob)
         } catch (t: Throwable) {
-            throw StorageError.KeyDecodingFailed(key, t)
+            throw TurnkeyStorageError.KeyDecodingFailed(key, t)
         }
     }
 
@@ -46,7 +46,7 @@ object LocalStore {
             .asSequence()
             .toList()
     } catch (t: Throwable) {
-        throw StorageError.KeychainListKeysFailed(-1)
+        throw TurnkeyStorageError.KeychainListKeysFailed(-1)
     }
 
     fun delete(context: Context, key: String) {

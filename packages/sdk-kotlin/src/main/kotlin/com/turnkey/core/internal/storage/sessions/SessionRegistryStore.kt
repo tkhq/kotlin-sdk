@@ -5,7 +5,7 @@ import android.util.Log
 import com.turnkey.core.internal.storage.keys.KeyPairStore
 import com.turnkey.core.internal.storage.primitives.LocalStore
 import com.turnkey.core.models.Session
-import com.turnkey.core.models.StorageError
+import com.turnkey.core.models.errors.TurnkeyStorageError
 import com.turnkey.core.models.Storage
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
@@ -23,7 +23,7 @@ object SessionRegistryStore {
     /**
      * Add a session key to the registry (no-ops if already present).
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun add(context: Context, sessionKey: String) {
         lock.write {
             val list: MutableList<String> =
@@ -38,7 +38,7 @@ object SessionRegistryStore {
     /**
      * Remove a session key from the registry (no-ops if absent).
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun remove(context: Context, sessionKey: String) {
         lock.write {
             val list: MutableList<String> =
@@ -52,7 +52,7 @@ object SessionRegistryStore {
     /**
      * Return the current list of session keys (possibly empty).
      */
-    @Throws(StorageError::class)
+    @Throws(TurnkeyStorageError::class)
     fun all(context: Context): List<String> = lock.read {
         LocalStore.get<List<String>>(context, STORE_KEY) ?: emptyList()
     }
