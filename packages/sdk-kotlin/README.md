@@ -344,6 +344,14 @@ lifecycleScope.launch {
 * Digital Asset Links: if you rely on passkeys, associate your domain (RP ID) with the app so the OS will permit assertions for that domain.
 * Emulator vs device: for local endpoints, use 10.0.2.2 and a debug network security config if you need cleartext.
 * Coroutines: all SDK calls are suspend; use lifecycleScope or your DI scope.
+* **Android SDK path for CLI builds:** If you are building this SDK or any app that depends on it outside of Android Studio (e.g., using the command line or CI), you must ensure that the Android SDK path is available to the build system. This SDK has Android dependencies and requires the Android SDK to be set up properly.
+  * Set the Android SDK path in your environment (e.g., in your `~/.zshrc` or `~/.bashrc`):
+    ```sh
+    export ANDROID_HOME=~/Library/Android/sdk
+    ```
+  * If you are building inside Android Studio, this is handled automatically and you do not need to set these variables manually.
+
+---
 
 ## Advanced
 

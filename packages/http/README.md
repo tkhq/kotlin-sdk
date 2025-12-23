@@ -33,6 +33,7 @@ dependencies {
 val client = TurnkeyClient(
     apiBaseUrl = "https://api.turnkey.com", // defaults if null
     stamper = Stamper(apiPublicKey = "...", apiPrivateKey = "..."),
+    organizationId = "<your-org-id>", // used as fallback for all requests
     authProxyUrl = "https://authproxy.turnkey.com",
     authProxyConfigId = null // populate if auth proxy usage is planned
 )
