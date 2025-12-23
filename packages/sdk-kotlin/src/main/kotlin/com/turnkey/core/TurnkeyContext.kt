@@ -412,10 +412,16 @@ object TurnkeyContext {
      *
      * @param cfg configuration to use for the client
      * @param stamper optional stamper for signing requests (if null, creates an unauthenticated client)
+     * @param organizationId optional organization ID to override the one in cfg
      * @return a new TurnkeyClient instance configured with the provided parameters
      */
-    fun createTurnkeyClient(cfg: TurnkeyConfig, stamper: Stamper? = null): TurnkeyClient {
+    fun createTurnkeyClient(
+        cfg: TurnkeyConfig,
+        stamper: Stamper? = null,
+        organizationId: String? = null
+    ): TurnkeyClient {
         return TurnkeyClient(
+            organizationId = organizationId ?: cfg.organizationId,
             apiBaseUrl = cfg.apiBaseUrl,
             authProxyUrl = cfg.authProxyBaseUrl,
             authProxyConfigId = cfg.authProxyConfigId,
@@ -899,7 +905,9 @@ object TurnkeyContext {
 
             val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
             val cli = createTurnkeyClient(
-                config, Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex)
+                config,
+                Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
+                organizationId = dto.organizationId
             )
 
             withContext(Dispatchers.Main) {
@@ -962,7 +970,9 @@ object TurnkeyContext {
                 )
             val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
             val cli = createTurnkeyClient(
-                config, Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex)
+                config,
+                Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
+                organizationId = dto.organizationId
             )
             cli to dto.organizationId
         }
@@ -995,7 +1005,8 @@ object TurnkeyContext {
 
                 val newClient = createTurnkeyClient(
                     config,
-                    Stamper(apiPublicKey = updatedSession.publicKey, apiPrivateKey = privHex)
+                    Stamper(apiPublicKey = updatedSession.publicKey, apiPrivateKey = privHex),
+                    organizationId = updatedSession.organizationId
                 )
 
                 withContext(Dispatchers.Main) {
@@ -1199,12 +1210,14 @@ object TurnkeyContext {
         try {
             generatedPublicKey = publicKey ?: createKeyPair()
             val privKey = KeyPairStore.getPrivateHex(appContext, generatedPublicKey)
-            _client = createTurnkeyClient(config, stamper = Stamper(generatedPublicKey, privKey))
+            _client = createTurnkeyClient(config, stamper = Stamper(generatedPublicKey, privKey), organizationId = organizationId)
             val passkeyStamper = PasskeyStamper(
                 activity, rpId
             )
             val passkeyClient = TurnkeyClient(
-                apiBaseUrl = config.apiBaseUrl, stamper = Stamper(passkeyStamper)
+                apiBaseUrl = config.apiBaseUrl,
+                stamper = Stamper(passkeyStamper),
+                organizationId = organizationId,
             )
             val loginRes = passkeyClient.stampLogin(
                 TStampLoginBody(
