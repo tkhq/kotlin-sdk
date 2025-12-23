@@ -34,9 +34,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(project(":packages:stamper"))
-    implementation(project(":packages:encoding"))
-    implementation(project(":packages:types"))
+    api(project(":packages:stamper"))
+    api(project(":packages:encoding"))
+    api(project(":packages:types"))
     // tests
     testImplementation(kotlin("test"))
 }
