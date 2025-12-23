@@ -12,7 +12,7 @@ import com.turnkey.crypto.decryptExportBundle
 import com.turnkey.http.TurnkeyClient
 import com.turnkey.core.internal.utils.Helpers
 import com.turnkey.core.internal.utils.JwtDecoder
-import com.turnkey.core.internal.storage.keys.KeyPairStore
+import com.turnkey.stamper.internal.storage.KeyPairStore
 import com.turnkey.core.internal.storage.keys.PendingKeysStore
 import com.turnkey.core.internal.storage.sessions.AutoRefreshStore
 import com.turnkey.core.internal.storage.sessions.JwtSessionStore
@@ -271,6 +271,7 @@ object TurnkeyContext {
                     else getAuthProxyConfig() // <- must be suspend + run on IO internally
                 }
 
+                Stamper.init(appContext)
                 val client = withContext(bg) { createTurnkeyClient(config) }
 
                 _client = client
@@ -903,11 +904,10 @@ object TurnkeyContext {
             val dto = JwtSessionStore.load(appContext, sessionKey)
                 ?: throw TurnkeyKotlinError.KeyNotFound(sessionKey)
 
-            val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
             val cli = createTurnkeyClient(
                 config,
-                Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
-                organizationId = dto.organizationId
+                Stamper.fromPublicKey(dto.publicKey),
+                organizationId = dto.organizationId,
             )
 
             withContext(Dispatchers.Main) {
@@ -968,10 +968,9 @@ object TurnkeyContext {
                 JwtSessionStore.load(appContext, targetKey) ?: throw TurnkeyKotlinError.KeyNotFound(
                     targetKey
                 )
-            val privHex = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
             val cli = createTurnkeyClient(
                 config,
-                Stamper(apiPublicKey = dto.publicKey, apiPrivateKey = privHex),
+                Stamper.fromPublicKey(dto.publicKey),
                 organizationId = dto.organizationId
             )
             cli to dto.organizationId
@@ -1001,11 +1000,9 @@ object TurnkeyContext {
             val updatedSession = JwtSessionStore.load(appContext, targetKey)!!
 
             if (targetKey == selectedSessionKey.value) {
-                val privHex = KeyPairStore.getPrivateHex(appContext, updatedSession.publicKey)
-
                 val newClient = createTurnkeyClient(
                     config,
-                    Stamper(apiPublicKey = updatedSession.publicKey, apiPrivateKey = privHex),
+                    Stamper.fromPublicKey(updatedSession.publicKey),
                     organizationId = updatedSession.organizationId
                 )
 
@@ -1209,8 +1206,6 @@ object TurnkeyContext {
 
         try {
             generatedPublicKey = publicKey ?: createKeyPair()
-            val privKey = KeyPairStore.getPrivateHex(appContext, generatedPublicKey)
-            _client = createTurnkeyClient(config, stamper = Stamper(generatedPublicKey, privKey), organizationId = organizationId)
             val passkeyStamper = PasskeyStamper(
                 activity = activity, rpId= rpId
             )
@@ -1277,10 +1272,8 @@ object TurnkeyContext {
         var temporaryPublicKey: String?
 
         try {
-            temporaryPublicKey = createKeyPair();
+            temporaryPublicKey = createKeyPair()
             val passkeyName = passkeyDisplayName ?: "passkey-${Date().time}"
-            val privKey = KeyPairStore.getPrivateHex(appContext, temporaryPublicKey)
-            _client = createTurnkeyClient(config, stamper = Stamper(temporaryPublicKey, privKey))
 
             val passkey = createPasskey(
                 activity = activity,
@@ -1445,12 +1438,7 @@ object TurnkeyContext {
                 verificationToken, sessionPublicKey
             )
 
-            val clientSignaturePrivKey =
-                KeyPairStore.getPrivateHex(appContext, clientSignaturePublicKey)
-            val stamper = Stamper(
-                apiPublicKey = clientSignaturePublicKey, apiPrivateKey = clientSignaturePrivKey
-            )
-
+            val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
             val signature = stamper.sign(message, SignatureFormat.raw)
 
             val clientSignature = V1ClientSignature(
@@ -1529,9 +1517,7 @@ object TurnkeyContext {
             oauthProviders = signUpBody.oauthProviders
         )
 
-        val clientSignaturePrivKey =
-            KeyPairStore.getPrivateHex(appContext, clientSignaturePublicKey)
-        val stamper = Stamper(apiPublicKey = clientSignaturePublicKey, clientSignaturePrivKey)
+        val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
         val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
 
         val clientSignature = V1ClientSignature(

@@ -46,7 +46,7 @@ object LocalStore {
             .asSequence()
             .toList()
     } catch (t: Throwable) {
-        throw TurnkeyStorageError.KeychainListKeysFailed(-1)
+        throw TurnkeyStorageError.LocalStoreListKeysFailed(t)
     }
 
     fun delete(context: Context, key: String) {

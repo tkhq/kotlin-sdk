@@ -2,7 +2,7 @@ package com.turnkey.core.internal.storage.sessions
 
 import android.content.Context
 import android.util.Log
-import com.turnkey.core.internal.storage.keys.KeyPairStore
+import com.turnkey.stamper.internal.storage.KeyPairStore
 import com.turnkey.core.internal.storage.primitives.LocalStore
 import com.turnkey.core.models.Session
 import com.turnkey.core.models.errors.TurnkeyStorageError
