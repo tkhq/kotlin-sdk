@@ -124,6 +124,7 @@ fun generateClientFile(
         .addParameter(
             ParameterSpec.builder("authProxyConfigId", nullableStringT).defaultValue("null").build()
         )
+        .addParameter("organizationId", stringT)
         .build()
 
     val typeBuilder = TypeSpec.classBuilder(className)
@@ -152,6 +153,11 @@ fun generateClientFile(
         .addProperty(
             PropertySpec.builder("authProxyConfigId", nullableStringT, KModifier.PRIVATE)
                 .initializer("%N", "authProxyConfigId")
+                .build()
+        )
+        .addProperty(
+            PropertySpec.builder("organizationId", stringT, KModifier.PRIVATE)
+                .initializer("%N", "organizationId")
                 .build()
         )
         .addProperty(
@@ -202,19 +208,22 @@ fun generateClientFile(
 
                 val inputJson = json.encodeToJsonElement(kotlinx.serialization.serializer<TBodyType>(), body)
                 val obj = inputJson.%M
-                val orgIdElem = obj["organizationId"]
-                val tsElem = obj["timestampMs"]
+                val inputOrgId = obj["organizationId"]
+                val inputTimestamp = obj["timestampMs"]
 
                 val params = kotlinx.serialization.json.buildJsonObject {
                     obj.forEach { (k, v) ->
                         if (k != "organizationId" && k != "timestampMs") put(k, v)
                     }
                 }
-                val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()
+                val ts = inputTimestamp?.%M?.content ?: System.currentTimeMillis().toString()
+                
+                // Use provided organizationId from body, or fall back to client's organizationId
+                val finalOrgId = inputOrgId ?: kotlinx.serialization.json.JsonPrimitive(organizationId)
 
                 val bodyObj = kotlinx.serialization.json.buildJsonObject {
                     put("parameters", params)
-                    orgIdElem?.let { put("organizationId", it) }
+                    finalOrgId?.let { put("organizationId", it) }
                     put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts))
                     put("type", kotlinx.serialization.json.JsonPrimitive(activityType))
                 }
@@ -284,16 +293,9 @@ fun generateClientFile(
                     ClassName(modelsPkg, typeName)
                 } ?: UNIT
 
-                val isDeprecated = op.deprecated == true
-                val kdoc = buildString {
-                    append("${method.uppercase()} `$path` (operationId: $rawId)\n")
-                    if (isDeprecated) append("@deprecated\n")
-                }
-
                 // Generate normal request
                 val funSpec = FunSpec.builder(methodName)
                     .addModifiers(KModifier.SUSPEND)
-                    .addKdoc(kdoc)
                     .returns(respType)
                     .apply {
                         // URL from correct base
@@ -309,10 +311,19 @@ fun generateClientFile(
                             ) else addStatement(
                                 "if (stamper == null) throw %T.StamperNotInitialized()", errorClass
                             )
-                            addStatement(
-                                "val bodyJson = json.encodeToString(%T.serializer(), input)",
-                                bodyDto
-                            )
+                            
+                            // Add organizationId fallback logic for queries
+                            if (!isProxy) {
+                                addStatement(
+                                    "val bodyJson = json.encodeToJsonElement(%T.serializer(), input).%M.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != %S }.forEach { (k, v) -> put(k, v) }; put(%S, obj[%S] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }",
+                                    bodyDto, jsonObject, "organizationId", "organizationId", "organizationId"
+                                )
+                            } else {
+                                addStatement(
+                                    "val bodyJson = json.encodeToString(%T.serializer(), input)",
+                                    bodyDto
+                                )
+                            }
 
                             if (isProxy) {
                                 addStatement(
@@ -493,9 +504,10 @@ fun generateClientFile(
                                 if (bodyDto != null) {
                                     // POST with JSON body
                                     addParameter("input", bodyDto)
+                                    // Add organizationId fallback for stamp queries
                                     addStatement(
-                                        "val bodyJson = json.encodeToString(%T.serializer(), input)",
-                                        bodyDto
+                                        "val bodyJson = json.encodeToJsonElement(%T.serializer(), input).%M.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != %S }.forEach { (k, v) -> put(k, v) }; put(%S, obj[%S] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }",
+                                        bodyDto, jsonObject, "organizationId", "organizationId", "organizationId"
                                     )
                                 } else {
                                     // POST with no body (noop)
@@ -512,8 +524,8 @@ fun generateClientFile(
                                 addStatement("val obj = inputElem.%M", jsonObject)
 
                                 // extract organizationId and timestampMs if present
-                                addStatement("val orgIdElem = obj[%S]", "organizationId")
-                                addStatement("val tsElem = obj[%S]", "timestampMs")
+                                addStatement("val inputOrgId = obj[%S]", "organizationId")
+                                addStatement("val inputTimestamp = obj[%S]", "timestampMs")
 
                                 // parameters = all fields except organizationId/timestampMs
                                 addStatement(
@@ -524,7 +536,7 @@ fun generateClientFile(
 
                                 // timestamp fallback to now
                                 addStatement(
-                                    "val ts = tsElem?.%M?.content ?: System.currentTimeMillis().toString()",
+                                    "val ts = inputTimestamp?.%M?.content ?: System.currentTimeMillis().toString()",
                                     jsonPrimitive
                                 )
 
@@ -538,7 +550,7 @@ fun generateClientFile(
                                 addStatement(
                                     "val bodyObj = kotlinx.serialization.json.buildJsonObject { " +
                                             "put(%S, params); " +                                        // parameters
-                                            "orgIdElem?.let { put(%S, it) }; " +                          // organizationId (optional)
+                                            "inputOrgId?.let { put(%S, it) }; " +                          // organizationId (optional)
                                             "put(%S, kotlinx.serialization.json.JsonPrimitive(ts)); " +    // timestampMs
                                             "put(%S, kotlinx.serialization.json.JsonPrimitive(activityType)) " + // type
                                             "}",
