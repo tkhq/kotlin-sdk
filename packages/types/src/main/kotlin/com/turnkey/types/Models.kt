@@ -10974,8 +10974,6 @@ public class TInitOtpBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("otpLength")
   public val otpLength: Long? = null,
   @SerialName("emailCustomization")
@@ -11062,8 +11060,6 @@ public class TInitUserEmailRecoveryBody(
   public val email: String,
   @SerialName("targetPublicKey")
   public val targetPublicKey: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("expirationSeconds")
   public val expirationSeconds: String? = null,
   @SerialName("emailCustomization")

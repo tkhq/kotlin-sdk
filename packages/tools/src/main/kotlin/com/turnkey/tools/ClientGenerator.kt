@@ -367,13 +367,12 @@ fun generateClientFile(
 
                                     val snake = schemaName.toScreamingSnake()
                                     val versioned =
-                                        VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
-                                    val versionSuffix = Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
+                                        VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]
 
                                     // search for intents matching the above version
-                                    val candidate = versionSuffix?.let { suf ->
+                                    val candidate = versioned?.let { v ->
                                         defs.keys.firstOrNull { k ->
-                                            k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                            k == v.third
                                         }
                                     }
 
@@ -443,14 +442,12 @@ fun generateClientFile(
 
                                     val snake = schemaName.toScreamingSnake()
                                     val versioned =
-                                        VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
-                                    val versionSuffix =
-                                        Regex("(V\\d+)$").find(versioned)?.groupValues?.getOrNull(1)
+                                        VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]
 
                                     // search for intents matching the above version
-                                    val candidate = versionSuffix?.let { suf ->
+                                    val candidate = versioned?.let { v ->
                                         defs.keys.firstOrNull { k ->
-                                            k.startsWith("v1${schemaName}Result") && k.endsWith(suf)
+                                            k == v.third
                                         }
                                     }
 
@@ -542,8 +539,9 @@ fun generateClientFile(
 
                                 // type = ACTIVITY_TYPE_<OP_ID in SNAKE>
                                 val snake = rawId.substringAfter("_").toScreamingSnake()
+                                // Resolve to either capped activity type, latest, or the input
                                 val versioned =
-                                    VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                    VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]?.first ?: latestVersions["ACTIVITY_TYPE_$snake"]?.fullName ?: "ACTIVITY_TYPE_$snake"
                                 addStatement("val activityType = %S", versioned)
 
                                 // compose final body
