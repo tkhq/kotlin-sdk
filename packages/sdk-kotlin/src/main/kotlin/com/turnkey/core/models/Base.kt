@@ -44,7 +44,13 @@ class TurnkeyRuntimeConfig (
     apiBaseUrl = apiBaseUrl,
     authProxyBaseUrl = authProxyBaseUrl,
     authProxyConfigId = authProxyConfigId,
-    authConfig = authConfig
+    appScheme = appScheme,
+    autoRefreshManagedStates = autoRefreshManagedStates,
+    autoFetchWalletKitConfig = autoFetchWalletKitConfig,
+    onSessionCreated = onSessionCreated,
+    onSessionSelected = onSessionSelected,
+    onSessionExpired = onSessionExpired,
+    onSessionRefreshed = onSessionRefreshed
 )
 
 open class AuthConfig(
@@ -71,18 +77,6 @@ data class MethodCreateSubOrgParams(
     val smsOtpAuth: CreateSubOrgParams? = null,
     val passkeyAuth: CreateSubOrgParams? = null,
     val oAuth: CreateSubOrgParams? = null,
-)
-
-data class AuthMethods(
-    val emailOtpAuthEnabled: Boolean? = null,
-    val smsOtpAuthEnabled: Boolean? = null,
-    val passkeyAuthEnabled: Boolean? = null,
-    val walletAuthEnabled: Boolean? = null,
-    val googleOauthEnabled: Boolean? = null,
-    val appleOauthEnabled: Boolean? = null,
-    val xOauthEnabled: Boolean? = null,
-    val discordOauthEnabled: Boolean? = null,
-    val facebookOauthEnabled: Boolean? = null,
 )
 
 data class OAuthConfig(

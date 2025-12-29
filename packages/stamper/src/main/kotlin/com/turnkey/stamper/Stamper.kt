@@ -19,8 +19,8 @@ class Stamper private constructor(
         private var contextProvider: (() -> Context)? = null
         private var defaultRpId: String? = null
 
-        fun init(context: Context, rpId: String? = null) {
-            contextProvider = { context.applicationContext}
+        fun configure(context: Context, rpId: String? = null) {
+            contextProvider = { context.applicationContext }
             defaultRpId = rpId
         }
 
@@ -86,26 +86,20 @@ class Stamper private constructor(
      * Generates a signed stamp for the given payload.
      *
      * @param payload body of the request to be signed
-     * @param publicKey optional public key to use for stamping; if provided, the associated
-     *                  private key will be loaded from storage. If null, uses the default
-     *                  key pair or passkey stamper.
      * @return Pair(headerName, headerValue)
      * @throws TurnkeyStamperError if not configured for any mode
      */
-    suspend fun stamp(payload: String, publicKey: String? = null): Pair<String, String> {
+    suspend fun stamp(payload: String): Pair<String, String> {
         try {
-            val resolvedPublicKey = publicKey ?: apiPublicKey
-            val resolvedPrivateKey = resolvePrivateKey(publicKey)
-
             val payloadBytes = payload.toByteArray(Charsets.UTF_8)
             val digest = MessageDigest.getInstance("SHA-256").digest(payloadBytes)
 
             return when {
-                resolvedPublicKey != null -> {
+                apiPublicKey != null && apiPrivateKey != null -> {
                     val value = ApiKeyStamper.stamp(
                         payloadSha256 = digest,
-                        publicKeyHex = resolvedPublicKey,
-                        privateKeyHex = resolvedPrivateKey
+                        publicKeyHex = apiPublicKey,
+                        privateKeyHex = apiPrivateKey
                     )
                     "X-Stamp" to value
                 }
@@ -137,7 +131,11 @@ class Stamper private constructor(
      * @throws IllegalArgumentException if the specified public key doesn't exist in storage
      * @throws IllegalStateException if the stamper is not properly initialized
      */
-    fun sign(payload: String, format: SignatureFormat = SignatureFormat.der, publicKey: String? = null): String {
+    fun sign(
+        payload: String,
+        format: SignatureFormat = SignatureFormat.der,
+        publicKey: String? = null
+    ): String {
         try {
             val resolvedPrivateKey = resolvePrivateKey(publicKey)
 
@@ -157,6 +155,9 @@ class Stamper private constructor(
     private fun resolvePrivateKey(publicKey: String? = null): String {
         val context = contextProvider?.invoke()
             ?: throw IllegalStateException("Stamper not initialized. Call Stamper.init(context) first")
-        return (if (publicKey !== null) KeyPairStore.getPrivateHex(context, publicKey) else apiPrivateKey) ?: throw IllegalStateException("No private key found to sign with")
+        return (if (publicKey !== null) KeyPairStore.getPrivateHex(
+            context,
+            publicKey
+        ) else apiPrivateKey) ?: throw IllegalStateException("No private key found to sign with")
     }
 }

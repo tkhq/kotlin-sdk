@@ -271,7 +271,7 @@ object TurnkeyContext {
                     else getAuthProxyConfig() // <- must be suspend + run on IO internally
                 }
 
-                Stamper.init(appContext)
+                Stamper.configure(appContext, config.authConfig?.rpId)
                 val client = withContext(bg) { createTurnkeyClient(config) }
 
                 _client = client
@@ -756,10 +756,9 @@ object TurnkeyContext {
      * @throws TurnkeyKotlinError.FailedToCreateKeyPair if key pair generation or storage fails
      */
     @Throws(TurnkeyKotlinError.FailedToCreateKeyPair::class)
-    suspend fun createKeyPair(): String {
+    fun createKeyPair(): String {
         try {
-            val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
-            KeyPairStore.save(appContext, privKey, pubKeyCompressed)
+            val pubKeyCompressed = KeyPairStore.createAndSaveKeyPair(appContext)
             PendingKeysStore.add(appContext, pubKeyCompressed)
             return pubKeyCompressed
         } catch (t: Throwable) {
@@ -1200,18 +1199,14 @@ object TurnkeyContext {
         rpId: String? = null,
     ): LoginWithPasskeyResult {
         val sessionKey = sessionKey ?: SessionStorage.DEFAULT_SESSION_KEY
-        val rpId = rpId ?: config.authConfig?.rpId ?: throw TurnkeyKotlinError.MissingRpId()
         val organizationId = organizationId ?: config.organizationId
-        val generatedPublicKey: String?
-
         try {
-            generatedPublicKey = publicKey ?: createKeyPair()
-            val passkeyStamper = PasskeyStamper(
-                activity = activity, rpId= rpId
-            )
+            val generatedPublicKey = publicKey ?: createKeyPair()
+            val passkeyStamper = Stamper.fromPasskey(activity, rpId)
+
             val passkeyClient = TurnkeyClient(
                 apiBaseUrl = config.apiBaseUrl,
-                stamper = Stamper(passkeyStamper),
+                stamper = passkeyStamper,
                 organizationId = organizationId,
             )
             val loginRes = passkeyClient.stampLogin(
@@ -1273,6 +1268,7 @@ object TurnkeyContext {
 
         try {
             temporaryPublicKey = createKeyPair()
+            _client = createTurnkeyClient(config, stamper = Stamper.fromPublicKey(temporaryPublicKey))
             val passkeyName = passkeyDisplayName ?: "passkey-${Date().time}"
 
             val passkey = createPasskey(
