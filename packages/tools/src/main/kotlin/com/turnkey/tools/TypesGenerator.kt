@@ -398,7 +398,6 @@ fun generateApiTypes(
                     // Find result type from request parameters.type enum mapping
                     val params = (post["parameters"] as? JsonArray)?.toList().orEmpty()
                     var resultTypeName: String? = null
-                    var versionSuffix: String? = null
 
                     for (p in params) {
                         val pm = p.jsonObject
@@ -418,12 +417,11 @@ fun generateApiTypes(
                                 .replace(Regex("^v\\d+"), "")
                                 .replace(Regex("Request(V\\d+)?$"), "")
 
-                            val mapped = activityTypeKey.let { VersionedActivityTypes.resolve(it) }
-                            versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
+                            val mapped = activityTypeKey.let { VersionedActivityTypes.map[it] }
 
-                            val candidate = versionSuffix?.let { suf ->
+                            val candidate = mapped?.let { m ->
                                 defs.keys.firstOrNull { k ->
-                                    k.startsWith("v1${baseActivity}Result") && k.endsWith(suf)
+                                    k == m.third
                                 }
                             }
 
@@ -576,13 +574,12 @@ fun generateApiTypes(
                         ?.replace(Regex("Intent(V\\d+)?$"), "")
 
                     // find the proper intent version according to our VersionedActivityTypes map
-                    val mapped = activityType.let { VersionedActivityTypes.resolve(it) }
-                    val versionSuffix = Regex("(V\\d+)$").find(mapped)?.groupValues?.getOrNull(1)
+                    val mapped = activityType.let { VersionedActivityTypes.map[it] }
 
                     // search for intents matching the above version
-                    val candidate = versionSuffix?.let { suf ->
+                    val candidate = mapped?.let { m ->
                         defs.keys.firstOrNull { k ->
-                            k.startsWith("v1${baseActivity}Intent") && k.endsWith(suf)
+                            k == m.second
                         }
                     }
 

@@ -278,6 +278,14 @@ public enum class V1ActivityType {
   ACTIVITY_TYPE_INIT_OTP_AUTH_V3,
   @SerialName("ACTIVITY_TYPE_INIT_OTP_V2")
   ACTIVITY_TYPE_INIT_OTP_V2,
+  @SerialName("ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG")
+  ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG,
+  @SerialName("ACTIVITY_TYPE_CREATE_TVC_APP")
+  ACTIVITY_TYPE_CREATE_TVC_APP,
+  @SerialName("ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT")
+  ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT,
+  @SerialName("ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT")
+  ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT,
 }
 
 @Serializable
@@ -1279,6 +1287,42 @@ public data class V1ApproveActivityRequest(
 )
 
 @Serializable
+public data class V1ApproveTvcDeploymentIntent(
+  /**
+   * Unique identifier of the TVC deployment to approve
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public data class V1ApproveTvcDeploymentRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1ApproveTvcDeploymentIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1ApproveTvcDeploymentResult(
+  /**
+   * The unique identifier for the approved TVC deployment
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
 public data class V1Attestation(
   /**
    * A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses.
@@ -1976,8 +2020,11 @@ public data class V1CreatePolicyIntentV3(
    */
   @SerialName("effect")
   public val effect: V1Effect,
+  /**
+   * Notes for a Policy.
+   */
   @SerialName("notes")
-  public val notes: String? = null,
+  public val notes: String,
   /**
    * Human-readable name for a Policy.
    */
@@ -2663,6 +2710,143 @@ public data class V1CreateSubOrganizationResultV7(
 )
 
 @Serializable
+public data class V1CreateTvcAppIntent(
+  /**
+   * Enables external connectivity for this TVC app. Default if not provided: false.
+   */
+  @SerialName("externalConnectivity")
+  public val externalConnectivity: Boolean? = null,
+  /**
+   * Unique identifier for an existing TVC operator set to use as the Manifest Set for this TVC application. If left empty, a new Manifest Set configuration is required
+   */
+  @SerialName("manifestSetId")
+  public val manifestSetId: String? = null,
+  /**
+   * Configuration to create a new TVC operator set, used as the Manifest Set for this TVC application. If left empty, a Manifest Set ID is required
+   */
+  @SerialName("manifestSetParams")
+  public val manifestSetParams: V1TvcOperatorSetParams? = null,
+  /**
+   * The name of the new TVC application
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Quorum public key to use for this application
+   */
+  @SerialName("quorumPublicKey")
+  public val quorumPublicKey: String,
+  /**
+   * Unique identifier for an existing TVC operator set to use as the Share Set for this TVC application. If left empty, a new Share Set configuration is required
+   */
+  @SerialName("shareSetId")
+  public val shareSetId: String? = null,
+  /**
+   * Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required
+   */
+  @SerialName("shareSetParams")
+  public val shareSetParams: V1TvcOperatorSetParams? = null,
+)
+
+@Serializable
+public data class V1CreateTvcAppRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcAppIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1CreateTvcAppResult(
+  /**
+   * The unique identifier for the TVC application
+   */
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public data class V1CreateTvcDeploymentIntent(
+  /**
+   * The unique identifier of the to-be-deployed TVC application
+   */
+  @SerialName("appId")
+  public val appId: String,
+  /**
+   * Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"]
+   */
+  @SerialName("hostArgs")
+  public val hostArgs: List<String>,
+  /**
+   * URL of the container containing the host binary
+   */
+  @SerialName("hostContainerImageUrl")
+  public val hostContainerImageUrl: String,
+  /**
+   * Location of the binary inside the host container
+   */
+  @SerialName("hostPath")
+  public val hostPath: String,
+  /**
+   * Arguments to pass to the pivot binary at startup. Encoded as a list of strings, for example ["--foo", "bar"]
+   */
+  @SerialName("pivotArgs")
+  public val pivotArgs: List<String>,
+  /**
+   * URL of the container containing the pivot binary
+   */
+  @SerialName("pivotContainerImageUrl")
+  public val pivotContainerImageUrl: String,
+  /**
+   * Location of the binary in the pivot container
+   */
+  @SerialName("pivotPath")
+  public val pivotPath: String,
+  /**
+   * The QuorumOS version to use to deploy this application
+   */
+  @SerialName("qosVersion")
+  public val qosVersion: String,
+)
+
+@Serializable
+public data class V1CreateTvcDeploymentRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcDeploymentIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1CreateTvcDeploymentResult(
+  /**
+   * The unique identifier for the TVC deployment
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
 public data class V1CreateUserTagIntent(
   /**
    * A list of User IDs.
@@ -2871,6 +3055,20 @@ public data class V1CreateWalletResult(
 public data class V1CredPropsAuthenticationExtensionsClientOutputs(
   @SerialName("rk")
   public val rk: Boolean,
+)
+
+@Serializable
+public data class V1CustomRevertError(
+  /**
+   * The name of the custom error.
+   */
+  @SerialName("errorName")
+  public val errorName: String? = null,
+  /**
+   * The decoded parameters as a JSON object.
+   */
+  @SerialName("paramsJson")
+  public val paramsJson: String? = null,
 )
 
 @Serializable
@@ -3558,6 +3756,35 @@ public data class V1DisablePrivateKeyResult(
 )
 
 @Serializable
+public data class V1EmailAuthCustomizationParams(
+  /**
+   * The name of the application. This field is required and will be used in email notifications if an email template is not provided.
+   */
+  @SerialName("appName")
+  public val appName: String,
+  /**
+   * A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px.
+   */
+  @SerialName("logoUrl")
+  public val logoUrl: String? = null,
+  /**
+   * A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`.
+   */
+  @SerialName("magicLinkTemplate")
+  public val magicLinkTemplate: String? = null,
+  /**
+   * Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template.
+   */
+  @SerialName("templateId")
+  public val templateId: String? = null,
+  /**
+   * JSON object containing key/value pairs to be used with custom templates.
+   */
+  @SerialName("templateVariables")
+  public val templateVariables: String? = null,
+)
+
+@Serializable
 public data class V1EmailAuthIntent(
   /**
    * Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp>
@@ -3663,20 +3890,15 @@ public data class V1EmailAuthIntentV3(
   @SerialName("apiKeyName")
   public val apiKeyName: String? = null,
   /**
-   * The name of the application.
-   */
-  @SerialName("appName")
-  public val appName: String,
-  /**
    * Email of the authenticating user.
    */
   @SerialName("email")
   public val email: String,
   /**
-   * Optional parameters for customizing emails. If not provided, the default email will be used.
+   * Parameters for customizing emails. If not provided, the default email will be used. Note that app_name is required.
    */
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailAuthCustomizationParams,
   /**
    * Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used.
    */
@@ -3750,6 +3972,30 @@ public data class V1EmailCustomizationParams(
    */
   @SerialName("appName")
   public val appName: String? = null,
+  /**
+   * A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px.
+   */
+  @SerialName("logoUrl")
+  public val logoUrl: String? = null,
+  /**
+   * A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`.
+   */
+  @SerialName("magicLinkTemplate")
+  public val magicLinkTemplate: String? = null,
+  /**
+   * Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template.
+   */
+  @SerialName("templateId")
+  public val templateId: String? = null,
+  /**
+   * JSON object containing key/value pairs to be used with custom templates.
+   */
+  @SerialName("templateVariables")
+  public val templateVariables: String? = null,
+)
+
+@Serializable
+public data class V1EmailCustomizationParamsV2(
   /**
    * A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px.
    */
@@ -4365,6 +4611,49 @@ public data class V1GetLatestBootProofRequest(
 )
 
 @Serializable
+public data class V1GetNoncesRequest(
+  /**
+   * The Ethereum address to query nonces for.
+   */
+  @SerialName("address")
+  public val address: String,
+  /**
+   * The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet).
+   */
+  @SerialName("caip2")
+  public val caip2: String,
+  /**
+   * Whether to fetch the gas station nonce used for sponsored transactions.
+   */
+  @SerialName("gasStationNonce")
+  public val gasStationNonce: Boolean? = null,
+  /**
+   * Whether to fetch the standard on-chain nonce.
+   */
+  @SerialName("nonce")
+  public val nonce: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetNoncesResponse(
+  /**
+   * The gas station nonce for sponsored transactions, if requested.
+   */
+  @SerialName("gasStationNonce")
+  public val gasStationNonce: String? = null,
+  /**
+   * The standard on-chain nonce for the address, if requested.
+   */
+  @SerialName("nonce")
+  public val nonce: String? = null,
+)
+
+@Serializable
 public data class V1GetOauth2CredentialRequest(
   /**
    * Unique identifier for a given OAuth 2.0 Credential.
@@ -4590,6 +4879,11 @@ public data class V1GetSendTransactionStatusRequest(
 @Serializable
 public data class V1GetSendTransactionStatusResponse(
   /**
+   * Structured error information including revert details, if available.
+   */
+  @SerialName("error")
+  public val error: V1TxError? = null,
+  /**
    * Ethereum-specific transaction status.
    */
   @SerialName("eth")
@@ -4678,6 +4972,47 @@ public data class V1GetSubOrgIdsResponse(
    */
   @SerialName("organizationIds")
   public val organizationIds: List<String>,
+)
+
+@Serializable
+public data class V1GetTvcAppRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Unique identifier for a given TVC App.
+   */
+  @SerialName("tvcAppId")
+  public val tvcAppId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppResponse(
+  /**
+   * Details about a single TVC App
+   */
+  @SerialName("tvcApp")
+  public val tvcApp: V1TvcApp,
+)
+
+@Serializable
+public data class V1GetTvcAppsRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppsResponse(
+  /**
+   * A list of TVC Apps.
+   */
+  @SerialName("tvcApps")
+  public val tvcApps: List<V1TvcApp>,
 )
 
 @Serializable
@@ -5276,7 +5611,7 @@ public data class V1InitOtpAuthIntentV2(
   @SerialName("sendFromEmailSenderName")
   public val sendFromEmailSenderName: String? = null,
   /**
-   * Optional parameters for customizing SMS message. If not provided, the default sms message will be used.
+   * Optional parameters for customizing SMS message. If not provided, the default SMS message will be used.
    */
   @SerialName("smsCustomization")
   public val smsCustomization: V1SmsCustomizationParams? = null,
@@ -5295,7 +5630,7 @@ public data class V1InitOtpAuthIntentV3(
   @SerialName("alphanumeric")
   public val alphanumeric: Boolean? = null,
   /**
-   * The name of the application.
+   * The name of the application. This field is required and will be used in email notifications if an email template is not provided.
    */
   @SerialName("appName")
   public val appName: String,
@@ -5308,14 +5643,19 @@ public data class V1InitOtpAuthIntentV3(
    * Optional parameters for customizing emails. If not provided, the default email will be used.
    */
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailCustomizationParamsV2? = null,
+  /**
+   * Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)
+   */
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
   /**
    * Optional length of the OTP code. Default = 9
    */
   @SerialName("otpLength")
   public val otpLength: Long? = null,
   /**
-   * Enum to specifiy whether to send OTP via SMS or email
+   * Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL
    */
   @SerialName("otpType")
   public val otpType: String,
@@ -5335,7 +5675,7 @@ public data class V1InitOtpAuthIntentV3(
   @SerialName("sendFromEmailSenderName")
   public val sendFromEmailSenderName: String? = null,
   /**
-   * Optional parameters for customizing SMS message. If not provided, the default sms message will be used.
+   * Optional parameters for customizing SMS message. If not provided, the default SMS message will be used.
    */
   @SerialName("smsCustomization")
   public val smsCustomization: V1SmsCustomizationParams? = null,
@@ -5451,7 +5791,7 @@ public data class V1InitOtpIntentV2(
   @SerialName("alphanumeric")
   public val alphanumeric: Boolean? = null,
   /**
-   * The name of the application.
+   * The name of the application. This field is required and will be used in email notifications if an email template is not provided.
    */
   @SerialName("appName")
   public val appName: String,
@@ -5464,7 +5804,7 @@ public data class V1InitOtpIntentV2(
    * Optional parameters for customizing emails. If not provided, the default email will be used.
    */
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailCustomizationParamsV2? = null,
   /**
    * Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)
    */
@@ -5496,7 +5836,7 @@ public data class V1InitOtpIntentV2(
   @SerialName("sendFromEmailSenderName")
   public val sendFromEmailSenderName: String? = null,
   /**
-   * Optional parameters for customizing SMS message. If not provided, the default sms message will be used.
+   * Optional parameters for customizing SMS message. If not provided, the default SMS message will be used.
    */
   @SerialName("smsCustomization")
   public val smsCustomization: V1SmsCustomizationParams? = null,
@@ -5578,20 +5918,15 @@ public data class V1InitUserEmailRecoveryIntent(
 @Serializable
 public data class V1InitUserEmailRecoveryIntentV2(
   /**
-   * The name of the application.
-   */
-  @SerialName("appName")
-  public val appName: String,
-  /**
    * Email of the user starting recovery
    */
   @SerialName("email")
   public val email: String,
   /**
-   * Optional parameters for customizing emails. If not provided, the default email will be used.
+   * Parameters for customizing emails. If not provided, the default email will be used. Note that `app_name` is required.
    */
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailAuthCustomizationParams,
   /**
    * Expiration window (in seconds) indicating how long the recovery credential is valid for. If not provided, a default of 15 minutes will be used.
    */
@@ -5658,6 +5993,8 @@ public data class V1Intent(
   public val activateBillingTierIntent: BillingActivateBillingTierIntent? = null,
   @SerialName("approveActivityIntent")
   public val approveActivityIntent: V1ApproveActivityIntent? = null,
+  @SerialName("approveTvcDeploymentIntent")
+  public val approveTvcDeploymentIntent: V1ApproveTvcDeploymentIntent? = null,
   @SerialName("createApiKeysIntent")
   public val createApiKeysIntent: V1CreateApiKeysIntent? = null,
   @SerialName("createApiKeysIntentV2")
@@ -5716,6 +6053,10 @@ public data class V1Intent(
   public val createSubOrganizationIntentV6: V1CreateSubOrganizationIntentV6? = null,
   @SerialName("createSubOrganizationIntentV7")
   public val createSubOrganizationIntentV7: V1CreateSubOrganizationIntentV7? = null,
+  @SerialName("createTvcAppIntent")
+  public val createTvcAppIntent: V1CreateTvcAppIntent? = null,
+  @SerialName("createTvcDeploymentIntent")
+  public val createTvcDeploymentIntent: V1CreateTvcDeploymentIntent? = null,
   @SerialName("createUserTagIntent")
   public val createUserTagIntent: V1CreateUserTagIntent? = null,
   @SerialName("createUsersIntent")
@@ -5872,6 +6213,8 @@ public data class V1Intent(
   public val updateUserTagIntent: V1UpdateUserTagIntent? = null,
   @SerialName("updateWalletIntent")
   public val updateWalletIntent: V1UpdateWalletIntent? = null,
+  @SerialName("upsertGasUsageConfigIntent")
+  public val upsertGasUsageConfigIntent: V1UpsertGasUsageConfigIntent? = null,
   @SerialName("verifyOtpIntent")
   public val verifyOtpIntent: V1VerifyOtpIntent? = null,
 )
@@ -6029,6 +6372,25 @@ public data class V1NOOPCodegenAnchorResponse(
   public val stamp: V1WebAuthnStamp,
   @SerialName("tokenUsage")
   public val tokenUsage: V1TokenUsage? = null,
+)
+
+@Serializable
+public data class V1NativeRevertError(
+  /**
+   * The error message for Error(string) reverts.
+   */
+  @SerialName("message")
+  public val message: String? = null,
+  /**
+   * The type of native error: 'error_string', 'panic', or 'execution_reverted'.
+   */
+  @SerialName("nativeType")
+  public val nativeType: String? = null,
+  /**
+   * The panic code for Panic(uint256) reverts.
+   */
+  @SerialName("panicCode")
+  public val panicCode: String? = null,
 )
 
 @Serializable
@@ -6721,6 +7083,8 @@ public data class V1Result(
   public val acceptInvitationResult: V1AcceptInvitationResult? = null,
   @SerialName("activateBillingTierResult")
   public val activateBillingTierResult: BillingActivateBillingTierResult? = null,
+  @SerialName("approveTvcDeploymentResult")
+  public val approveTvcDeploymentResult: V1ApproveTvcDeploymentResult? = null,
   @SerialName("createApiKeysResult")
   public val createApiKeysResult: V1CreateApiKeysResult? = null,
   @SerialName("createApiOnlyUsersResult")
@@ -6767,6 +7131,10 @@ public data class V1Result(
   public val createSubOrganizationResultV6: V1CreateSubOrganizationResultV6? = null,
   @SerialName("createSubOrganizationResultV7")
   public val createSubOrganizationResultV7: V1CreateSubOrganizationResultV7? = null,
+  @SerialName("createTvcAppResult")
+  public val createTvcAppResult: V1CreateTvcAppResult? = null,
+  @SerialName("createTvcDeploymentResult")
+  public val createTvcDeploymentResult: V1CreateTvcDeploymentResult? = null,
   @SerialName("createUserTagResult")
   public val createUserTagResult: V1CreateUserTagResult? = null,
   @SerialName("createUsersResult")
@@ -6901,8 +7269,44 @@ public data class V1Result(
   public val updateUserTagResult: V1UpdateUserTagResult? = null,
   @SerialName("updateWalletResult")
   public val updateWalletResult: V1UpdateWalletResult? = null,
+  @SerialName("upsertGasUsageConfigResult")
+  public val upsertGasUsageConfigResult: V1UpsertGasUsageConfigResult? = null,
   @SerialName("verifyOtpResult")
   public val verifyOtpResult: V1VerifyOtpResult? = null,
+)
+
+@Serializable
+public data class V1RevertChainEntry(
+  /**
+   * The contract address where the revert occurred.
+   */
+  @SerialName("address")
+  public val address: String? = null,
+  /**
+   * Details for custom contract errors.
+   */
+  @SerialName("custom")
+  public val custom: V1CustomRevertError? = null,
+  /**
+   * Human-readable message describing this revert.
+   */
+  @SerialName("displayMessage")
+  public val displayMessage: String? = null,
+  /**
+   * Type of error: 'unknown', 'native', or 'custom'.
+   */
+  @SerialName("errorType")
+  public val errorType: String? = null,
+  /**
+   * Details for native Solidity errors (Error, Panic, execution reverted).
+   */
+  @SerialName("native")
+  public val native: V1NativeRevertError? = null,
+  /**
+   * Details for unknown error types.
+   */
+  @SerialName("unknown")
+  public val unknown: V1UnknownRevertError? = null,
 )
 
 @Serializable
@@ -7405,6 +7809,115 @@ public data class V1TokenUsage(
    */
   @SerialName("type")
   public val type: V1UsageType,
+)
+
+@Serializable
+public data class V1TvcApp(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Whether or not this TVC App has external connectivity enabled.
+   */
+  @SerialName("externalConnectivity")
+  public val externalConnectivity: Boolean,
+  /**
+   * Unique Identifier for this TVC App.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Unique Identifier of the Manifest Set (people who can approve manifests)
+   */
+  @SerialName("manifestSetId")
+  public val manifestSetId: String,
+  /**
+   * Name for this TVC App.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Unique Identifier of the Organization for this TVC App (optional)
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Public key for the Quorum Key associated with this TVC App (optional)
+   */
+  @SerialName("quorumPublicKey")
+  public val quorumPublicKey: String,
+  /**
+   * Unique Identifier of the Share Set (people who have a share of the Quorum Key). This is optional because Quorum Keys are optional.
+   */
+  @SerialName("shareSetId")
+  public val shareSetId: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcOperatorParams(
+  /**
+   * The name for this new operator
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Public key for this operator
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+)
+
+@Serializable
+public data class V1TvcOperatorSetParams(
+  /**
+   * Existing operators to use as part of this new operator set
+   */
+  @SerialName("existingOperatorIds")
+  public val existingOperatorIds: List<String>? = null,
+  /**
+   * Short description for this new operator set
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Operators to create as part of this new operator set
+   */
+  @SerialName("newOperators")
+  public val newOperators: List<V1TvcOperatorParams>? = null,
+  /**
+   * The threshold of operators needed to reach consensus in this new Operator Set
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+)
+
+@Serializable
+public data class V1TxError(
+  /**
+   * Human-readable error message describing what went wrong.
+   */
+  @SerialName("message")
+  public val message: String? = null,
+  /**
+   * Chain of revert errors from nested contract calls, ordered from outermost to innermost.
+   */
+  @SerialName("revertChain")
+  public val revertChain: List<V1RevertChainEntry>? = null,
+)
+
+@Serializable
+public data class V1UnknownRevertError(
+  /**
+   * The raw error data, hex-encoded.
+   */
+  @SerialName("data")
+  public val `data`: String? = null,
+  /**
+   * The 4-byte error selector, if available.
+   */
+  @SerialName("selector")
+  public val selector: String? = null,
 )
 
 @Serializable
@@ -8112,6 +8625,34 @@ public data class V1UpdateWalletResult(
 )
 
 @Serializable
+public data class V1UpsertGasUsageConfigIntent(
+  /**
+   * Gas sponsorship USD limit for the billing organization window.
+   */
+  @SerialName("orgWindowLimitUsd")
+  public val orgWindowLimitUsd: String,
+  /**
+   * Gas sponsorship USD limit for sub-organizations under the billing organization.
+   */
+  @SerialName("subOrgWindowLimitUsd")
+  public val subOrgWindowLimitUsd: String,
+  /**
+   * Rolling sponsorship window duration, expressed in minutes.
+   */
+  @SerialName("windowDurationMinutes")
+  public val windowDurationMinutes: String,
+)
+
+@Serializable
+public data class V1UpsertGasUsageConfigResult(
+  /**
+   * Unique identifier for the gas usage configuration that was created or updated.
+   */
+  @SerialName("gasUsageConfigId")
+  public val gasUsageConfigId: String,
+)
+
+@Serializable
 public data class V1User(
   /**
    * A list of API Key parameters. This field, if not needed, should be an empty array in your request body.
@@ -8558,6 +9099,11 @@ public data class V1GetAccountRequest(
   @SerialName("filterValue")
   public val filterValue: String,
   /**
+   * OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available.
+   */
+  @SerialName("oidcToken")
+  public val oidcToken: String? = null,
+  /**
    * Signed JWT containing a unique id, expiry, verification type, contact. Used to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'.
    */
   @SerialName("verificationToken")
@@ -8779,6 +9325,12 @@ public class V1DisableAuthProxyResult()
 
 @Serializable
 public class V1EnableAuthProxyIntent()
+
+@Serializable
+public class V1RefreshFeatureFlagsRequest()
+
+@Serializable
+public class V1RefreshFeatureFlagsResponse()
 
 @Serializable
 public class V1TestRateLimitsResponse()
@@ -9015,6 +9567,40 @@ public class TGetLatestBootProofInput(
 )
 
 @Serializable
+public data class TGetNoncesResponse(
+  /**
+   * The gas station nonce for sponsored transactions, if requested.
+   */
+  @SerialName("gasStationNonce")
+  public val gasStationNonce: String? = null,
+  /**
+   * The standard on-chain nonce for the address, if requested.
+   */
+  @SerialName("nonce")
+  public val nonce: String? = null,
+)
+
+@Serializable
+public class TGetNoncesBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("address")
+  public val address: String,
+  @SerialName("caip2")
+  public val caip2: String,
+  @SerialName("nonce")
+  public val nonce: Boolean? = null,
+  @SerialName("gasStationNonce")
+  public val gasStationNonce: Boolean? = null,
+)
+
+@Serializable
+public class TGetNoncesInput(
+  @SerialName("body")
+  public val body: TGetNoncesBody,
+)
+
+@Serializable
 public data class TGetOauth2CredentialResponse(
   @SerialName("oauth2Credential")
   public val oauth2Credential: V1Oauth2Credential,
@@ -9193,6 +9779,11 @@ public class TGetPrivateKeyInput(
 @Serializable
 public data class TGetSendTransactionStatusResponse(
   /**
+   * Structured error information including revert details, if available.
+   */
+  @SerialName("error")
+  public val error: V1TxError? = null,
+  /**
    * Ethereum-specific transaction status.
    */
   @SerialName("eth")
@@ -9244,6 +9835,29 @@ public class TGetSmartContractInterfaceBody(
 public class TGetSmartContractInterfaceInput(
   @SerialName("body")
   public val body: TGetSmartContractInterfaceBody,
+)
+
+@Serializable
+public data class TGetTvcAppResponse(
+  /**
+   * Details about a single TVC App
+   */
+  @SerialName("tvcApp")
+  public val tvcApp: V1TvcApp,
+)
+
+@Serializable
+public class TGetTvcAppBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("tvcAppId")
+  public val tvcAppId: String,
+)
+
+@Serializable
+public class TGetTvcAppInput(
+  @SerialName("body")
+  public val body: TGetTvcAppBody,
 )
 
 @Serializable
@@ -9514,6 +10128,27 @@ public class TGetSubOrgIdsInput(
 )
 
 @Serializable
+public data class TGetTvcAppsResponse(
+  /**
+   * A list of TVC Apps.
+   */
+  @SerialName("tvcApps")
+  public val tvcApps: List<V1TvcApp>,
+)
+
+@Serializable
+public class TGetTvcAppsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+)
+
+@Serializable
+public class TGetTvcAppsInput(
+  @SerialName("body")
+  public val body: TGetTvcAppsBody,
+)
+
+@Serializable
 public data class TListUserTagsResponse(
   /**
    * A list of user tags.
@@ -9686,6 +10321,30 @@ public class TApproveActivityBody(
 public class TApproveActivityInput(
   @SerialName("body")
   public val body: TApproveActivityBody,
+)
+
+@Serializable
+public class TApproveTvcDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1ApproveTvcDeploymentResult,
+)
+
+@Serializable
+public class TApproveTvcDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TApproveTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TApproveTvcDeploymentBody,
 )
 
 @Serializable
@@ -9923,7 +10582,7 @@ public class TCreatePolicyBody(
   @SerialName("consensus")
   public val consensus: String? = null,
   @SerialName("notes")
-  public val notes: String? = null,
+  public val notes: String,
 )
 
 @Serializable
@@ -10108,6 +10767,80 @@ public class TCreateSubOrganizationBody(
 public class TCreateSubOrganizationInput(
   @SerialName("body")
   public val body: TCreateSubOrganizationBody,
+)
+
+@Serializable
+public class TCreateTvcAppResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcAppResult,
+)
+
+@Serializable
+public class TCreateTvcAppBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("name")
+  public val name: String,
+  @SerialName("quorumPublicKey")
+  public val quorumPublicKey: String,
+  @SerialName("manifestSetId")
+  public val manifestSetId: String? = null,
+  @SerialName("manifestSetParams")
+  public val manifestSetParams: V1TvcOperatorSetParams? = null,
+  @SerialName("shareSetId")
+  public val shareSetId: String? = null,
+  @SerialName("shareSetParams")
+  public val shareSetParams: V1TvcOperatorSetParams? = null,
+  @SerialName("externalConnectivity")
+  public val externalConnectivity: Boolean? = null,
+)
+
+@Serializable
+public class TCreateTvcAppInput(
+  @SerialName("body")
+  public val body: TCreateTvcAppBody,
+)
+
+@Serializable
+public class TCreateTvcDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcDeploymentResult,
+)
+
+@Serializable
+public class TCreateTvcDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("appId")
+  public val appId: String,
+  @SerialName("qosVersion")
+  public val qosVersion: String,
+  @SerialName("pivotContainerImageUrl")
+  public val pivotContainerImageUrl: String,
+  @SerialName("pivotPath")
+  public val pivotPath: String,
+  @SerialName("pivotArgs")
+  public val pivotArgs: List<String>,
+  @SerialName("hostContainerImageUrl")
+  public val hostContainerImageUrl: String,
+  @SerialName("hostPath")
+  public val hostPath: String,
+  @SerialName("hostArgs")
+  public val hostArgs: List<String>,
+)
+
+@Serializable
+public class TCreateTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TCreateTvcDeploymentBody,
 )
 
 @Serializable
@@ -10635,7 +11368,7 @@ public class TEmailAuthBody(
   @SerialName("expirationSeconds")
   public val expirationSeconds: String? = null,
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailAuthCustomizationParams,
   @SerialName("invalidateExisting")
   public val invalidateExisting: Boolean? = null,
   @SerialName("sendFromEmailAddress")
@@ -10974,12 +11707,12 @@ public class TInitOtpBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("otpLength")
   public val otpLength: Long? = null,
+  @SerialName("appName")
+  public val appName: String,
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailCustomizationParamsV2? = null,
   @SerialName("smsCustomization")
   public val smsCustomization: V1SmsCustomizationParams? = null,
   @SerialName("userIdentifier")
@@ -11022,8 +11755,10 @@ public class TInitOtpAuthBody(
   public val contact: String,
   @SerialName("otpLength")
   public val otpLength: Long? = null,
+  @SerialName("appName")
+  public val appName: String,
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailCustomizationParamsV2? = null,
   @SerialName("smsCustomization")
   public val smsCustomization: V1SmsCustomizationParams? = null,
   @SerialName("userIdentifier")
@@ -11034,6 +11769,8 @@ public class TInitOtpAuthBody(
   public val alphanumeric: Boolean? = null,
   @SerialName("sendFromEmailSenderName")
   public val sendFromEmailSenderName: String? = null,
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
   @SerialName("replyToEmailAddress")
   public val replyToEmailAddress: String? = null,
 )
@@ -11062,12 +11799,10 @@ public class TInitUserEmailRecoveryBody(
   public val email: String,
   @SerialName("targetPublicKey")
   public val targetPublicKey: String,
-  @SerialName("appName")
-  public val appName: String,
   @SerialName("expirationSeconds")
   public val expirationSeconds: String? = null,
   @SerialName("emailCustomization")
-  public val emailCustomization: V1EmailCustomizationParams? = null,
+  public val emailCustomization: V1EmailAuthCustomizationParams,
   @SerialName("sendFromEmailAddress")
   public val sendFromEmailAddress: String? = null,
   @SerialName("sendFromEmailSenderName")
@@ -11830,6 +12565,26 @@ public class TNOOPCodegenAnchorInput(
 )
 
 @Serializable
+public class TRefreshFeatureFlagsResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+)
+
+@Serializable
+public class TRefreshFeatureFlagsBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public class TRefreshFeatureFlagsInput(
+  @SerialName("body")
+  public val body: TRefreshFeatureFlagsBody,
+)
+
+@Serializable
 public class TTestRateLimitsResponse()
 
 @Serializable
@@ -11862,6 +12617,8 @@ public class ProxyTGetAccountBody(
   public val filterValue: String,
   @SerialName("verificationToken")
   public val verificationToken: String? = null,
+  @SerialName("oidcToken")
+  public val oidcToken: String? = null,
 )
 
 @Serializable
