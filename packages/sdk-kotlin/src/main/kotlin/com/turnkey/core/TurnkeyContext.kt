@@ -271,7 +271,7 @@ object TurnkeyContext {
                     else getAuthProxyConfig() // <- must be suspend + run on IO internally
                 }
 
-                Stamper.init(appContext)
+                Stamper.init(appContext, config.authConfig?.rpId)
                 val client = withContext(bg) { createTurnkeyClient(config) }
 
                 _client = client
@@ -1202,10 +1202,8 @@ object TurnkeyContext {
         val sessionKey = sessionKey ?: SessionStorage.DEFAULT_SESSION_KEY
         val rpId = rpId ?: config.authConfig?.rpId ?: throw TurnkeyKotlinError.MissingRpId()
         val organizationId = organizationId ?: config.organizationId
-        val generatedPublicKey: String?
-
         try {
-            generatedPublicKey = publicKey ?: createKeyPair()
+            val generatedPublicKey = publicKey ?: createKeyPair()
             val passkeyStamper = PasskeyStamper(
                 activity, rpId
             )
@@ -1273,6 +1271,7 @@ object TurnkeyContext {
 
         try {
             temporaryPublicKey = createKeyPair()
+            _client = createTurnkeyClient(config, stamper = Stamper.fromPublicKey(temporaryPublicKey))
             val passkeyName = passkeyDisplayName ?: "passkey-${Date().time}"
 
             val passkey = createPasskey(
