@@ -1212,7 +1212,7 @@ object TurnkeyContext {
             val privKey = KeyPairStore.getPrivateHex(appContext, generatedPublicKey)
             _client = createTurnkeyClient(config, stamper = Stamper(generatedPublicKey, privKey), organizationId = organizationId)
             val passkeyStamper = PasskeyStamper(
-                activity, rpId
+                activity = activity, rpId= rpId
             )
             val passkeyClient = TurnkeyClient(
                 apiBaseUrl = config.apiBaseUrl,

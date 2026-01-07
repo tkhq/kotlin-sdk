@@ -38,7 +38,6 @@ suspend fun createPasskey(
     try {
         val service = PasskeyRequestBuilder(
             rpId = rpId,
-            activity = activity
         )
         val excludeCredentials = excludeCredentials ?: emptyList()
         val runner = PasskeyOperationRunner(activity = activity, service = service)
@@ -61,6 +60,7 @@ suspend fun createPasskey(
 
 class PasskeyStamper(
     private val activity: Activity,
+    private val allowedCredentials: List<ByteArray>? = null,
     rpId: String
 ) {
     private val session: PasskeyOperationRunner
@@ -68,7 +68,7 @@ class PasskeyStamper(
     init {
         val service = PasskeyRequestBuilder(
             rpId = rpId,
-            activity = activity
+            allowed = allowedCredentials
         )
         session = PasskeyOperationRunner(activity = activity, service = service)
     }
@@ -85,7 +85,7 @@ class PasskeyStamper(
     ): AssertionResult {
         return session.assert(
             challenge = challenge,
-            allowed = allowedCredentials,
+            allowed = allowedCredentials ?: this.allowedCredentials,
         )
     }
 }
