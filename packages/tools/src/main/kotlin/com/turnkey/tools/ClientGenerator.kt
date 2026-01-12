@@ -7,6 +7,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -100,9 +101,13 @@ fun generateClientFile(
 
     val activityResponseCls = ClassName("com.turnkey.types", "V1ActivityResponse")
     val activityCls = ClassName("com.turnkey.types", "V1Activity")
+    val activityStatusCls = ClassName("com.turnkey.types", "V1ActivityStatus")
 
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
+
+    // Define ActivityPollerConfig data class
+    val activityPollerConfigCls = ClassName("com.turnkey.http.utils", "ActivityPollerConfig")
 
     val ctor = FunSpec.constructorBuilder()
         .addParameter(
@@ -125,6 +130,11 @@ fun generateClientFile(
             ParameterSpec.builder("authProxyConfigId", nullableStringT).defaultValue("null").build()
         )
         .addParameter("organizationId", stringT)
+        .addParameter(
+            ParameterSpec.builder("activityPoller", activityPollerConfigCls.copy(nullable = true))
+                .defaultValue("null")
+                .build()
+        )
         .build()
 
     val typeBuilder = TypeSpec.classBuilder(className)
@@ -161,10 +171,33 @@ fun generateClientFile(
                 .build()
         )
         .addProperty(
+            PropertySpec.builder("activityPoller", activityPollerConfigCls.copy(nullable = true), KModifier.PRIVATE)
+                .initializer("%N", "activityPoller")
+                .build()
+        )
+        .addProperty(
             PropertySpec.builder("json", jsonCls, KModifier.PRIVATE)
                 .initializer("%T { ignoreUnknownKeys = true }", jsonCls)
                 .build()
         )
+
+    // Add companion object with terminal statuses
+    val companionObj = TypeSpec.companionObjectBuilder()
+        .addProperty(
+            PropertySpec.builder(
+                "TERMINAL_ACTIVITY_STATUSES",
+                Set::class.asTypeName().parameterizedBy(activityStatusCls)
+            )
+                .addModifiers(KModifier.PRIVATE)
+                .initializer(
+                    "setOf(%T.ACTIVITY_STATUS_COMPLETED, %T.ACTIVITY_STATUS_FAILED, %T.ACTIVITY_STATUS_REJECTED)",
+                    activityStatusCls, activityStatusCls, activityStatusCls
+                )
+                .build()
+        )
+        .build()
+
+    typeBuilder.addType(companionObj)
 
     typeBuilder.addFunction(
         FunSpec.builder("await")
@@ -191,7 +224,45 @@ fun generateClientFile(
             .build()
     )
 
-    // Generate the reified activity helper function
+    // Add pollActivityStatus helper function
+    val getActivityBodyCls = ClassName("com.turnkey.types", "TGetActivityBody")
+    val delayFunc = MemberName("kotlinx.coroutines", "delay")
+
+    typeBuilder.addFunction(
+        FunSpec.builder("pollActivityStatus")
+            .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
+            .addParameter("activityId", String::class)
+            .addParameter("intervalMs", Long::class)
+            .addParameter("maxRetries", Int::class)
+            .returns(activityCls)
+            .addCode(
+                """
+                var attempts = 0
+
+                while (attempts <= maxRetries) {
+                    %M(intervalMs)
+
+                    val pollBody = %T(activityId = activityId)
+                    val pollResponse = getActivity(pollBody)
+                    val activity = pollResponse.activity
+
+                    if (activity.status in TERMINAL_ACTIVITY_STATUSES) {
+                        return activity
+                    }
+
+                    attempts++
+                }
+
+                // Return the last polled activity even if max retries exceeded
+                val finalPollBody = %T(activityId = activityId)
+                return getActivity(finalPollBody).activity
+                """.trimIndent(),
+                delayFunc, getActivityBodyCls, getActivityBodyCls
+            )
+            .build()
+    )
+
+    // Generate the reified activity helper function with polling support
     typeBuilder.addFunction(
         FunSpec.builder("activity")
             .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND, KModifier.INLINE)
@@ -217,7 +288,7 @@ fun generateClientFile(
                     }
                 }
                 val ts = inputTimestamp?.%M?.content ?: System.currentTimeMillis().toString()
-                
+
                 // Use provided organizationId from body, or fall back to client's organizationId
                 val finalOrgId = inputOrgId ?: kotlinx.serialization.json.JsonPrimitive(organizationId)
 
@@ -239,7 +310,7 @@ fun generateClientFile(
 
                 val resp = http.newCall(req).%M()
 
-                return resp.use {
+                val initialActivity = resp.use {
                     if (!it.isSuccessful) {
                         val errBody = %M(%T.IO) {
                             kotlin.runCatching { it.body.string() }.getOrNull()
@@ -249,6 +320,13 @@ fun generateClientFile(
                     val text = %M(%T.IO) { it.body.string() }
                     json.decodeFromString<%T>(text).activity
                 }
+
+                // Check if polling is enabled and needed
+                if (activityPoller != null && initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
+                    return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
+                }
+
+                return initialActivity
                 """.trimIndent(),
                 errorClass, jsonObject, jsonPrimitive, requestCls, toReqBody, toMediaType, clientVersionHdr,
                 awaitM, withContextM, dispatchersCls, withContextM, dispatchersCls, activityResponseCls

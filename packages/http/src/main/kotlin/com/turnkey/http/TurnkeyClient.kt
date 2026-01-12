@@ -10,6 +10,7 @@
 
 package com.turnkey.http
 
+import com.turnkey.http.utils.ActivityPollerConfig
 import com.turnkey.http.utils.TurnkeyHttpError
 import com.turnkey.stamper.Stamper
 import com.turnkey.types.ProxyTGetAccountBody
@@ -273,12 +274,17 @@ import com.turnkey.types.TVerifyOtpBody
 import com.turnkey.types.TVerifyOtpResponse
 import com.turnkey.types.V1Activity
 import com.turnkey.types.V1ActivityResponse
+import com.turnkey.types.V1ActivityStatus
 import java.io.IOException
+import kotlin.Int
+import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
+import kotlin.collections.Set
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -302,6 +308,7 @@ public class TurnkeyClient(
   authProxyUrl: String? = null,
   private val authProxyConfigId: String? = null,
   private val organizationId: String,
+  private val activityPoller: ActivityPollerConfig? = null,
 ) {
   private val apiBaseUrl: String = apiBaseUrl ?: "https://api.turnkey.com"
 
@@ -321,6 +328,32 @@ public class TurnkeyClient(
           }
       })
       cont.invokeOnCancellation { kotlin.runCatching { cancel() }.getOrNull() }
+  }
+
+  private suspend fun pollActivityStatus(
+    activityId: String,
+    intervalMs: Long,
+    maxRetries: Int,
+  ): V1Activity {
+    var attempts = 0
+
+    while (attempts <= maxRetries) {
+        delay(intervalMs)
+
+        val pollBody = TGetActivityBody(activityId = activityId)
+        val pollResponse = getActivity(pollBody)
+        val activity = pollResponse.activity
+
+        if (activity.status in TERMINAL_ACTIVITY_STATUSES) {
+            return activity
+        }
+
+        attempts++
+    }
+
+    // Return the last polled activity even if max retries exceeded
+    val finalPollBody = TGetActivityBody(activityId = activityId)
+    return getActivity(finalPollBody).activity
   }
 
   private suspend inline fun <reified TBodyType> activity(
@@ -363,7 +396,7 @@ public class TurnkeyClient(
 
     val resp = http.newCall(req).await()
 
-    return resp.use {
+    val initialActivity = resp.use {
         if (!it.isSuccessful) {
             val errBody = withContext(Dispatchers.IO) {
                 kotlin.runCatching { it.body.string() }.getOrNull()
@@ -373,6 +406,13 @@ public class TurnkeyClient(
         val text = withContext(Dispatchers.IO) { it.body.string() }
         json.decodeFromString<V1ActivityResponse>(text).activity
     }
+
+    // Check if polling is enabled and needed
+    if (activityPoller != null && initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
+        return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
+    }
+
+    return initialActivity
   }
 
   public suspend fun getActivity(input: TGetActivityBody): TGetActivityResponse {
@@ -3515,5 +3555,10 @@ public class TurnkeyClient(
       val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTGetWalletKitConfigResponse.serializer(), text)
     }
+  }
+
+  public companion object {
+    private val TERMINAL_ACTIVITY_STATUSES: Set<V1ActivityStatus> =
+        setOf(V1ActivityStatus.ACTIVITY_STATUS_COMPLETED, V1ActivityStatus.ACTIVITY_STATUS_FAILED, V1ActivityStatus.ACTIVITY_STATUS_REJECTED)
   }
 }
