@@ -1,0 +1,51 @@
+title: full release
+packages:
+  types: major
+changelog: |-
+  # v1.0.0 - Initial Stable Release 🎉
+
+  This is the official stable release of `@turnkey/types`.
+
+  ## Architecture Improvements
+
+  ### Code Generation Improvements
+  - **Simplified codegen task**: Streamlined `types-codegen` Gradle task
+  - **New generator entry point**: `TypesGeneratorKt` replaces `TypesCodegenKt`
+  - **Cleaner arguments**: Reduced command-line arguments for code generation
+    - Removed `--spec`, `--prefix` repetition
+    - Removed `--clientVersion` and `--warning-mode` flags
+    - Simplified to `--out`, `--pkg`, `--types-file-name`
+  - **Delegated to tools package**: Code generation logic now fully managed by tools package
+
+  ## API Changes
+
+  ### API Type Updates
+  - **Synced with latest API release**: All types updated to match v2026.1.1 Mono API spec
+
+  ### No Breaking Changes to Public API
+  - **Backward compatible**: Existing type structures maintained
+  - **Additive changes only**: New types and enum values added without removing existing ones
+  - **Stable serialization**: `@SerialName` mappings unchanged for existing fields
+
+  ## Implementation Details
+
+  ## Technical Details
+
+  ### Supported Platforms
+  - JVM 8+
+
+  ### Dependencies
+  - `kotlinx-serialization-core` - Serialization framework (API dependency)
+  - `kotlinx-serialization-json` - JSON support (implementation dependency)
+
+  ### Code Generation
+  To regenerate types from updated OpenAPI specs:
+  ```bash
+  ./gradlew :packages:types:types-codegen
+  ```
+
+  The generator reads OpenAPI specs and produces a single `Models.kt` file with all types.
+
+  ---
+
+  For the latest API documentation and endpoint details, visit [Turnkey API Docs](https://docs.turnkey.com/api-reference/overview).

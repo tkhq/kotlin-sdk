@@ -1,0 +1,65 @@
+title: Full Release
+packages:
+  crypto: major
+changelog: |-
+  # v1.0.0 - Initial Stable Release 🎉
+
+  This is the first stable release of `@turnkey/crypto`.
+
+  ## Architecture Improvements
+
+  ### Code Organization
+  - **Refactored package structure**: Moved from `com.turnkey.internal` to proper `com.turnkey.crypto.internal` namespace
+  - **Model separation**: Extracted data classes into dedicated `models/` package:
+    - `KeyFormat.kt` - Key format enumerations
+    - `KeyPairs.kt` - P-256 key pair data structures
+  - **Utility organization**: Consolidated utilities into `utils/` package:
+    - `TurnkeyConstants.kt` - Production constants and configuration
+    - `TurnkeyCryptoError.kt` - Comprehensive error handling
+
+  ### Enhanced Error Handling
+  - **Custom exception hierarchy**: Introduced `TurnkeyCryptoError` sealed class with specific error types:
+    - `InvalidCompressedKeyLength` - Key length validation errors
+    - `InvalidPrivateLength` / `InvalidPublicLength` - Key size mismatches
+    - `InvalidHexString` - Hex decoding failures
+    - `OrgIdMismatch` / `UserIdMismatch` - Bundle validation errors
+    - `SignatureVerificationFailed` - Enclave signature issues
+    - `SignerMismatch` - Enclave public key mismatches
+  - **Error wrapping**: Unified error handling with `TurnkeyCryptoError.wrap()` for better debugging
+
+  ### Removed Dependencies
+  - **Removed BitcoinJ**: Eliminated `bitcoinj-core` dependency by implementing Base58Check encoding directly in the encoding package
+  - **Reduced footprint**: Smaller bundle size and fewer transitive dependencies
+
+  ## API Changes
+
+  ### Function Signatures
+  All public cryptographic functions now use `TurnkeyCryptoError` instead of `CryptoError`:
+  - `decryptCredentialBundle()` - Now includes comprehensive KDoc documentation
+  - `decryptExportBundle()` - Enhanced with detailed parameter descriptions
+  - `encryptWalletToBundle()` - Improved error handling and validation
+
+  ### Internal Implementation
+  - **Inline implementations**: Functions previously delegating to internal implementations now contain full logic
+  - **HPKE helpers**: Centralized HPKE operations in `internal/HpkeHelpers.kt`
+  - **Signature verification**: Moved to `internal/SignatureVerifier.kt` with improved documentation
+
+  ## Breaking Changes
+
+  - **Exception types**: `CryptoError` renamed to `TurnkeyCryptoError`
+  - **Package names**: Internal utilities moved from `com.turnkey.internal` to `com.turnkey.crypto.internal`
+  - **Namespace changes**: `com.turnkey.utils` → `com.turnkey.crypto.utils`
+  - **Model imports**: Key types moved to `com.turnkey.crypto.models` package
+
+  ## Documentation
+
+  - Added comprehensive KDoc comments for all public APIs
+  - Included parameter descriptions with validation requirements
+  - Documented error conditions with `@throws` annotations
+  - Added usage notes and security warnings
+
+  ## Technical Details
+
+  ### Supported Platforms
+  - JVM 8+
+  - Android (all API levels with EC support)

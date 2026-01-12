@@ -1,0 +1,165 @@
+title: full release
+packages:
+  sdk-kotlin: major
+changelog: |-
+  # v1.0.0 - Initial Stable Release 🎉
+
+  This is the first stable release of `@turnkey/sdk-kotlin`.
+
+  ## Architecture Improvements
+
+  ### Major Restructuring
+  - **Removed storage primitives from public API**: `KeyPairStore` and `SecureStore` no longer exported
+    - These are now internal implementation details
+    - Simplifies the SDK interface and reduces coupling
+    - Use `TurnkeyContext` methods instead
+  - **File organization**: Renamed and reorganized for Kotlin conventions
+    - `oauth-events.kt` → `OAuthEvents.kt`
+    - `turnkey-context.kt` → `TurnkeyContext.kt`
+    - `auth.kt` → `Auth.kt`
+    - `base.kt` → `Base.kt`
+    - `constants.kt` → `Constants.kt`
+    - `methods.kt` → `Methods.kt`
+    - `utils.kt` → Split into `Helpers.kt`, `ClientSignature.kt`, `JwtDecoder.kt`
+
+  ### Internal Package Structure
+  - **Storage internals**: Moved to `internal/storage/` namespace
+    - `internal/storage/keys/` - KeyPairStore, PendingKeysStore
+    - `internal/storage/primitives/` - LocalStore, SecureStore
+    - `internal/storage/sessions/` - AutoRefreshStore, JwtSessionStore, SelectedSessionStore, SessionRegistryStore
+  - **Utility internals**: Organized in `internal/utils/`
+    - `ClientSignature.kt` - Signature generation utilities
+    - `Helpers.kt` - General helper functions
+    - `JwtDecoder.kt` - JWT parsing and validation
+  - **Model organization**: Structured in `core/models/`
+    - `Auth.kt` - Authentication models
+    - `Base.kt` - Base SDK models
+    - `Constants.kt` - SDK constants
+    - `Methods.kt` - Method-specific models
+    - `SessionModels.kt` - Session data structures
+    - `StoreModels.kt` - Storage models
+    - `errors/` - Error types
+
+  ### Enhanced Error Handling
+  - **Unified error types**: Introduced comprehensive error sealed classes
+    - `TurnkeyKotlinError` - Main SDK error hierarchy
+      - `InitializationError` - SDK initialization failures
+      - `ConfigurationError` - Configuration issues
+      - `AuthenticationError` - Auth flow failures
+      - `SessionError` - Session management errors
+      - `NetworkError` - HTTP/network failures
+      - `ValidationError` - Input validation errors
+      - `StorageError` - Secure storage errors
+      - `CryptoError` - Cryptographic operation errors
+      - `OperationFailed` - Generic wrapper
+    - `TurnkeyStorageError` - Storage-specific errors
+  - **Error context**: All errors include underlying cause for debugging
+  - **Better error messages**: Descriptive messages with actionable information
+
+  ### Code Quality Improvements
+  - **Massive refactoring**: 2,769 lines added, 2,073 lines removed (net +696 lines)
+  - **Better separation of concerns**: Internal vs public APIs clearly delineated
+  - **Improved maintainability**: Logical file and package organization
+  - **Type safety**: Enhanced type definitions and models
+
+  ## API Changes
+
+  ### New TurnkeyContext Configuration
+  - **organizationId parameter**: Now required at initialization
+    ```kotlin
+    TurnkeyContext.init(
+        app = this,
+        config = TurnkeyConfig(
+            apiBaseUrl = "https://api.turnkey.com",
+            authProxyBaseUrl = "https://authproxy.turnkey.com",
+            authProxyConfigId = "<config-id>",
+            organizationId = "<parent-org-id>",  // NEW - Required
+            appScheme = "<app-scheme>",
+            authConfig = AuthConfig(...)
+        )
+    )
+    ```
+
+  ### PasskeyStamper Enhancement
+  - **Allowed credentials support**: PasskeyStamper now supports initialization with allowed credentials
+    - Leverages the new `allowedCredentials` parameter added to passkey package
+    - Enables credential filtering during assertion
+
+  ### Breaking Changes
+  - **Storage primitives removed from public API**: `KeyPairStore` and `SecureStore` no longer exported
+    - Migration: Use `TurnkeyContext` methods instead of direct storage access
+    - Internal implementation remains unchanged
+  - **Error types**: Old error classes replaced with `TurnkeyKotlinError` hierarchy
+  - **File locations**: Import paths changed due to file reorganization
+    - `com.turnkey.models` → `com.turnkey.core.models`
+    - `com.turnkey.utils` → `com.turnkey.core.internal.utils`
+
+  ### New Models
+  - **StoreModels.kt**: New storage model definitions
+  - **SessionModels.kt**: Enhanced session data structures
+  - **Error models**: Comprehensive error type hierarchy
+
+  ## Technical Details
+
+  ### Supported Platforms
+  - Android API 26+
+  - Kotlin/JVM 8+
+
+  ### Dependencies
+  - `com.turnkey:http` - Typed HTTP client
+  - `com.turnkey:crypto` - Cryptographic operations
+  - `com.turnkey:encoding` - Encoding utilities
+  - `com.turnkey:passkey` - Passkey operations
+  - `com.turnkey:stamper` - Request signing
+  - `com.turnkey:types` - Generated API types
+  - `com.squareup.okhttp3:okhttp` - HTTP client
+  - `kotlinx-serialization-json` - JSON handling
+  - `androidx.credentials:credentials` - Credential Manager
+  - `kotlinx-coroutines` - Async operations
+
+  ## Migration Guide
+
+  ### From pre-1.0 versions
+
+  1. **Add organizationId to config**:
+     ```kotlin
+     TurnkeyConfig(
+         // ... existing config
+         organizationId = "<your-parent-org-id>"  // Add this
+     )
+     ```
+
+  2. **Update error handling**:
+     ```kotlin
+     // Old
+     catch (e: SomeOldError) { ... }
+
+     // New
+     catch (e: TurnkeyKotlinError) {
+         when (e) {
+             is TurnkeyKotlinError.AuthenticationError -> ...
+             is TurnkeyKotlinError.SessionError -> ...
+             else -> ...
+         }
+     }
+     ```
+
+  3. **Remove direct storage access**:
+     ```kotlin
+     // Old - Direct storage access (no longer available)
+     KeyPairStore.saveKeyPair(...)
+
+     // New - Use TurnkeyContext methods
+     TurnkeyContext.createKeyPair()
+     ```
+
+  4. **Update imports** (if accessing internal utilities):
+     ```kotlin
+     // Old
+     import com.turnkey.models.*
+     import com.turnkey.utils.*
+
+     // New
+     import com.turnkey.core.models.*
+     import com.turnkey.core.internal.utils.*  // If needed (internal APIs)
+     ```
