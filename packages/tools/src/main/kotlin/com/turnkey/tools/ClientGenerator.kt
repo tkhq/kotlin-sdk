@@ -102,12 +102,10 @@ fun generateClientFile(
     val activityResponseCls = ClassName("com.turnkey.types", "V1ActivityResponse")
     val activityCls = ClassName("com.turnkey.types", "V1Activity")
     val activityStatusCls = ClassName("com.turnkey.types", "V1ActivityStatus")
+    val activityPollerConfigCls = ClassName("com.turnkey.http.utils", "ActivityPollerConfig")
 
     val stringT = String::class.asTypeName()
     val nullableStringT = stringT.copy(nullable = true)
-
-    // Define ActivityPollerConfig data class
-    val activityPollerConfigCls = ClassName("com.turnkey.http.utils", "ActivityPollerConfig")
 
     val ctor = FunSpec.constructorBuilder()
         .addParameter(
@@ -171,8 +169,8 @@ fun generateClientFile(
                 .build()
         )
         .addProperty(
-            PropertySpec.builder("activityPoller", activityPollerConfigCls.copy(nullable = true), KModifier.PRIVATE)
-                .initializer("%N", "activityPoller")
+            PropertySpec.builder("activityPoller", activityPollerConfigCls, KModifier.PRIVATE)
+                .initializer("%N ?: %T()", "activityPoller", activityPollerConfigCls)
                 .build()
         )
         .addProperty(
@@ -294,7 +292,7 @@ fun generateClientFile(
 
                 val bodyObj = kotlinx.serialization.json.buildJsonObject {
                     put("parameters", params)
-                    finalOrgId?.let { put("organizationId", it) }
+                    finalOrgId.let { put("organizationId", it) }
                     put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts))
                     put("type", kotlinx.serialization.json.JsonPrimitive(activityType))
                 }
@@ -322,7 +320,7 @@ fun generateClientFile(
                 }
 
                 // Check if polling is enabled and needed
-                if (activityPoller != null && initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
+                if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
                     return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
                 }
 

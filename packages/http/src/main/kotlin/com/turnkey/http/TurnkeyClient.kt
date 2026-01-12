@@ -308,13 +308,15 @@ public class TurnkeyClient(
   authProxyUrl: String? = null,
   private val authProxyConfigId: String? = null,
   private val organizationId: String,
-  private val activityPoller: ActivityPollerConfig? = null,
+  activityPoller: ActivityPollerConfig? = null,
 ) {
   private val apiBaseUrl: String = apiBaseUrl ?: "https://api.turnkey.com"
 
   private val http: OkHttpClient = http ?: OkHttpClient()
 
   private val authProxyUrl: String = authProxyUrl ?: "https://authproxy.turnkey.com"
+
+  private val activityPoller: ActivityPollerConfig = activityPoller ?: ActivityPollerConfig()
 
   private val json: Json = Json { ignoreUnknownKeys = true }
 
@@ -380,7 +382,7 @@ public class TurnkeyClient(
 
     val bodyObj = kotlinx.serialization.json.buildJsonObject {
         put("parameters", params)
-        finalOrgId?.let { put("organizationId", it) }
+        finalOrgId.let { put("organizationId", it) }
         put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts))
         put("type", kotlinx.serialization.json.JsonPrimitive(activityType))
     }
@@ -408,7 +410,7 @@ public class TurnkeyClient(
     }
 
     // Check if polling is enabled and needed
-    if (activityPoller != null && initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
+    if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
         return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
     }
 
