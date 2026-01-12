@@ -12,7 +12,6 @@ import com.turnkey.crypto.decryptExportBundle
 import com.turnkey.http.TurnkeyClient
 import com.turnkey.core.internal.utils.Helpers
 import com.turnkey.core.internal.utils.JwtDecoder
-import com.turnkey.stamper.internal.storage.KeyPairStore
 import com.turnkey.core.internal.storage.keys.PendingKeysStore
 import com.turnkey.core.internal.storage.sessions.AutoRefreshStore
 import com.turnkey.core.internal.storage.sessions.JwtSessionStore
@@ -548,8 +547,8 @@ object TurnkeyContext {
             SessionRegistryStore.add(appContext, sessionKey)
 
             // Ensure key material is present
-            val priv = KeyPairStore.getPrivateHex(appContext, dto.publicKey)
-            if (priv.isEmpty()) throw TurnkeyStorageError.KeyNotFound()
+            val hasKeyPair = Stamper.hasOnDeviceKeyPair(publicKey = dto.publicKey)
+            if (!hasKeyPair) throw TurnkeyStorageError.KeyNotFound()
             PendingKeysStore.remove(appContext, dto.publicKey)
 
             if (refreshedSessionTTLSeconds != null) {
@@ -799,7 +798,7 @@ object TurnkeyContext {
     @Throws(TurnkeyKotlinError.FailedToDeleteUnusedKeyPairs::class)
     fun deleteUnusedKeyPairs() {
         try {
-            val storedKeys: List<String> = KeyPairStore.listKeys(appContext)
+            val storedKeys: List<String> = Stamper.listOnDeviceKeyPairs()
             if (storedKeys.isEmpty()) return
 
             // Build a set of all public keys currently used by sessions

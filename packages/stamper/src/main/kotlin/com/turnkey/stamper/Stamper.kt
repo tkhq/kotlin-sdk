@@ -88,7 +88,8 @@ class Stamper private constructor(
          * This is a static utility for creating key pairs without a Stamper instance.
          *
          * @return the public key in compressed hexadecimal format
-         * @throws IllegalStateException if Stamper.configure() was not called
+         * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+         * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
          */
         fun createOnDeviceKeyPair(context: Context? = null): String {
             val context = context ?: contextProvider?.invoke()
@@ -105,12 +106,41 @@ class Stamper private constructor(
          * This is a static utility for deleting key pairs without a Stamper instance.
          *
          * @param publicKey the public key identifying the key pair to delete
-         * @throws IllegalStateException if Stamper.configure() was not called
+         * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+         * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
          */
         fun deleteOnDeviceKeyPair(context: Context? = null, publicKey: String) {
             val context = context ?: contextProvider?.invoke()
                 ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
             KeyPairStore.delete(context, publicHex = publicKey)
+        }
+
+        /**
+         * Checks for a private key from secure store given an associated public key
+         *
+         * This is a static utility for checking wether a keypair exists in secure store
+         *
+         * @param publicKey the public key identifying the key pair to check
+         * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+         * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
+         */
+        fun hasOnDeviceKeyPair(context: Context? = null, publicKey: String): Boolean {
+            val context = context ?: contextProvider?.invoke()
+            ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
+
+            return !KeyPairStore.getPrivateHex(context, publicKey).isEmpty()
+        }
+
+        /**
+         * Lists all public keys in secure store
+         *
+         * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+         * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
+         */
+        fun listOnDeviceKeyPairs(context: Context? = null): List<String> {
+            val context = context ?: contextProvider?.invoke()
+            ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
+            return KeyPairStore.listKeys(context)
         }
     }
 
@@ -120,7 +150,8 @@ class Stamper private constructor(
      * If publicKey is null, deletes this Stamper's key pair (from apiPublicKey).
      *
      * @param publicKey optional public key; if null, uses this instance's apiPublicKey
-     * @throws IllegalStateException if publicKey is null and this Stamper has no apiPublicKey
+     * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+     * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
      */
     fun deleteOnDeviceKeyPair(context: Context? = null, publicKey: String? = null) {
         val context = context ?: contextProvider?.invoke()
@@ -175,7 +206,10 @@ class Stamper private constructor(
      * @param publicKey optional public key to use for signing; if provided, the associated
      *                  private key will be loaded from storage. If null, uses the default
      *                  key pair or passkey stamper.
+     * @param context optional app context, if not provided, the app context the stamper was configured with will be used
+     *
      * @return the signature string
+     * @throws IllegalStateException if the app context is was not passed and Stamper.configure() was not called
      * @throws IllegalArgumentException if the specified public key doesn't exist in storage
      * @throws IllegalStateException if the stamper is not properly initialized
      */

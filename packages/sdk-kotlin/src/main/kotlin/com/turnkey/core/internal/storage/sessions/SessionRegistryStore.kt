@@ -2,7 +2,6 @@ package com.turnkey.core.internal.storage.sessions
 
 import android.content.Context
 import android.util.Log
-import com.turnkey.stamper.internal.storage.KeyPairStore
 import com.turnkey.core.internal.storage.primitives.LocalStore
 import com.turnkey.core.models.Session
 import com.turnkey.core.models.errors.TurnkeyStorageError
@@ -10,6 +9,7 @@ import com.turnkey.core.models.Storage
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
+import com.turnkey.stamper.Stamper
 
 /**
  * Stores a list of all active session keys.
@@ -110,7 +110,7 @@ object SessionRegistryStore {
                     }
 
                     try {
-                        KeyPairStore.delete(context, sess.publicKey)
+                        Stamper.deleteOnDeviceKeyPair(context, sess.publicKey)
                     } catch (e: Throwable) {
                         Log.w("SessionRegistryStore", "Failed to delete keypair for pub=${sess.publicKey}: $e")
                     }
