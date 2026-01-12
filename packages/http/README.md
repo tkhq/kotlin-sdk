@@ -32,7 +32,7 @@ dependencies {
 ```kotlin
 val client = TurnkeyClient(
     apiBaseUrl = "https://api.turnkey.com", // defaults if null
-    stamper = Stamper(apiPublicKey = "...", apiPrivateKey = "..."),
+    stamper = Stamper.fromPublicKey("<public_key_hex>"), // use Stamper(apiPublicKey = "...", apiPrivateKey = "...") if the key pair you generated was generated using the Stamper
     organizationId = "<your-org-id>", // used as fallback for all requests
     authProxyUrl = "https://authproxy.turnkey.com",
     authProxyConfigId = null // populate if auth proxy usage is planned
