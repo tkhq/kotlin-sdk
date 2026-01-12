@@ -587,7 +587,7 @@ object TurnkeyContext {
             expiryJobs.remove(sessionKey)?.cancel()
 
             JwtSessionStore.load(context, sessionKey)?.let { dto ->
-                runCatching { Stamper.deleteOnDeviceKeyPair(dto.publicKey) }
+                runCatching { Stamper.deleteOnDeviceKeyPair(context, dto.publicKey) }
             }
 
             JwtSessionStore.delete(context, sessionKey)
@@ -779,7 +779,7 @@ object TurnkeyContext {
     @Throws(TurnkeyKotlinError.FailedToDeleteKeyPair::class)
     fun deleteKeyPair(publicKey: String) {
         try {
-            Stamper.deleteOnDeviceKeyPair(publicKey)
+            Stamper.deleteOnDeviceKeyPair(publicKey = publicKey)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToDeleteKeyPair(publicKey, t)
         }
@@ -1435,7 +1435,7 @@ object TurnkeyContext {
             )
 
             val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
-            val signature = stamper.sign(message, SignatureFormat.raw)
+            val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
 
             val clientSignature = V1ClientSignature(
                 message = message,

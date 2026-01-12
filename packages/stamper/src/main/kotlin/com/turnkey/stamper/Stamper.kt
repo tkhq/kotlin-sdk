@@ -49,13 +49,13 @@ class Stamper private constructor(
          * @return Stamper instance that signs using the passkey
          * @throws IllegalArgumentException if rpId is null and no default was configured
          */
-        fun fromPasskey(activity: Activity, rpId: String? = null): Stamper {
+        fun fromPasskey(activity: Activity, rpId: String? = null, allowedCredentials: List<ByteArray>? = null): Stamper {
             val resolvedRpId = rpId ?: defaultRpId
             ?: throw IllegalArgumentException(
                 "rpId is required. Either pass it explicitly or set a default with Stamper.configure(context, rpId)"
             )
 
-            val passkeyStamper = PasskeyStamper(activity, resolvedRpId)
+            val passkeyStamper = PasskeyStamper(activity, allowedCredentials, resolvedRpId)
 
             return Stamper(
                 apiPublicKey = null,
@@ -90,9 +90,9 @@ class Stamper private constructor(
          * @return the public key in compressed hexadecimal format
          * @throws IllegalStateException if Stamper.configure() was not called
          */
-        fun createOnDeviceKeyPair(): String {
-            val context = contextProvider?.invoke()
-                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+        fun createOnDeviceKeyPair(context: Context? = null): String {
+            val context = context ?: contextProvider?.invoke()
+                ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
             val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
             KeyPairStore.save(context, privKey, pubKeyCompressed)
 
@@ -107,9 +107,9 @@ class Stamper private constructor(
          * @param publicKey the public key identifying the key pair to delete
          * @throws IllegalStateException if Stamper.configure() was not called
          */
-        fun deleteOnDeviceKeyPair(publicKey: String) {
-            val context = contextProvider?.invoke()
-                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+        fun deleteOnDeviceKeyPair(context: Context? = null, publicKey: String) {
+            val context = context ?: contextProvider?.invoke()
+                ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
             KeyPairStore.delete(context, publicHex = publicKey)
         }
     }
@@ -122,9 +122,9 @@ class Stamper private constructor(
      * @param publicKey optional public key; if null, uses this instance's apiPublicKey
      * @throws IllegalStateException if publicKey is null and this Stamper has no apiPublicKey
      */
-    fun deleteOnDeviceKeyPair(publicKey: String? = null) {
-        val context = contextProvider?.invoke()
-            ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+    fun deleteOnDeviceKeyPair(context: Context? = null, publicKey: String? = null) {
+        val context = context ?: contextProvider?.invoke()
+            ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
         val pk = publicKey ?: apiPublicKey 
             ?: throw IllegalStateException("No key pairs found to delete")
         KeyPairStore.delete(context, publicHex = pk)
@@ -180,12 +180,13 @@ class Stamper private constructor(
      * @throws IllegalStateException if the stamper is not properly initialized
      */
     fun sign(
+        context: Context? = null,
         payload: String,
         format: SignatureFormat = SignatureFormat.der,
         publicKey: String? = null
     ): String {
         try {
-            val resolvedPrivateKey = resolvePrivateKey(publicKey)
+            val resolvedPrivateKey = resolvePrivateKey(context = context, publicKey = publicKey)
 
             val payloadBytes = payload.toByteArray(Charsets.UTF_8)
             val digest = MessageDigest.getInstance("SHA-256").digest(payloadBytes)
@@ -200,9 +201,9 @@ class Stamper private constructor(
         }
     }
 
-    private fun resolvePrivateKey(publicKey: String? = null): String {
-        val context = contextProvider?.invoke()
-            ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context) first")
+    private fun resolvePrivateKey(context: Context? = null, publicKey: String? = null): String {
+        val context = context ?: contextProvider?.invoke()
+            ?: throw IllegalStateException("No app context found. Pass in app context or call Stamper.configure(context)")
         return (if (publicKey !== null) KeyPairStore.getPrivateHex(
             context,
             publicKey
