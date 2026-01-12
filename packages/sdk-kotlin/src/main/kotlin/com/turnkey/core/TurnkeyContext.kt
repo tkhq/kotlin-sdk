@@ -587,7 +587,7 @@ object TurnkeyContext {
             expiryJobs.remove(sessionKey)?.cancel()
 
             JwtSessionStore.load(context, sessionKey)?.let { dto ->
-                runCatching { KeyPairStore.delete(context, dto.publicKey) }
+                runCatching { Stamper.deleteOnDeviceKeyPair(dto.publicKey) }
             }
 
             JwtSessionStore.delete(context, sessionKey)
@@ -758,7 +758,7 @@ object TurnkeyContext {
     @Throws(TurnkeyKotlinError.FailedToCreateKeyPair::class)
     fun createKeyPair(): String {
         try {
-            val pubKeyCompressed = KeyPairStore.createAndSaveKeyPair(appContext)
+            val pubKeyCompressed = Stamper.createOnDeviceKeyPair()
             PendingKeysStore.add(appContext, pubKeyCompressed)
             return pubKeyCompressed
         } catch (t: Throwable) {
@@ -779,7 +779,7 @@ object TurnkeyContext {
     @Throws(TurnkeyKotlinError.FailedToDeleteKeyPair::class)
     fun deleteKeyPair(publicKey: String) {
         try {
-            KeyPairStore.delete(appContext, publicKey)
+            Stamper.deleteOnDeviceKeyPair(publicKey)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToDeleteKeyPair(publicKey, t)
         }

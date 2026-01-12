@@ -6,13 +6,6 @@ import com.turnkey.crypto.generateP256KeyPair
 object KeyPairStore {
     private const val SECURE_ACCOUNT = "turnkey.secure.account"
 
-    fun createAndSaveKeyPair(context: Context): String {
-        val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
-        save(context, privKey, pubKeyCompressed)
-
-        return pubKeyCompressed
-    }
-
     fun save(context: Context, privateHex: String, publicHex: String) {
         SecureStore.set(
             context = context,

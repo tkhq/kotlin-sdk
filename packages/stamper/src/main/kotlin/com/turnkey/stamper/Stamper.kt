@@ -2,6 +2,7 @@ package com.turnkey.stamper
 
 import android.app.Activity
 import android.content.Context
+import com.turnkey.crypto.generateP256KeyPair
 import com.turnkey.stamper.internal.ApiKeyStamper
 import com.turnkey.stamper.internal.PasskeyStampBuilder
 import com.turnkey.passkey.PasskeyStamper
@@ -33,7 +34,7 @@ class Stamper private constructor(
          */
         fun fromPublicKey(publicKey: String): Stamper {
             val context = contextProvider?.invoke()
-                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.init(context)")
+                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
             val privateKey = KeyPairStore.getPrivateHex(context, publicKey)
             return Stamper(publicKey, privateKey)
         }
@@ -51,7 +52,7 @@ class Stamper private constructor(
         fun fromPasskey(activity: Activity, rpId: String? = null): Stamper {
             val resolvedRpId = rpId ?: defaultRpId
             ?: throw IllegalArgumentException(
-                "rpId is required. Either pass it explicitly or set a default with Stamper.init(context, rpId)"
+                "rpId is required. Either pass it explicitly or set a default with Stamper.configure(context, rpId)"
             )
 
             val passkeyStamper = PasskeyStamper(activity, resolvedRpId)
@@ -80,6 +81,53 @@ class Stamper private constructor(
         operator fun invoke(passkeyStamper: PasskeyStamper): Stamper {
             return Stamper(null, null, passkeyStamper)
         }
+
+        /**
+         * Creates a new P-256 key pair and stores it securely.
+         *
+         * This is a static utility for creating key pairs without a Stamper instance.
+         *
+         * @return the public key in compressed hexadecimal format
+         * @throws IllegalStateException if Stamper.configure() was not called
+         */
+        fun createOnDeviceKeyPair(): String {
+            val context = contextProvider?.invoke()
+                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+            val (_, pubKeyCompressed, privKey) = generateP256KeyPair()
+            KeyPairStore.save(context, privKey, pubKeyCompressed)
+
+            return pubKeyCompressed
+        }
+
+        /**
+         * Deletes a key pair from secure storage by public key.
+         *
+         * This is a static utility for deleting key pairs without a Stamper instance.
+         *
+         * @param publicKey the public key identifying the key pair to delete
+         * @throws IllegalStateException if Stamper.configure() was not called
+         */
+        fun deleteOnDeviceKeyPair(publicKey: String) {
+            val context = contextProvider?.invoke()
+                ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+            KeyPairStore.delete(context, publicHex = publicKey)
+        }
+    }
+
+    /**
+     * Deletes a key pair from secure storage.
+     *
+     * If publicKey is null, deletes this Stamper's key pair (from apiPublicKey).
+     *
+     * @param publicKey optional public key; if null, uses this instance's apiPublicKey
+     * @throws IllegalStateException if publicKey is null and this Stamper has no apiPublicKey
+     */
+    fun deleteOnDeviceKeyPair(publicKey: String? = null) {
+        val context = contextProvider?.invoke()
+            ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context)")
+        val pk = publicKey ?: apiPublicKey 
+            ?: throw IllegalStateException("No key pairs found to delete")
+        KeyPairStore.delete(context, publicHex = pk)
     }
 
     /**
@@ -154,7 +202,7 @@ class Stamper private constructor(
 
     private fun resolvePrivateKey(publicKey: String? = null): String {
         val context = contextProvider?.invoke()
-            ?: throw IllegalStateException("Stamper not initialized. Call Stamper.init(context) first")
+            ?: throw IllegalStateException("Stamper not initialized. Call Stamper.configure(context) first")
         return (if (publicKey !== null) KeyPairStore.getPrivateHex(
             context,
             publicKey
