@@ -3,7 +3,7 @@ package com.turnkey.core.internal.storage.keys
 import android.content.Context
 import android.util.Log
 import com.turnkey.core.internal.storage.primitives.LocalStore
-import com.turnkey.core.internal.storage.primitives.SecureStore
+import com.turnkey.stamper.internal.storage.SecureStore
 import com.turnkey.core.models.Storage
 import com.turnkey.core.models.errors.TurnkeyStorageError
 import java.util.concurrent.locks.ReentrantReadWriteLock

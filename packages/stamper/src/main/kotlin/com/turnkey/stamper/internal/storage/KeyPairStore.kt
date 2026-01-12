@@ -1,7 +1,7 @@
-package com.turnkey.core.internal.storage.keys
+package com.turnkey.stamper.internal.storage
 
 import android.content.Context
-import com.turnkey.core.internal.storage.primitives.SecureStore
+import com.turnkey.crypto.generateP256KeyPair
 
 object KeyPairStore {
     private const val SECURE_ACCOUNT = "turnkey.secure.account"

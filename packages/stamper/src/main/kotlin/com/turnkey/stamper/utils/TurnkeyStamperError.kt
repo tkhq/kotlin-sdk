@@ -69,6 +69,15 @@ sealed class TurnkeyStamperError(
     data class OperationFailed(override val cause: Throwable) :
         TurnkeyStamperError("Operation failed", cause)
 
+    data class KeychainAddFailed(val status: Int, override val cause: Throwable? = null) :
+        TurnkeyStamperError("Add failed: $status", cause)
+
+    data class KeychainDeleteFailed(val status: Int, override val cause: Throwable? = null) : TurnkeyStamperError("Delete failed: $status", cause)
+    data class KeychainFetchFailed(val status: Int, override val cause: Throwable? = null) : TurnkeyStamperError("Fetch failed: $status", cause)
+    data class InvalidCiphertext(override val cause: Throwable? = null) : TurnkeyStamperError("Invalid ciphertext", cause)
+
+    data class KeychainListKeysFailed(val status: Int, override val cause: Throwable? = null) : TurnkeyStamperError("List failed: $status", cause)
+
     companion object {
         /**
          * wrapper that preserves TurnkeyStamperError types but wraps other exceptions
