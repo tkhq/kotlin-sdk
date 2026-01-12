@@ -1,7 +1,5 @@
 package com.turnkey.passkey.internal
 
-import android.app.Activity
-import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
@@ -68,8 +66,7 @@ private data class PublicKeyCredentialAuthJson(
  */
 internal class PasskeyRequestBuilder(
     private val rpId: String,
-    private val activity: Activity,
-    private val credentialManager: CredentialManager = CredentialManager.create(activity),
+    private val allowed: List<ByteArray>? = null,
     private val json: Json = Json { ignoreUnknownKeys = true }
 ) {
     /**
@@ -112,7 +109,7 @@ internal class PasskeyRequestBuilder(
         val publicKeyJson = buildGetPublicKeyOptionsJson(
             rpId = rpId,
             challenge = challenge,
-            allowCredentialIds = allowedCredentials.orEmpty()
+            allowCredentialIds = allowedCredentials ?: allowed.orEmpty()
         )
         val option = GetPublicKeyCredentialOption(publicKeyJson)
         return GetCredentialRequest(listOf(option))
