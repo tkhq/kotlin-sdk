@@ -4,15 +4,7 @@ packages:
 changelog: |-
   # v1.0.0 - Initial Stable Release 🎉
 
-  This is the first stable release of `@turnkey/encoding`.
-
   ## Architecture Improvements
-
-  ### Code Organization
-  - **Internal utilities**: Extracted helper functions into `internal/Helpers.kt`:
-    - `SECURE_RANDOM` - Thread-safe SecureRandom instance
-    - `hexNibbleOrThrow()` - Hex character validation
-  - **Proper encapsulation**: Internal utilities are now properly scoped with `internal` visibility
 
   ### Enhanced Error Handling
   - **Renamed exception hierarchy**: `TurnkeyDecodingException` → `TurnkeyEncodingError`
@@ -37,46 +29,6 @@ changelog: |-
   - **Exception renaming**: `TurnkeyDecodingException` → `TurnkeyEncodingError`
   - **Enhanced error details**: `OddLengthString` now includes the actual length found
   - **Error types**: All decoding functions now throw `TurnkeyEncodingError` instead of generic exceptions
-
-  ### New Functions
-  - `base58CheckEncode(payload: ByteArray): String` - Encode bytes to Base58Check format
-  - `base58CheckDecode(s: String): ByteArray` - Decode Base58Check with checksum verification
-  - `sha256(bytes: ByteArray): ByteArray` - Compute SHA-256 hash
-  - `decodeUtf8Strict(bytes: ByteArray): String` - Strict UTF-8 decoding with error reporting
-
-  ### Improved Functions
-  - `decodeHex()` - Now wraps all exceptions in `TurnkeyEncodingError`
-  - `decodeBase64Url()` - Better error handling with `InvalidBase64Url` error type
-  - `hexToBytesOrNull()` - Updated to catch `TurnkeyEncodingError` instead of `IllegalArgumentException`
-  - `base64UrlToBytesOrNull()` - Updated to catch `TurnkeyEncodingError` instead of `IllegalArgumentException`
-
-  ## Implementation Details
-
-  ### Error Handling Pattern
-  All public encoding/decoding functions now follow a consistent pattern:
-  ```kotlin
-  fun decodeX(input: String): ByteArray = try {
-      // implementation
-  } catch (e: Exception) {
-      throw TurnkeyEncodingError.wrap(e)
-  }
-  ```
-
-  ## Documentation
-
-  - Added comprehensive KDoc comments for all new functions
-  - Documented error conditions with `@throws` annotations
-  - Improved error messages with contextual information
-
-  ## Technical Details
-
-  ### Supported Platforms
-  - JVM 8+
-  - Android API 26+ (for Base64 support, use desugaring for older versions)
-
-  ### Dependencies
-  - `kotlin-stdlib-jdk8` - Kotlin standard library
-  - `bitcoinj-core` - Base58Check encoding/decoding
 
   ---
 

@@ -4,37 +4,16 @@ packages:
 changelog: |-
   # v1.0.0 - Initial Stable Release 🎉
 
-  This is the first stable release of `@turnkey/passkey`.
-
   ## Architecture Improvements
-
-  ### Code Organization
-  - **Proper internal encapsulation**: Moved implementation classes to `internal/` package:
-    - `PasskeyOperationRunner.kt` - Core credential manager operations
-    - `PasskeyRequestBuilder.kt` - WebAuthn request/response handling
-    - `Models.kt` - Internal data structures
-  - **File naming**: Renamed files to follow Kotlin conventions (PascalCase)
-    - `passkey.kt` → `Passkey.kt`
-    - `models.kt` → `Models.kt`
-  - **Namespace cleanup**: Internal utilities properly scoped with `internal` visibility
 
   ### Enhanced Error Handling
   - **Unified error types**: Introduced `TurnkeyPasskeyError` sealed class
-    - `RegistrationFailed` - Passkey creation errors with underlying cause
-    - `AssertionFailed` - Authentication errors with underlying cause
     - `DecodeFailed` - JSON/Base64 decoding failures
     - `HandleRegistrationResultFailed` - Registration response parsing errors
     - `HandleAssertionResultFailed` - Assertion response parsing errors
     - `OperationFailed` - Generic wrapper for unexpected errors
   - **Error wrapping**: All public APIs now wrap exceptions in `TurnkeyPasskeyError`
   - **Better error context**: Each error type includes the underlying throwable for debugging
-
-  ### WebAuthn Response Handling
-  - **Improved parsing**: Better handling of WebAuthn JSON responses
-  - **Authenticator transport detection**: Automatic mapping of transport types:
-    - Hybrid, Internal, USB, NFC, BLE
-    - Defaults to Hybrid when transports unavailable
-  - **Fallback logic**: Graceful handling of optional fields (userHandle, transport types)
 
   ## API Changes
 
@@ -61,55 +40,12 @@ changelog: |-
   - **PasskeyStamper.assert()**: Merges instance-level and call-level allowed credentials
   - **Internal constructors**: Simplified `PasskeyRequestBuilder` no longer requires `Activity` reference
 
-  ### Model Location Changes
-  - **AssertionResult**: Moved from `com.turnkey.passkey` to `com.turnkey.passkey.internal`
-  - **Public API unchanged**: `PasskeyRegistrationResult` remains public
-
-  ## Implementation Details
-
-  ### Code Quality Improvements
-  - **Consistent naming**: Fixed snake_case to camelCase in internal models
-    - `clientDataJSON_b64url` → `clientDataJSONB64url`
-    - `attestationObject_b64url` → `attestationObjectB64url`
-    - `authenticatorData_b64url` → `authenticatorDataB64url`
-    - `signature_b64url` → `signatureB64url`
-    - `userHandle_b64url` → `userHandleB64url`
-  - **Removed redundant parameters**: Streamlined internal APIs
-  - **Better encapsulation**: Internal utilities no longer exposed in public API
-
-  ### Error Handling Pattern
-  All public passkey operations now follow consistent error handling:
-  ```kotlin
-  suspend fun operation(): Result = try {
-      // implementation
-  } catch (t: Throwable) {
-      throw TurnkeyPasskeyError.wrap(t)
-  }
-  ```
-
   ## Breaking Changes
 
   - **Error types**: Generic exceptions replaced with `TurnkeyPasskeyError` sealed class
-  - **Import paths**: `AssertionResult` moved to `internal` package
-    - Migration: Only affects internal usage; public API unchanged
   - **Constructor changes**: `PasskeyRequestBuilder` no longer requires `Activity` parameter
-
-  ## Technical Details
-
-  ### Supported Platforms
-  - Android API 26+ (recommended)
-  - Credential Manager via Play Services auth for broader compatibility
-
-  ### Dependencies
-  - `androidx.credentials:credentials` - Android Credential Manager API
-  - `com.turnkey:encoding` - Base64url decoding utilities
-  - `com.turnkey:types` - Turnkey API types (`V1Attestation`, `V1AuthenticatorTransport`)
-  - `kotlinx-coroutines` - Async operation support
-  - `kotlinx-serialization` - JSON parsing
 
   ---
 
   For migration guidance from pre-1.0 versions:
-  - Update exception handling from generic exceptions to `TurnkeyPasskeyError`
-  - If using `AssertionResult` directly, update imports to `com.turnkey.passkey.internal`
   - Consider using the new `allowedCredentials` parameter in `PasskeyStamper` constructor

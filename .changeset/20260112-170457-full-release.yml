@@ -4,46 +4,12 @@ packages:
 changelog: |-
   # v1.0.0 - Initial Stable Release 🎉
 
-  This is the first stable release of `@turnkey/stamper`.
-
   ## Architecture Improvements
-
-  ### Code Organization
-  - **Proper internal encapsulation**: Moved implementation to `internal/` package:
-    - `ApiKeyStamper.kt` - P-256 ECDSA signing logic
-    - `PasskeyStampBuilder.kt` - WebAuthn assertion handling
-  - **File naming**: Renamed files to follow Kotlin conventions (PascalCase)
-    - `stamper.kt` → `Stamper.kt`
-    - `api-key-stamper.kt` → `ApiKeyStamper.kt`
-    - `passkey-stamp-builder.kt` → `PasskeyStampBuilder.kt`
-    - `models.kt` → `Models.kt`
-    - `api-key-stamper-test.kt` → `ApiKeyStamperTest.kt`
-  - **Namespace cleanup**: Internal utilities properly scoped with `internal` visibility
-  - **Models organization**: Moved models to `utils/Models.kt` for better structure
 
   ### Enhanced Error Handling
   - **Unified error hierarchy**: Consolidated multiple error types into `TurnkeyStamperError` sealed class
-    - `FailedToStamp` - Stamping operation failures
-    - `FailedToSign` - Signature generation failures
-    - `InvalidChallenge` - Challenge size validation errors
-    - `AssertionFailed` - Passkey assertion failures
-    - `FailedToEncodeStamp` - JSON encoding errors
-    - `InvalidJsonString` - UTF-8 conversion errors
-    - `InvalidPrivateKey` - Private key format errors
-    - `InvalidPrivateKeyBytes` - Private key size errors
-    - `InvalidPublicKey` - Public key format errors
-    - `MismatchedPublicKey` - Public/private key mismatch
-    - `InvalidHexCharacter` - Hex decoding errors
-    - `FailedToSerializePayloadToJson` - JSON serialization failures
-    - `InvalidDigestLength` - Digest size validation errors
-    - `OperationFailed` - Generic wrapper for unexpected errors
   - **Error wrapping**: All public APIs wrap exceptions in `TurnkeyStamperError`
   - **Better error context**: Enhanced error messages with found/expected values
-
-  ### Improved Implementation
-  - **P-256 domain reuse**: Now uses `P256` object from crypto package for consistency
-  - **Better error propagation**: Try-catch blocks throughout with proper error wrapping
-  - **Cleaner code**: Removed redundant `internal` references, streamlined logic
 
   ## API Changes
 
@@ -54,12 +20,11 @@ changelog: |-
     - `StampError` → `TurnkeyStamperError`
   - **Import paths**: `SignatureFormat` moved from `com.turnkey.stamper` to `com.turnkey.stamper.utils`
   - **Error handling**: All functions now throw `TurnkeyStamperError` instead of specific error types
-  - **Enhanced validation**: More detailed error messages with actual vs expected values
 
   ### New Functionality
   - **`sign()` method**: New public method for signing arbitrary payloads
     ```kotlin
-    val stamper = Stamper(apiPublicKey = pubKey, apiPrivateKey = privKey)
+    val stamper = Stamper.fromPublicKey(pubKey)
 
     // Sign with DER format (default)
     val derSignature = stamper.sign(payload)
@@ -74,26 +39,12 @@ changelog: |-
   - **InvalidChallenge**: Shows found vs expected size
   - **MismatchedPublicKey**: Shows both expected and found keys
 
-  ## Technical Details
-
-  ### Supported Platforms
-  - Android minSdk 28+
-  - JVM 8+
-
-  ### Dependencies
-  - `com.turnkey:crypto` - P-256 cryptographic operations
-  - `com.turnkey:encoding` - Hex/Base64url encoding utilities
-  - `com.turnkey:passkey` - WebAuthn passkey operations (optional)
-  - `org.bouncycastle:bcprov-jdk15to18` - ECDSA signing
-  - `kotlinx-serialization` - JSON encoding
-  - `kotlinx-coroutines` - Async operations
-
   ### Integration
   Works seamlessly with `turnkey-http` client:
   ```kotlin
   val client = TurnkeyClient(
       apiBaseUrl = "https://api.turnkey.com",
-      stamper = Stamper(apiPublicKey = pubKey, apiPrivateKey = privKey)
+      stamper = Stamper.fromPublicKey(pubKey)
   )
   ```
 

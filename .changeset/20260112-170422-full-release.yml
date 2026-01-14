@@ -4,24 +4,12 @@ packages:
 changelog: |-
   # v1.0.0 - Initial Stable Release 🎉
 
-  This is the official stable release of `@turnkey/http`.
-
   ## Architecture Improvements
 
   ### Enhanced Error Handling
-  - **Renamed error class**: `TurnkeyHttpErrors` → `TurnkeyHttpError` (singular)
   - **Enhanced error types**: New errors with cause tracking
-    - `MissingAuthProxyConfigId` - Now includes optional cause
-    - `StamperNotInitialized` - Now includes optional cause
-    - `EmptyResponseBody` - Now includes optional cause
     - `OperationFailed` - New generic wrapper with custom message and cause
-  - **Error wrapping**: New `wrap()` companion function for consistent error handling
   - **Better debugging**: All errors include underlying cause for stack traces
-
-  ### Build Configuration
-  - **Dependency visibility**: Changed internal dependencies to `api` scope
-    - `stamper`, `encoding`, `types` now exposed as transitive dependencies
-    - Simplifies consumer dependency management
 
   ## API Changes
 
@@ -37,41 +25,10 @@ changelog: |-
     )
     ```
 
-  ### Activity Polling
-  - **Automatic polling enabled**: All async activities now automatically poll for completion
-  - **Configuration options**: Pass `ActivityPollerConfig` to customize polling behavior
-  - **Improved async workflows**: Better handling of long-running operations
-
   ### Breaking Changes
   - **Error class rename**: `TurnkeyHttpErrors` → `TurnkeyHttpError`
-    - Migration: Update catch blocks to use singular name
-  - **Error constructors**: Errors now include optional `cause` parameter
   - **organizationId required**: Must be provided in TurnkeyClient constructor
   - **Dependency scope**: `stamper`, `encoding`, `types` are now `api` dependencies (transitive)
-
-  ## Implementation Details
-
-  ### Activity Polling System
-  The client now includes automatic activity polling for async operations:
-  1. **Submit activity**: Request initiates async operation
-  2. **Poll for status**: Automatically polls activity endpoint at configured interval
-  3. **Check completion**: Monitors activity status (PENDING → COMPLETED/FAILED)
-  4. **Return result**: Returns final result once activity completes
-  5. **Retry logic**: Configurable retry attempts for transient failures
-
-  ## Technical Details
-
-  ### Supported Platforms
-  - JVM 8+
-  - Android (all API levels)
-
-  ### Dependencies
-  - `com.turnkey:stamper` - Request signing (API dependency)
-  - `com.turnkey:encoding` - Encoding utilities (API dependency)
-  - `com.turnkey:types` - Generated API types (API dependency)
-  - `com.squareup.okhttp3:okhttp` - HTTP client
-  - `kotlinx-serialization-json` - JSON serialization
-  - `kotlinx-coroutines-core` - Coroutine support
 
   ## Migration Guide
 
@@ -92,25 +49,5 @@ changelog: |-
          organizationId = "<your-org-id>"  // Add this
      )
      ```
-
-  2. **Update error handling**:
-     ```kotlin
-     // Old
-     catch (e: TurnkeyHttpErrors) { ... }
-
-     // New
-     catch (e: TurnkeyHttpError) {
-         when (e) {
-             is TurnkeyHttpError.MissingAuthProxyConfigId -> ...
-             is TurnkeyHttpError.EmptyResponseBody -> ...
-             is TurnkeyHttpError.OperationFailed -> ...
-             else -> ...
-         }
-     }
-     ```
-
-  3. **Activity polling is now automatic**:
-     - No changes needed - async activities automatically poll
-     - Optionally configure polling with `ActivityPollerConfig`
 
   For the latest API documentation and endpoint details, visit [Turnkey API Docs](https://docs.turnkey.com/api-reference/overview).
