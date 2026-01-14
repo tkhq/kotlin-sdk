@@ -118,9 +118,10 @@ All flows eventually produce a **session JWT**, persisted via `createSession(...
 
 Each helper opens a Custom Tab to the provider, waits for your deep‑link, then logs in or signs up.
 
+> [!NOTE]
 > Prereqs: Configure appScheme in TurnkeyConfig, set up your redirect URI and provider client IDs in the Wallet Kit tab on the [dashboard ](https://app.turnkey.com/dashboard/walletKit) (or supply them directly).
 
-> **_IMPORTANT:_**
+> [!IMPORTANT]
 > You must add the OAuth redirect activity to your `AndroidManifest.xml`!
 
 ```xml
@@ -135,6 +136,7 @@ Each helper opens a Custom Tab to the provider, waits for your deep‑link, then
     </intent-filter>
 </activity>
 ```
+> [!NOTE]
 > This activity is required to catch all OAuth redirect requests to complete the OAuth process
 
 ```kotlin

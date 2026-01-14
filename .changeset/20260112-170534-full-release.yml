@@ -1,0 +1,65 @@
+title: full release
+packages:
+  sdk-kotlin: major
+changelog: |-
+  # v1.0.0 - Initial Stable Release 🎉
+
+  ## Architecture Improvements
+
+  ### Major Restructuring
+  - **Removed storage primitives from public API**: `KeyPairStore` and `SecureStore` no longer exported
+    - These are now internal implementation details
+    - Use `TurnkeyContext` methods instead
+
+  ### Enhanced Error Handling
+  - **Unified error types**: Introduced comprehensive error sealed classes
+    - `TurnkeyKotlinError` - Main SDK error hierarchy
+    - `TurnkeyStorageError` - Storage-specific errors
+  - **Error context**: All errors include underlying cause for debugging
+  - **Better error messages**: Descriptive messages with actionable information
+
+  ## API Changes
+
+  ### New TurnkeyContext Configuration
+  - **organizationId parameter**: Now required at initialization
+    ```kotlin
+    TurnkeyContext.init(
+        app = this,
+        config = TurnkeyConfig(
+            apiBaseUrl = "https://api.turnkey.com",
+            authProxyBaseUrl = "https://authproxy.turnkey.com",
+            authProxyConfigId = "<config-id>",
+            organizationId = "<parent-org-id>",  // NEW - Required
+            appScheme = "<app-scheme>",
+            authConfig = AuthConfig(...)
+        )
+    )
+    ```
+
+  ### Breaking Changes
+  - **Storage primitives removed from public API**: `KeyPairStore` and `SecureStore` no longer exported
+    - Migration: Use `TurnkeyContext` methods instead of direct storage access
+  - **Error types**: Old error classes replaced with `TurnkeyKotlinError` hierarchy
+  - **File locations**: Import paths changed due to file reorganization
+    - `com.turnkey.models` → `com.turnkey.core.models`
+
+  ## Migration Guide
+
+  ### From pre-1.0 versions
+
+  1. **Add organizationId to config**:
+     ```kotlin
+     TurnkeyConfig(
+         // ... existing config
+         organizationId = "<your-parent-org-id>"  // Add this
+     )
+     ```
+
+  3. **Remove direct storage access**:
+     ```kotlin
+     // Old - Direct storage access (no longer available)
+     KeyPairStore.saveKeyPair(...)
+
+     // New - Use TurnkeyContext methods
+     TurnkeyContext.createKeyPair()
+     ```
