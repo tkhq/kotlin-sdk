@@ -249,8 +249,6 @@ This SDK is designed in layers, allowing you to choose the right level of abstra
 
 **Trade-off**: You'll build everything from scratch. Only use this if you have specific requirements that the higher-level packages can't meet.
 
----
-
 >[!NOTE]
 >**Recommendation**: Start with `sdk-kotlin` for the fastest path to production. If you hit architectural constraints, drop down to `http`. Only use `crypto` + `stamper` if you have specialized needs. You can also mix and match packages to fit your specific requirements!
 
