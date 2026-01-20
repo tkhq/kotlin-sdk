@@ -2,25 +2,25 @@ title: full release
 packages:
   sdk-kotlin: major
 changelog: |-
-  # v1.0.0 - Initial Stable Release 🎉
+  v1.0.0 - Initial Stable Release 🎉
 
-  ## Architecture Improvements
+  ### Architecture Improvements
 
-  ### Major Restructuring
+  #### Major Restructuring
   - **Removed storage primitives from public API**: `KeyPairStore` and `SecureStore` no longer exported
     - These are now internal implementation details
     - Use `TurnkeyContext` methods instead
 
-  ### Enhanced Error Handling
+  #### Enhanced Error Handling
   - **Unified error types**: Introduced comprehensive error sealed classes
     - `TurnkeyKotlinError` - Main SDK error hierarchy
     - `TurnkeyStorageError` - Storage-specific errors
   - **Error context**: All errors include underlying cause for debugging
   - **Better error messages**: Descriptive messages with actionable information
 
-  ## API Changes
+  ### API Changes
 
-  ### New TurnkeyContext Configuration
+  #### New TurnkeyContext Configuration
   - **organizationId parameter**: Now required at initialization
     ```kotlin
     TurnkeyContext.init(
@@ -36,30 +36,9 @@ changelog: |-
     )
     ```
 
-  ### Breaking Changes
+  #### Breaking Changes
   - **Storage primitives removed from public API**: `KeyPairStore` and `SecureStore` no longer exported
     - Migration: Use `TurnkeyContext` methods instead of direct storage access
   - **Error types**: Old error classes replaced with `TurnkeyKotlinError` hierarchy
   - **File locations**: Import paths changed due to file reorganization
     - `com.turnkey.models` → `com.turnkey.core.models`
-
-  ## Migration Guide
-
-  ### From pre-1.0 versions
-
-  1. **Add organizationId to config**:
-     ```kotlin
-     TurnkeyConfig(
-         // ... existing config
-         organizationId = "<your-parent-org-id>"  // Add this
-     )
-     ```
-
-  3. **Remove direct storage access**:
-     ```kotlin
-     // Old - Direct storage access (no longer available)
-     KeyPairStore.saveKeyPair(...)
-
-     // New - Use TurnkeyContext methods
-     TurnkeyContext.createKeyPair()
-     ```

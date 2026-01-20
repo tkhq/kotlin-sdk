@@ -2,11 +2,11 @@ title: Full Release
 packages:
   encoding: major
 changelog: |-
-  # v1.0.0 - Initial Stable Release 🎉
+  v1.0.0 - Initial Stable Release 🎉
 
-  ## Architecture Improvements
+  ### Architecture Improvements
 
-  ### Enhanced Error Handling
+  #### Enhanced Error Handling
   - **Renamed exception hierarchy**: `TurnkeyDecodingException` → `TurnkeyEncodingError`
   - **Comprehensive error types**: New sealed class with specific error cases:
     - `OddLengthString` - Hex string length validation (now includes length in error)
@@ -18,18 +18,14 @@ changelog: |-
   - **Error wrapping**: Unified error handling with `TurnkeyEncodingError.wrap()` for better exception chaining
   - **Consistent error handling**: All functions now use try-catch with proper error wrapping
 
-  ### New Dependencies
+  #### New Dependencies
   - **Added BitcoinJ**: Added `bitcoinj-core` dependency for Base58Check encoding operations
     - Used specifically for Base58Check encoding/decoding with checksum verification
     - Enables Solana key format support in the crypto package
 
-  ## API Changes
+  ### API Changes
 
-  ### Breaking Changes
+  #### Breaking Changes
   - **Exception renaming**: `TurnkeyDecodingException` → `TurnkeyEncodingError`
   - **Enhanced error details**: `OddLengthString` now includes the actual length found
   - **Error types**: All decoding functions now throw `TurnkeyEncodingError` instead of generic exceptions
-
-  ---
-
-  For migration guidance from pre-1.0 versions, update exception handling from `TurnkeyDecodingException` to `TurnkeyEncodingError`.

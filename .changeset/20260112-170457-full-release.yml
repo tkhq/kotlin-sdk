@@ -2,18 +2,18 @@ title: Full Release
 packages:
   stamper: major
 changelog: |-
-  # v1.0.0 - Initial Stable Release 🎉
+  v1.0.0 - Initial Stable Release 🎉
 
-  ## Architecture Improvements
+  ### Architecture Improvements
 
-  ### Enhanced Error Handling
+  #### Enhanced Error Handling
   - **Unified error hierarchy**: Consolidated multiple error types into `TurnkeyStamperError` sealed class
   - **Error wrapping**: All public APIs wrap exceptions in `TurnkeyStamperError`
   - **Better error context**: Enhanced error messages with found/expected values
 
-  ## API Changes
+  ### API Changes
 
-  ### Breaking Changes
+  #### Breaking Changes
   - **Error types consolidated**:
     - `ApiKeyStampError` → `TurnkeyStamperError`
     - `PasskeyStampError` → `TurnkeyStamperError`
@@ -21,7 +21,7 @@ changelog: |-
   - **Import paths**: `SignatureFormat` moved from `com.turnkey.stamper` to `com.turnkey.stamper.utils`
   - **Error handling**: All functions now throw `TurnkeyStamperError` instead of specific error types
 
-  ### New Functionality
+  #### New Functionality
   - **`sign()` method**: New public method for signing arbitrary payloads
     ```kotlin
     val stamper = Stamper.fromPublicKey(pubKey)
@@ -33,13 +33,13 @@ changelog: |-
     val rawSignature = stamper.sign(payload, SignatureFormat.raw)
     ```
 
-  ### Improved Error Messages
+  #### Improved Error Messages
   - **InvalidDigestLength**: Now includes found size
   - **InvalidPrivateKeyBytes**: Shows found vs expected size
   - **InvalidChallenge**: Shows found vs expected size
   - **MismatchedPublicKey**: Shows both expected and found keys
 
-  ### Integration
+  #### Integration
   Works seamlessly with `turnkey-http` client:
   ```kotlin
   val client = TurnkeyClient(
@@ -47,10 +47,3 @@ changelog: |-
       stamper = Stamper.fromPublicKey(pubKey)
   )
   ```
-
-  ---
-
-  For migration guidance from pre-1.0 versions:
-  - Update exception handling from `ApiKeyStampError`/`PasskeyStampError`/`StampError` to `TurnkeyStamperError`
-  - Update `SignatureFormat` imports to `com.turnkey.stamper.utils`
-  - Review error handling code for new error message formats

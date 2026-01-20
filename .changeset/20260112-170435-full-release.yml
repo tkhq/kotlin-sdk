@@ -2,11 +2,11 @@ title: full release
 packages:
   passkey: major
 changelog: |-
-  # v1.0.0 - Initial Stable Release 🎉
+  v1.0.0 - Initial Stable Release 🎉
 
-  ## Architecture Improvements
+  ### Architecture Improvements
 
-  ### Enhanced Error Handling
+  #### Enhanced Error Handling
   - **Unified error types**: Introduced `TurnkeyPasskeyError` sealed class
     - `DecodeFailed` - JSON/Base64 decoding failures
     - `HandleRegistrationResultFailed` - Registration response parsing errors
@@ -15,9 +15,9 @@ changelog: |-
   - **Error wrapping**: All public APIs now wrap exceptions in `TurnkeyPasskeyError`
   - **Better error context**: Each error type includes the underlying throwable for debugging
 
-  ## API Changes
+  ### API Changes
 
-  ### PasskeyStamper Enhancement
+  #### PasskeyStamper Enhancement
   - **New constructor parameter**: `allowedCredentials` can now be set at initialization
     ```kotlin
     // Old: specify allowed credentials on each assertion
@@ -35,17 +35,12 @@ changelog: |-
     stamper.assert(challenge, allowedCredentials = differentList)
     ```
 
-  ### Improved Function Signatures
+  #### Improved Function Signatures
   - **createPasskey()**: Now wraps all exceptions in `TurnkeyPasskeyError`
   - **PasskeyStamper.assert()**: Merges instance-level and call-level allowed credentials
   - **Internal constructors**: Simplified `PasskeyRequestBuilder` no longer requires `Activity` reference
 
-  ## Breaking Changes
+  ### Breaking Changes
 
   - **Error types**: Generic exceptions replaced with `TurnkeyPasskeyError` sealed class
   - **Constructor changes**: `PasskeyRequestBuilder` no longer requires `Activity` parameter
-
-  ---
-
-  For migration guidance from pre-1.0 versions:
-  - Consider using the new `allowedCredentials` parameter in `PasskeyStamper` constructor
