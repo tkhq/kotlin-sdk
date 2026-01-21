@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0 — 2026-01-21
+### Major Changes
+- v1.0.0 - Initial Stable Release 🎉
+
+### API Changes
+
+#### API Type Updates
+- **Synced with latest API release**: All types updated to match v2026.1.1 Mono API spec
+
 ## 0.1.2 — 2025-12-11
 ### Patch Changes
 - Synced `com.turnkey.types` and `com.turnkey.http` with v2025.12.2 of `mono`
