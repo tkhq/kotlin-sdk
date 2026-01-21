@@ -21,7 +21,7 @@ android {
 }
 
 group = "com.turnkey"
-version = "0.3.0"
+version = "1.0.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "sdk-kotlin", version.toString())
