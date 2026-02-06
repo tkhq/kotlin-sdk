@@ -284,8 +284,10 @@ public enum class V1ActivityType {
   ACTIVITY_TYPE_CREATE_TVC_APP,
   @SerialName("ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT")
   ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT,
-  @SerialName("ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT")
-  ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT,
+  @SerialName("ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS")
+  ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS,
+  @SerialName("ACTIVITY_TYPE_SOL_SEND_TRANSACTION")
+  ACTIVITY_TYPE_SOL_SEND_TRANSACTION,
 }
 
 @Serializable
@@ -424,6 +426,8 @@ public enum class V1Curve {
   CURVE_SECP256K1,
   @SerialName("CURVE_ED25519")
   CURVE_ED25519,
+  @SerialName("CURVE_P256")
+  CURVE_P256,
 }
 
 @Serializable
@@ -726,6 +730,20 @@ public enum class V1TransactionType {
   TRANSACTION_TYPE_TRON,
   @SerialName("TRANSACTION_TYPE_BITCOIN")
   TRANSACTION_TYPE_BITCOIN,
+  @SerialName("TRANSACTION_TYPE_TEMPO")
+  TRANSACTION_TYPE_TEMPO,
+}
+
+@Serializable
+public enum class V1TvcDeploymentStage {
+  @SerialName("TVC_DEPLOYMENT_STAGE_APPROVE")
+  TVC_DEPLOYMENT_STAGE_APPROVE,
+  @SerialName("TVC_DEPLOYMENT_STAGE_PROVISION")
+  TVC_DEPLOYMENT_STAGE_PROVISION,
+  @SerialName("TVC_DEPLOYMENT_STAGE_LIVE")
+  TVC_DEPLOYMENT_STAGE_LIVE,
+  @SerialName("TVC_DEPLOYMENT_STAGE_DELETE")
+  TVC_DEPLOYMENT_STAGE_DELETE,
 }
 
 @Serializable
@@ -1287,39 +1305,46 @@ public data class V1ApproveActivityRequest(
 )
 
 @Serializable
-public data class V1ApproveTvcDeploymentIntent(
+public data class V1AssetBalance(
   /**
-   * Unique identifier of the TVC deployment to approve
+   * The balance in atomic units
    */
-  @SerialName("deploymentId")
-  public val deploymentId: String,
+  @SerialName("balance")
+  public val balance: String? = null,
+  /**
+   * The caip-19 asset identifier
+   */
+  @SerialName("caip19")
+  public val caip19: String? = null,
+  /**
+   * The number of decimals this asset uses
+   */
+  @SerialName("decimals")
+  public val decimals: Long? = null,
+  /**
+   * Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead.
+   */
+  @SerialName("display")
+  public val display: V1AssetBalanceDisplay? = null,
+  /**
+   * The asset symbol
+   */
+  @SerialName("symbol")
+  public val symbol: String? = null,
 )
 
 @Serializable
-public data class V1ApproveTvcDeploymentRequest(
+public data class V1AssetBalanceDisplay(
   /**
-   * Unique identifier for a given Organization.
+   * Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise.
    */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1ApproveTvcDeploymentIntent,
+  @SerialName("crypto")
+  public val crypto: String? = null,
   /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   * USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise.
    */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
-public data class V1ApproveTvcDeploymentResult(
-  /**
-   * The unique identifier for the approved TVC deployment
-   */
-  @SerialName("deploymentId")
-  public val deploymentId: String,
+  @SerialName("usd")
+  public val usd: String? = null,
 )
 
 @Serializable
@@ -2773,6 +2798,21 @@ public data class V1CreateTvcAppResult(
    */
   @SerialName("appId")
   public val appId: String,
+  /**
+   * The unique identifier for the TVC manifest set
+   */
+  @SerialName("manifestSetId")
+  public val manifestSetId: String,
+  /**
+   * The unique identifier(s) of the manifest set operators
+   */
+  @SerialName("manifestSetOperatorIds")
+  public val manifestSetOperatorIds: List<String>,
+  /**
+   * The required number of approvals for the manifest set
+   */
+  @SerialName("manifestSetThreshold")
+  public val manifestSetThreshold: Long,
 )
 
 @Serializable
@@ -2782,6 +2822,11 @@ public data class V1CreateTvcDeploymentIntent(
    */
   @SerialName("appId")
   public val appId: String,
+  /**
+   * Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity.
+   */
+  @SerialName("expectedPivotDigest")
+  public val expectedPivotDigest: String,
   /**
    * Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"]
    */
@@ -2797,6 +2842,11 @@ public data class V1CreateTvcDeploymentIntent(
    */
   @SerialName("hostPath")
   public val hostPath: String,
+  /**
+   * Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds.
+   */
+  @SerialName("nonce")
+  public val nonce: Long? = null,
   /**
    * Arguments to pass to the pivot binary at startup. Encoded as a list of strings, for example ["--foo", "bar"]
    */
@@ -2844,6 +2894,52 @@ public data class V1CreateTvcDeploymentResult(
    */
   @SerialName("deploymentId")
   public val deploymentId: String,
+  /**
+   * The unique identifier for the TVC manifest
+   */
+  @SerialName("manifestId")
+  public val manifestId: String,
+)
+
+@Serializable
+public data class V1CreateTvcManifestApprovalsIntent(
+  /**
+   * List of manifest approvals
+   */
+  @SerialName("approvals")
+  public val approvals: List<V1TvcManifestApproval>,
+  /**
+   * Unique identifier of the TVC deployment to approve
+   */
+  @SerialName("manifestId")
+  public val manifestId: String,
+)
+
+@Serializable
+public data class V1CreateTvcManifestApprovalsRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcManifestApprovalsIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1CreateTvcManifestApprovalsResult(
+  /**
+   * The unique identifier(s) for the manifest approvals
+   */
+  @SerialName("approvalIds")
+  public val approvalIds: List<String>,
 )
 
 @Serializable
@@ -4152,7 +4248,7 @@ public data class V1EthSendTransactionRequest(
 @Serializable
 public data class V1EthSendTransactionResult(
   /**
-   * The send_transaction_status ID associated with the transaction submission for sponsored transactions
+   * The send_transaction_status ID associated with the transaction submission
    */
   @SerialName("sendTransactionStatusId")
   public val sendTransactionStatusId: String,
@@ -4483,29 +4579,6 @@ public data class V1GetAppProofsRequest(
 public data class V1GetAppProofsResponse(
   @SerialName("appProofs")
   public val appProofs: List<V1AppProof>,
-)
-
-@Serializable
-public data class V1GetAttestationDocumentRequest(
-  /**
-   * The enclave type, one of: ump, notarizer, signer, evm-parser.
-   */
-  @SerialName("enclaveType")
-  public val enclaveType: String,
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetAttestationDocumentResponse(
-  /**
-   * Raw (CBOR-encoded) attestation document.
-   */
-  @SerialName("attestationDocument")
-  public val attestationDocument: String,
 )
 
 @Serializable
@@ -4975,6 +5048,29 @@ public data class V1GetSubOrgIdsResponse(
 )
 
 @Serializable
+public data class V1GetTvcAppDeploymentsRequest(
+  /**
+   * Unique identifier for a given TVC App.
+   */
+  @SerialName("appId")
+  public val appId: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppDeploymentsResponse(
+  /**
+   * List of deployments for this TVC App
+   */
+  @SerialName("tvcDeployments")
+  public val tvcDeployments: List<V1TvcDeployment>,
+)
+
+@Serializable
 public data class V1GetTvcAppRequest(
   /**
    * Unique identifier for a given organization.
@@ -5013,6 +5109,29 @@ public data class V1GetTvcAppsResponse(
    */
   @SerialName("tvcApps")
   public val tvcApps: List<V1TvcApp>,
+)
+
+@Serializable
+public data class V1GetTvcDeploymentRequest(
+  /**
+   * Unique identifier for a given TVC Deployment.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcDeploymentResponse(
+  /**
+   * Details about a single TVC Deployment
+   */
+  @SerialName("tvcDeployment")
+  public val tvcDeployment: V1TvcDeployment,
 )
 
 @Serializable
@@ -5153,6 +5272,34 @@ public data class V1GetWalletAccountsResponse(
    */
   @SerialName("accounts")
   public val accounts: List<V1WalletAccount>,
+)
+
+@Serializable
+public data class V1GetWalletAddressBalancesRequest(
+  /**
+   * Address corresponding to a wallet account.
+   */
+  @SerialName("address")
+  public val address: String,
+  /**
+   * The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet).
+   */
+  @SerialName("caip2")
+  public val caip2: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetWalletAddressBalancesResponse(
+  /**
+   * List of asset balances
+   */
+  @SerialName("balances")
+  public val balances: List<V1AssetBalance>? = null,
 )
 
 @Serializable
@@ -5993,8 +6140,6 @@ public data class V1Intent(
   public val activateBillingTierIntent: BillingActivateBillingTierIntent? = null,
   @SerialName("approveActivityIntent")
   public val approveActivityIntent: V1ApproveActivityIntent? = null,
-  @SerialName("approveTvcDeploymentIntent")
-  public val approveTvcDeploymentIntent: V1ApproveTvcDeploymentIntent? = null,
   @SerialName("createApiKeysIntent")
   public val createApiKeysIntent: V1CreateApiKeysIntent? = null,
   @SerialName("createApiKeysIntentV2")
@@ -6057,6 +6202,8 @@ public data class V1Intent(
   public val createTvcAppIntent: V1CreateTvcAppIntent? = null,
   @SerialName("createTvcDeploymentIntent")
   public val createTvcDeploymentIntent: V1CreateTvcDeploymentIntent? = null,
+  @SerialName("createTvcManifestApprovalsIntent")
+  public val createTvcManifestApprovalsIntent: V1CreateTvcManifestApprovalsIntent? = null,
   @SerialName("createUserTagIntent")
   public val createUserTagIntent: V1CreateUserTagIntent? = null,
   @SerialName("createUsersIntent")
@@ -6183,6 +6330,8 @@ public data class V1Intent(
   public val signTransactionIntent: V1SignTransactionIntent? = null,
   @SerialName("signTransactionIntentV2")
   public val signTransactionIntentV2: V1SignTransactionIntentV2? = null,
+  @SerialName("solSendTransactionIntent")
+  public val solSendTransactionIntent: V1SolSendTransactionIntent? = null,
   @SerialName("stampLoginIntent")
   public val stampLoginIntent: V1StampLoginIntent? = null,
   @SerialName("updateAllowedOriginsIntent")
@@ -7083,8 +7232,6 @@ public data class V1Result(
   public val acceptInvitationResult: V1AcceptInvitationResult? = null,
   @SerialName("activateBillingTierResult")
   public val activateBillingTierResult: BillingActivateBillingTierResult? = null,
-  @SerialName("approveTvcDeploymentResult")
-  public val approveTvcDeploymentResult: V1ApproveTvcDeploymentResult? = null,
   @SerialName("createApiKeysResult")
   public val createApiKeysResult: V1CreateApiKeysResult? = null,
   @SerialName("createApiOnlyUsersResult")
@@ -7135,6 +7282,8 @@ public data class V1Result(
   public val createTvcAppResult: V1CreateTvcAppResult? = null,
   @SerialName("createTvcDeploymentResult")
   public val createTvcDeploymentResult: V1CreateTvcDeploymentResult? = null,
+  @SerialName("createTvcManifestApprovalsResult")
+  public val createTvcManifestApprovalsResult: V1CreateTvcManifestApprovalsResult? = null,
   @SerialName("createUserTagResult")
   public val createUserTagResult: V1CreateUserTagResult? = null,
   @SerialName("createUsersResult")
@@ -7239,6 +7388,8 @@ public data class V1Result(
   public val signRawPayloadsResult: V1SignRawPayloadsResult? = null,
   @SerialName("signTransactionResult")
   public val signTransactionResult: V1SignTransactionResult? = null,
+  @SerialName("solSendTransactionResult")
+  public val solSendTransactionResult: V1SolSendTransactionResult? = null,
   @SerialName("stampLoginResult")
   public val stampLoginResult: V1StampLoginResult? = null,
   @SerialName("updateAllowedOriginsResult")
@@ -7727,6 +7878,64 @@ public data class V1SmsCustomizationParams(
 )
 
 @Serializable
+public data class V1SolSendTransactionIntent(
+  /**
+   * CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet).
+   */
+  @SerialName("caip2")
+  public val caip2: String,
+  /**
+   * user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution
+   */
+  @SerialName("recentBlockhash")
+  public val recentBlockhash: String? = null,
+  /**
+   * A wallet or private key address to sign with. This does not support private key IDs.
+   */
+  @SerialName("signWith")
+  public val signWith: String,
+  /**
+   * Whether to sponsor this transaction via Gas Station.
+   */
+  @SerialName("sponsor")
+  public val sponsor: Boolean? = null,
+  /**
+   * Base64-encoded serialized unsigned Solana transaction
+   */
+  @SerialName("unsignedTransaction")
+  public val unsignedTransaction: String,
+)
+
+@Serializable
+public data class V1SolSendTransactionRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SolSendTransactionIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1SolSendTransactionResult(
+  /**
+   * The send_transaction_status ID associated with the transaction submission
+   */
+  @SerialName("sendTransactionStatusId")
+  public val sendTransactionStatusId: String,
+)
+
+@Serializable
 public data class V1StampLoginIntent(
   /**
    * Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used.
@@ -7826,30 +8035,200 @@ public data class V1TvcApp(
   @SerialName("id")
   public val id: String,
   /**
-   * Unique Identifier of the Manifest Set (people who can approve manifests)
+   * Manifest Set (people who can approve manifests)
    */
-  @SerialName("manifestSetId")
-  public val manifestSetId: String,
+  @SerialName("manifestSet")
+  public val manifestSet: V1TvcOperatorSet,
   /**
    * Name for this TVC App.
    */
   @SerialName("name")
   public val name: String,
   /**
-   * Unique Identifier of the Organization for this TVC App (optional)
+   * Unique Identifier of the Organization for this TVC App
    */
   @SerialName("organizationId")
   public val organizationId: String,
   /**
-   * Public key for the Quorum Key associated with this TVC App (optional)
+   * Public key for the Quorum Key associated with this TVC App
    */
   @SerialName("quorumPublicKey")
   public val quorumPublicKey: String,
   /**
-   * Unique Identifier of the Share Set (people who have a share of the Quorum Key). This is optional because Quorum Keys are optional.
+   * Share Set (people who have a share of the Quorum Key)
    */
-  @SerialName("shareSetId")
-  public val shareSetId: String,
+  @SerialName("shareSet")
+  public val shareSet: V1TvcOperatorSet,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcContainerSpec(
+  /**
+   * The arguments to pass to the executable.
+   */
+  @SerialName("args")
+  public val args: List<String>,
+  /**
+   * The URL for this container image.
+   */
+  @SerialName("containerUrl")
+  public val containerUrl: String,
+  /**
+   * Whether or not this container requires a pull secret to access.
+   */
+  @SerialName("hasPullSecret")
+  public val hasPullSecret: Boolean,
+  /**
+   * The path (in-container) to the executable binary.
+   */
+  @SerialName("path")
+  public val path: String,
+)
+
+@Serializable
+public data class V1TvcDeployment(
+  /**
+   * Unique Identifier of the TVC App for this deployment
+   */
+  @SerialName("appId")
+  public val appId: String,
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * The pivot container spec for this deployment
+   */
+  @SerialName("hostContainer")
+  public val hostContainer: V1TvcContainerSpec,
+  /**
+   * Unique Identifier for this TVC Deployment.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * The manifest used for this deployment
+   */
+  @SerialName("manifest")
+  public val manifest: V1TvcManifest,
+  /**
+   * List of operator approvals for this manifest
+   */
+  @SerialName("manifestApprovals")
+  public val manifestApprovals: List<V1TvcOperatorApproval>,
+  /**
+   * Set of TVC operators who can approve this deployment
+   */
+  @SerialName("manifestSet")
+  public val manifestSet: V1TvcOperatorSet,
+  /**
+   * Unique Identifier of the Organization for this TVC Deployment
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The pivot container spec for this deployment
+   */
+  @SerialName("pivotContainer")
+  public val pivotContainer: V1TvcContainerSpec,
+  /**
+   * QOS Version used for this deployment
+   */
+  @SerialName("qosVersion")
+  public val qosVersion: String,
+  /**
+   * Set of TVC operators who have a share of the Quorum Key
+   */
+  @SerialName("shareSet")
+  public val shareSet: V1TvcOperatorSet,
+  /**
+   * Current stage for this deployment
+   */
+  @SerialName("stage")
+  public val stage: V1TvcDeploymentStage,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcManifest(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Manifest.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * The manifest content (raw UTF-8 JSON bytes)
+   */
+  @SerialName("manifest")
+  public val manifest: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcManifestApproval(
+  /**
+   * Unique identifier of the operator providing this approval
+   */
+  @SerialName("operatorId")
+  public val operatorId: String,
+  /**
+   * Signature from the operator approving the manifest
+   */
+  @SerialName("signature")
+  public val signature: String,
+)
+
+@Serializable
+public data class V1TvcOperator(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Operator.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Name of this TVC Operator.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Public key for this TVC Operator.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcOperatorApproval(
+  /**
+   * Signature of the operator over the deployment manifest
+   */
+  @SerialName("approval")
+  public val approval: String,
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique ID for this approval
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Unique Identifier of the TVC Manifest being approved
+   */
+  @SerialName("manifestId")
+  public val manifestId: String,
+  /**
+   * The TVC Operator who made this approval
+   */
+  @SerialName("operator")
+  public val `operator`: V1TvcOperator,
   @SerialName("updatedAt")
   public val updatedAt: Externaldatav1Timestamp,
 )
@@ -7866,6 +8245,39 @@ public data class V1TvcOperatorParams(
    */
   @SerialName("publicKey")
   public val publicKey: String,
+)
+
+@Serializable
+public data class V1TvcOperatorSet(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Operator Set.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Name of this TVC Operator Set.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * List of TVC Operators in this set
+   */
+  @SerialName("operators")
+  public val operators: List<V1TvcOperator>,
+  /**
+   * Unique Identifier of the Organization for this TVC Operator Set
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Threshold number of operators required for quorum.
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -8626,6 +9038,11 @@ public data class V1UpdateWalletResult(
 
 @Serializable
 public data class V1UpsertGasUsageConfigIntent(
+  /**
+   * Whether gas sponsorship is enabled for the organization.
+   */
+  @SerialName("enabled")
+  public val enabled: Boolean? = null,
   /**
    * Gas sponsorship USD limit for the billing organization window.
    */
@@ -9427,29 +9844,6 @@ public class TGetApiKeysInput(
 )
 
 @Serializable
-public data class TGetAttestationDocumentResponse(
-  /**
-   * Raw (CBOR-encoded) attestation document.
-   */
-  @SerialName("attestationDocument")
-  public val attestationDocument: String,
-)
-
-@Serializable
-public class TGetAttestationDocumentBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("enclaveType")
-  public val enclaveType: String,
-)
-
-@Serializable
-public class TGetAttestationDocumentInput(
-  @SerialName("body")
-  public val body: TGetAttestationDocumentBody,
-)
-
-@Serializable
 public data class TGetAuthenticatorResponse(
   /**
    * An authenticator.
@@ -9861,6 +10255,29 @@ public class TGetTvcAppInput(
 )
 
 @Serializable
+public data class TGetTvcDeploymentResponse(
+  /**
+   * Details about a single TVC Deployment
+   */
+  @SerialName("tvcDeployment")
+  public val tvcDeployment: V1TvcDeployment,
+)
+
+@Serializable
+public class TGetTvcDeploymentBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TGetTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TGetTvcDeploymentBody,
+)
+
+@Serializable
 public data class TGetUserResponse(
   /**
    * Web and/or API user within your organization.
@@ -9931,6 +10348,31 @@ public class TGetWalletAccountBody(
 public class TGetWalletAccountInput(
   @SerialName("body")
   public val body: TGetWalletAccountBody,
+)
+
+@Serializable
+public data class TGetWalletAddressBalancesResponse(
+  /**
+   * List of asset balances
+   */
+  @SerialName("balances")
+  public val balances: List<V1AssetBalance>? = null,
+)
+
+@Serializable
+public class TGetWalletAddressBalancesBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("address")
+  public val address: String,
+  @SerialName("caip2")
+  public val caip2: String,
+)
+
+@Serializable
+public class TGetWalletAddressBalancesInput(
+  @SerialName("body")
+  public val body: TGetWalletAddressBalancesBody,
 )
 
 @Serializable
@@ -10128,6 +10570,29 @@ public class TGetSubOrgIdsInput(
 )
 
 @Serializable
+public data class TGetTvcAppDeploymentsResponse(
+  /**
+   * List of deployments for this TVC App
+   */
+  @SerialName("tvcDeployments")
+  public val tvcDeployments: List<V1TvcDeployment>,
+)
+
+@Serializable
+public class TGetTvcAppDeploymentsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public class TGetTvcAppDeploymentsInput(
+  @SerialName("body")
+  public val body: TGetTvcAppDeploymentsBody,
+)
+
+@Serializable
 public data class TGetTvcAppsResponse(
   /**
    * A list of TVC Apps.
@@ -10321,30 +10786,6 @@ public class TApproveActivityBody(
 public class TApproveActivityInput(
   @SerialName("body")
   public val body: TApproveActivityBody,
-)
-
-@Serializable
-public class TApproveTvcDeploymentResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1ApproveTvcDeploymentResult,
-)
-
-@Serializable
-public class TApproveTvcDeploymentBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-)
-
-@Serializable
-public class TApproveTvcDeploymentInput(
-  @SerialName("body")
-  public val body: TApproveTvcDeploymentBody,
 )
 
 @Serializable
@@ -10829,18 +11270,48 @@ public class TCreateTvcDeploymentBody(
   public val pivotPath: String,
   @SerialName("pivotArgs")
   public val pivotArgs: List<String>,
+  @SerialName("expectedPivotDigest")
+  public val expectedPivotDigest: String,
   @SerialName("hostContainerImageUrl")
   public val hostContainerImageUrl: String,
   @SerialName("hostPath")
   public val hostPath: String,
   @SerialName("hostArgs")
   public val hostArgs: List<String>,
+  @SerialName("nonce")
+  public val nonce: Long? = null,
 )
 
 @Serializable
 public class TCreateTvcDeploymentInput(
   @SerialName("body")
   public val body: TCreateTvcDeploymentBody,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcManifestApprovalsResult,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("manifestId")
+  public val manifestId: String,
+  @SerialName("approvals")
+  public val approvals: List<V1TvcManifestApproval>,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsInput(
+  @SerialName("body")
+  public val body: TCreateTvcManifestApprovalsBody,
 )
 
 @Serializable
@@ -12163,6 +12634,38 @@ public class TSignTransactionBody(
 public class TSignTransactionInput(
   @SerialName("body")
   public val body: TSignTransactionBody,
+)
+
+@Serializable
+public class TSolSendTransactionResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SolSendTransactionResult,
+)
+
+@Serializable
+public class TSolSendTransactionBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("unsignedTransaction")
+  public val unsignedTransaction: String,
+  @SerialName("signWith")
+  public val signWith: String,
+  @SerialName("sponsor")
+  public val sponsor: Boolean? = null,
+  @SerialName("caip2")
+  public val caip2: String,
+  @SerialName("recentBlockhash")
+  public val recentBlockhash: String? = null,
+)
+
+@Serializable
+public class TSolSendTransactionInput(
+  @SerialName("body")
+  public val body: TSolSendTransactionBody,
 )
 
 @Serializable

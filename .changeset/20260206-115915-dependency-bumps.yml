@@ -1,0 +1,7 @@
+title: Dependency bumps
+packages:
+  passkey: patch
+  stamper: patch
+  sdk-kotlin: patch
+changelog: |-
+  Bumped dependencies

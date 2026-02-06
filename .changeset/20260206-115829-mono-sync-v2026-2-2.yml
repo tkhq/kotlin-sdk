@@ -1,0 +1,6 @@
+title: Mono Sync v2026.2.2
+packages:
+  http: patch
+  types: patch
+changelog: |-
+  Synced with `v2026.2.2` of mono
