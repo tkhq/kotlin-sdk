@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 — 2026-02-06
+### Patch Changes
+- Bumped dependencies
+
 ## 1.0.0 — 2026-01-21
 ### Major Changes
 - v1.0.0 - Initial Stable Release 🎉
