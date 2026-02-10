@@ -3,10 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHANGESET_DIR="$SCRIPT_DIR/.changeset"
-VERSION_KT="$SCRIPT_DIR/packages/http/src/main/kotlin/com/turnkey/http/Version.kt"
 
 # --- Module definitions ---
-# These correspond to :packages:<name> Gradle paths
+# These correspond to :packages:<name> Gradle paths, these must be updated manually if modules are added/removed. The script will normalize user input to match these.
 MODULES=(
     "crypto"
     "encoding"
@@ -55,27 +54,11 @@ generate_filename() {
     local noun="${NOUNS[$((RANDOM % ${#NOUNS[@]}))]}"
     local name="$adj-$noun"
 
-    if [[ -f "$CHANGESET_DIR/$name.yml" ]]; then
-        name="$name-$((RANDOM % 1000))"
-    fi
+    while [[ -f "$CHANGESET_DIR/$name.yml" ]]; do
+      name="$adj-$noun-$((RANDOM % 1000))"
+    done
 
     echo "$name"
-}
-
-# Get module directory path
-module_dir() {
-    local module="$1"
-    echo "$SCRIPT_DIR/packages/$module"
-}
-
-# Normalize module identifier (handle :packages:crypto or just crypto)
-normalize_module() {
-    local id="$1"
-    # Remove leading :packages: if present
-    id="${id#:packages:}"
-    id="${id#:}"
-    id="${id#packages:}"
-    echo "$id"
 }
 
 # --- Commands ---
