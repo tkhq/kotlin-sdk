@@ -229,10 +229,6 @@ tasks.register<ChangesetsChangelogTask>("changesetsChangelog") {
     generatedVersionDir.set(layout.projectDirectory.file("./packages/http/src/main/kotlin/com/turnkey/http/Version.kt"))
     modules.set(publishable)
 }
-tasks.register<CreateChangesetTask>("createChangeset") {
-    modules.set(publishable)
-    rootDirProp.set(layout.projectDirectory)
-}
 
 // Codegen tasks
 tasks.register("generate") {
