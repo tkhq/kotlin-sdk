@@ -1327,6 +1327,11 @@ public data class V1AssetBalance(
   @SerialName("display")
   public val display: V1AssetBalanceDisplay? = null,
   /**
+   * The asset name
+   */
+  @SerialName("name")
+  public val name: String? = null,
+  /**
    * The asset symbol
    */
   @SerialName("symbol")
@@ -1345,6 +1350,35 @@ public data class V1AssetBalanceDisplay(
    */
   @SerialName("usd")
   public val usd: String? = null,
+)
+
+@Serializable
+public data class V1AssetMetadata(
+  /**
+   * The caip-19 asset identifier
+   */
+  @SerialName("caip19")
+  public val caip19: String? = null,
+  /**
+   * The number of decimals this asset uses
+   */
+  @SerialName("decimals")
+  public val decimals: Long? = null,
+  /**
+   * The url of the asset logo
+   */
+  @SerialName("logoUrl")
+  public val logoUrl: String? = null,
+  /**
+   * The asset name
+   */
+  @SerialName("name")
+  public val name: String? = null,
+  /**
+   * The asset symbol
+   */
+  @SerialName("symbol")
+  public val symbol: String? = null,
 )
 
 @Serializable
@@ -2833,6 +2867,11 @@ public data class V1CreateTvcDeploymentIntent(
   @SerialName("hostArgs")
   public val hostArgs: List<String>,
   /**
+   * Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty.
+   */
+  @SerialName("hostContainerEncryptedPullSecret")
+  public val hostContainerEncryptedPullSecret: String? = null,
+  /**
    * URL of the container containing the host binary
    */
   @SerialName("hostContainerImageUrl")
@@ -2852,6 +2891,11 @@ public data class V1CreateTvcDeploymentIntent(
    */
   @SerialName("pivotArgs")
   public val pivotArgs: List<String>,
+  /**
+   * Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty.
+   */
+  @SerialName("pivotContainerEncryptedPullSecret")
+  public val pivotContainerEncryptedPullSecret: String? = null,
   /**
    * URL of the container containing the pivot binary
    */
@@ -4691,7 +4735,7 @@ public data class V1GetNoncesRequest(
   @SerialName("address")
   public val address: String,
   /**
-   * The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet).
+   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
    */
   @SerialName("caip2")
   public val caip2: String,
@@ -5282,7 +5326,7 @@ public data class V1GetWalletAddressBalancesRequest(
   @SerialName("address")
   public val address: String,
   /**
-   * The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet).
+   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
    */
   @SerialName("caip2")
   public val caip2: String,
@@ -6486,6 +6530,29 @@ public data class V1ListPrivateKeyTagsResponse(
    */
   @SerialName("privateKeyTags")
   public val privateKeyTags: List<Datav1Tag>,
+)
+
+@Serializable
+public data class V1ListSupportedAssetsRequest(
+  /**
+   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+   */
+  @SerialName("caip2")
+  public val caip2: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1ListSupportedAssetsResponse(
+  /**
+   * List of asset metadata
+   */
+  @SerialName("assets")
+  public val assets: List<V1AssetMetadata>? = null,
 )
 
 @Serializable
@@ -10570,6 +10637,29 @@ public class TGetSubOrgIdsInput(
 )
 
 @Serializable
+public data class TListSupportedAssetsResponse(
+  /**
+   * List of asset metadata
+   */
+  @SerialName("assets")
+  public val assets: List<V1AssetMetadata>? = null,
+)
+
+@Serializable
+public class TListSupportedAssetsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("caip2")
+  public val caip2: String,
+)
+
+@Serializable
+public class TListSupportedAssetsInput(
+  @SerialName("body")
+  public val body: TListSupportedAssetsBody,
+)
+
+@Serializable
 public data class TGetTvcAppDeploymentsResponse(
   /**
    * List of deployments for this TVC App
@@ -11280,6 +11370,10 @@ public class TCreateTvcDeploymentBody(
   public val hostArgs: List<String>,
   @SerialName("nonce")
   public val nonce: Long? = null,
+  @SerialName("pivotContainerEncryptedPullSecret")
+  public val pivotContainerEncryptedPullSecret: String? = null,
+  @SerialName("hostContainerEncryptedPullSecret")
+  public val hostContainerEncryptedPullSecret: String? = null,
 )
 
 @Serializable

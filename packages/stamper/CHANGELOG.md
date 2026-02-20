@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 — 2026-02-20
+### Patch Changes
+- Dependency bump
+
 ## 1.0.1 — 2026-02-06
 ### Patch Changes
 - Bumped dependencies

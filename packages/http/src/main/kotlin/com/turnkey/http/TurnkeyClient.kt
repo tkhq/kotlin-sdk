@@ -217,6 +217,8 @@ import com.turnkey.types.TListOauth2CredentialsBody
 import com.turnkey.types.TListOauth2CredentialsResponse
 import com.turnkey.types.TListPrivateKeyTagsBody
 import com.turnkey.types.TListPrivateKeyTagsResponse
+import com.turnkey.types.TListSupportedAssetsBody
+import com.turnkey.types.TListSupportedAssetsResponse
 import com.turnkey.types.TListUserTagsBody
 import com.turnkey.types.TListUserTagsResponse
 import com.turnkey.types.TNOOPCodegenAnchorResponse
@@ -1336,6 +1338,33 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
     val url = "$apiBaseUrl/public/v1/query/list_suborgs"
     val bodyJson = json.encodeToJsonElement(TGetSubOrgIdsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  public suspend fun listSupportedAssets(input: TListSupportedAssetsBody): TListSupportedAssetsResponse {
+    val url = "$apiBaseUrl/public/v1/query/list_supported_assets"
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val bodyJson = json.encodeToJsonElement(TListSupportedAssetsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_supported_assets: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(TListSupportedAssetsResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun stampListSupportedAssets(input: TListSupportedAssetsBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/query/list_supported_assets"
+    val bodyJson = json.encodeToJsonElement(TListSupportedAssetsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
@@ -3475,6 +3504,30 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
     val url = "$apiBaseUrl/tkhq/api/v1/noop-codegen-anchor"
     val bodyJson = ""
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  public suspend fun refreshFeatureFlags(input: TRefreshFeatureFlagsBody): TRefreshFeatureFlagsResponse {
+    val url = "$apiBaseUrl/tkhq/api/v1/refresh_feature_flags"
+    val activityType = "ACTIVITY_TYPE_REFRESH_FEATURE_FLAGS"
+    val activityRes = activity<TRefreshFeatureFlagsBody>(url, input, activityType)
+    return TRefreshFeatureFlagsResponse(activity = activityRes, result = activityRes.result.null ?: throw RuntimeException("No result found from /tkhq/api/v1/refresh_feature_flags"))
+  }
+
+  public suspend fun stampRefreshFeatureFlags(input: TRefreshFeatureFlagsBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/tkhq/api/v1/refresh_feature_flags"
+    val inputElem = json.encodeToJsonElement(TRefreshFeatureFlagsBody.serializer(), input)
+    val obj = inputElem.jsonObject
+    val inputOrgId = obj["organizationId"]
+    val inputTimestamp = obj["timestampMs"]
+    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
+    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
+    val activityType = "ACTIVITY_TYPE_REFRESH_FEATURE_FLAGS"
+    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
+    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)

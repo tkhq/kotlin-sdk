@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 — 2026-02-20
+### Patch Changes
+- Synced with mono v2026.2.5
+
 ## 1.0.1 — 2026-02-06
 ### Patch Changes
 - Synced with `v2026.2.2` of mono

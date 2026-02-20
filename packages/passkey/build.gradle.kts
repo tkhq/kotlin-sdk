@@ -22,7 +22,7 @@ android {
 }
 
 group = "com.turnkey"
-version = "1.0.1"
+version = "1.0.2"
 
 mavenPublishing {
     coordinates("com.turnkey", "passkey", version.toString())
