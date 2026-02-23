@@ -3509,30 +3509,6 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
-  public suspend fun refreshFeatureFlags(input: TRefreshFeatureFlagsBody): TRefreshFeatureFlagsResponse {
-    val url = "$apiBaseUrl/tkhq/api/v1/refresh_feature_flags"
-    val activityType = "ACTIVITY_TYPE_REFRESH_FEATURE_FLAGS"
-    val activityRes = activity<TRefreshFeatureFlagsBody>(url, input, activityType)
-    return TRefreshFeatureFlagsResponse(activity = activityRes, result = activityRes.result.null ?: throw RuntimeException("No result found from /tkhq/api/v1/refresh_feature_flags"))
-  }
-
-  public suspend fun stampRefreshFeatureFlags(input: TRefreshFeatureFlagsBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/tkhq/api/v1/refresh_feature_flags"
-    val inputElem = json.encodeToJsonElement(TRefreshFeatureFlagsBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_REFRESH_FEATURE_FLAGS"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
   public suspend fun testRateLimits(input: TTestRateLimitsBody): TTestRateLimitsResponse {
     val url = "$apiBaseUrl/tkhq/api/v1/test_rate_limits"
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
