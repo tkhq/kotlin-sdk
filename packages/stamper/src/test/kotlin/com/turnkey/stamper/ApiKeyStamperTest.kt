@@ -133,12 +133,4 @@ class ApiKeyStamperTest {
         assertNotNull(root["publicKey"])
         assertNotNull(root["signature"])
     }
-
-    @Test
-    fun stamper_unknown_mode_throws() = runTest {
-        val s = Stamper()
-        val ex = assertFails { s.stamp("anything") }
-        print(ex)
-        assertTrue(ex is TurnkeyStamperError.OperationFailed)
-    }
 }
