@@ -234,8 +234,6 @@ import com.turnkey.types.TOtpLoginBody
 import com.turnkey.types.TOtpLoginResponse
 import com.turnkey.types.TRecoverUserBody
 import com.turnkey.types.TRecoverUserResponse
-import com.turnkey.types.TRefreshFeatureFlagsBody
-import com.turnkey.types.TRefreshFeatureFlagsResponse
 import com.turnkey.types.TRejectActivityBody
 import com.turnkey.types.TRejectActivityResponse
 import com.turnkey.types.TRemoveOrganizationFeatureBody

@@ -13162,26 +13162,6 @@ public class TNOOPCodegenAnchorInput(
 )
 
 @Serializable
-public class TRefreshFeatureFlagsResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-)
-
-@Serializable
-public class TRefreshFeatureFlagsBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public class TRefreshFeatureFlagsInput(
-  @SerialName("body")
-  public val body: TRefreshFeatureFlagsBody,
-)
-
-@Serializable
 public class TTestRateLimitsResponse()
 
 @Serializable
