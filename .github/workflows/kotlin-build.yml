@@ -1,0 +1,83 @@
+name: kotlin-build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: # Allows manual invocation
+
+env:
+  # Make Gradle a bit chattier/faster and show stacktraces if needed
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=2"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "22"
+
+      - name: Set up Android SDK (cmdline)
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+
+      - name: Install Android platforms/build-tools
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" || true
+          yes | sdkmanager --licenses || true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1 #v4.4.4
+
+      - name: Bump Gradle/JVM memory
+        run: |
+          mkdir -p ~/.gradle
+          cat >> ~/.gradle/gradle.properties <<'EOF'
+            org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError
+            org.gradle.parallel=false
+            org.gradle.workers.max=1
+            org.gradle.caching=true
+          EOF
+
+      - name: Build
+        run: |
+          ./gradlew --no-daemon \
+            :packages:encoding:build \
+            :packages:crypto:build \
+            :packages:types:build \
+            :packages:stamper:assembleRelease \
+            :packages:http:assembleRelease \
+            :packages:passkey:assembleRelease \
+            :packages:sdk-kotlin:assembleRelease
+
+      # git procelain check to ensure codegen output is up to date
+      - name: Run codegen
+        run: |
+          ./gradlew generate --no-daemon
+        
+      - name: Ensure git is clean
+        run: |
+          if [ -z "$( git status --porcelain )" ]; then
+            echo "Git is clean!"
+            exit 0
+          else
+            echo "Git is dirty!"
+            git add -A
+            git --no-pager diff HEAD
+            exit 1
+          fi
+
+      - name: Test
+        run: |
+          ./gradlew --no-daemon \
+            :packages:encoding:test \
+            :packages:crypto:test \
+            :packages:types:test

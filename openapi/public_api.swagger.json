@@ -3992,38 +3992,6 @@
         "tags": ["PublicApiService"]
       }
     },
-    "/tkhq/api/v1/refresh_feature_flags": {
-      "post": {
-        "summary": "Refresh feature flags",
-        "description": "Refresh feature flags by triggering a DB read to flush the in-memory cache.",
-        "operationId": "PublicApiService_RefreshFeatureFlags",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1RefreshFeatureFlagsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1RefreshFeatureFlagsRequest"
-            }
-          }
-        ],
-        "tags": ["FeatureFlags"]
-      }
-    },
     "/tkhq/api/v1/test_rate_limits": {
       "post": {
         "summary": "Test rate limit",
