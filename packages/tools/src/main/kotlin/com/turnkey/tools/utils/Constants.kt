@@ -9,8 +9,8 @@ object VersionedActivityTypes {
         "ACTIVITY_TYPE_CREATE_API_KEYS" to Triple("ACTIVITY_TYPE_CREATE_API_KEYS_V2", "v1CreateApiKeysIntentV2", "v1CreateApiKeysResult"),
         "ACTIVITY_TYPE_CREATE_POLICY" to Triple("ACTIVITY_TYPE_CREATE_POLICY_V3", "v1CreatePolicyIntentV3", "v1CreatePolicyResult"),
         "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS" to Triple("ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2", "v1CreatePrivateKeysIntentV2", "v1CreatePrivateKeysResultV2"),
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION" to Triple("ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7", "v1CreateSubOrganizationIntentV7", "v1CreateSubOrganizationResultV7"),
-        "ACTIVITY_TYPE_CREATE_USERS" to Triple("ACTIVITY_TYPE_CREATE_USERS_V3", "v1CreateUsersIntentV3", "v1CreateUsersResult"),
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION" to Triple("ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8", "v1CreateSubOrganizationIntentV8", "v1CreateSubOrganizationResultV8"),
+        "ACTIVITY_TYPE_CREATE_USERS" to Triple("ACTIVITY_TYPE_CREATE_USERS_V4", "v1CreateUsersIntentV4", "v1CreateUsersResult"),
         "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD" to Triple("ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2", "v1SignRawPayloadIntentV2", "v1SignRawPayloadResult"),
         "ACTIVITY_TYPE_SIGN_TRANSACTION" to Triple("ACTIVITY_TYPE_SIGN_TRANSACTION_V2", "v1SignTransactionIntentV2", "v1SignTransactionResult"),
         "ACTIVITY_TYPE_EMAIL_AUTH" to Triple("ACTIVITY_TYPE_EMAIL_AUTH_V3", "v1EmailAuthIntentV3", "v1EmailAuthResult"),
@@ -18,9 +18,18 @@ object VersionedActivityTypes {
         "ACTIVITY_TYPE_UPDATE_POLICY" to Triple("ACTIVITY_TYPE_UPDATE_POLICY_V2", "v1UpdatePolicyIntentV2", "v1UpdatePolicyResultV2"),
         "ACTIVITY_TYPE_INIT_OTP_AUTH" to Triple("ACTIVITY_TYPE_INIT_OTP_AUTH_V3", "v1InitOtpAuthIntentV3", "v1InitOtpAuthResultV2"),
         "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY" to Triple("ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2", "v1InitUserEmailRecoveryIntentV2", "v1InitUserEmailRecoveryResult"),
-        "ACTIVITY_TYPE_INIT_OTP" to Triple("ACTIVITY_TYPE_INIT_OTP_V2", "v1InitOtpIntentV2", "v1InitOtpResult"),
+        "ACTIVITY_TYPE_INIT_OTP" to Triple("ACTIVITY_TYPE_INIT_OTP_V3", "v1InitOtpIntentV3", "v1InitOtpResultV2"),
+        "ACTIVITY_TYPE_VERIFY_OTP" to Triple("ACTIVITY_TYPE_VERIFY_OTP_V2", "v1VerifyOtpIntentV2", "v1VerifyOtpResult"),
+        "ACTIVITY_TYPE_OTP_LOGIN" to Triple("ACTIVITY_TYPE_OTP_LOGIN_V2", "v1OtpLoginIntentV2", "v1OtpLoginResult"),
+        "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS" to Triple("ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2", "v1CreateOauthProvidersIntentV2", "v1CreateOauthProvidersResultV2")
     )
 
     /** Fallbacks to the input if there's no versioned entry. */
     fun resolve(type: String): String = map[type]?.first ?: type
+}
+
+object OneOfFields {
+    val map: Map<String, List<String>> = mapOf(
+        "v1OauthProviderParamsV2" to listOf("oidcToken", "oidcClaims")
+    )
 }

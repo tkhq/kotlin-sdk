@@ -17,6 +17,9 @@ class AuthSheetViewModel : ViewModel() {
     private val _otpId = MutableStateFlow<String?>(null)
     val otpId: StateFlow<String?> = _otpId.asStateFlow()
 
+    private val _otpEncryptionTargetBundle = MutableStateFlow<String?>(null)
+    val otpEncryptionTargetBundle: StateFlow<String?> = _otpEncryptionTargetBundle.asStateFlow()
+
     private val _contact = MutableStateFlow<String?>(null)
     val contact: StateFlow<String?> = _contact.asStateFlow()
 
@@ -28,6 +31,7 @@ class AuthSheetViewModel : ViewModel() {
         )
         _otpId.value = res.otpId
         _contact.value = contact
+        _otpEncryptionTargetBundle.value = res.otpEncryptionTargetBundle
         true
     } catch (t: Throwable) {
         error.value = t; false
@@ -37,9 +41,12 @@ class AuthSheetViewModel : ViewModel() {
         loading.value = true
         val otpId = otpId.value ?: return false
         val contact = contact.value ?: return false
+        val otpEncryptionTargetBundle = otpEncryptionTargetBundle.value ?: return false
+
         TurnkeyContext.loginOrSignUpWithOtp(
             otpId = otpId,
             otpCode = code,
+            otpEncryptionTargetBundle = otpEncryptionTargetBundle,
             contact = contact,
             otpType = OtpType.OTP_TYPE_EMAIL
         )

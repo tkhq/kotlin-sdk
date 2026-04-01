@@ -18,7 +18,7 @@ import com.turnkey.core.models.VerificationToken
 import com.turnkey.core.models.Wallet
 import com.turnkey.encoding.toBase64Url
 import com.turnkey.http.TurnkeyClient
-import com.turnkey.types.ProxyTSignupBody
+import com.turnkey.types.ProxyTSignupV2Body
 import com.turnkey.types.TGetWalletAccountsBody
 import com.turnkey.types.V1AddressFormat
 import com.turnkey.types.V1ApiKeyCurve
@@ -31,6 +31,7 @@ import com.turnkey.types.V1PayloadEncoding
 import com.turnkey.types.V1Wallet
 import com.turnkey.types.V1WalletAccount
 import com.turnkey.types.V1WalletParams
+import com.turnkey.types.V1OauthProviderParamsV2
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.nio.charset.StandardCharsets
@@ -100,7 +101,7 @@ object Helpers {
         }
     }
 
-    fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupBody {
+    fun buildSignUpBody(createSubOrgParams: CreateSubOrgParams): ProxyTSignupV2Body {
         val now = System.currentTimeMillis()
 
         val authenticators: List<V1AuthenticatorParamsV2> =
@@ -127,6 +128,11 @@ object Helpers {
                     )
                 }
                 ?: emptyList()
+        
+        val oauthProviders: List<V1OauthProviderParamsV2> =
+            createSubOrgParams.oauthProviders
+                ?.takeIf { it.isNotEmpty() }
+                ?: emptyList()
 
         val userName = createSubOrgParams.userName
             ?: createSubOrgParams.userEmail
@@ -138,7 +144,7 @@ object Helpers {
             V1WalletParams(walletName = it.walletName, accounts = it.walletAccounts)
         }
 
-        return ProxyTSignupBody(
+        return ProxyTSignupV2Body(
             userName = userName,
             organizationName = subOrgName,
             userEmail = createSubOrgParams.userEmail,
@@ -148,7 +154,7 @@ object Helpers {
             verificationToken = createSubOrgParams.verificationToken,
             apiKeys = apiKeys,
             wallet = customWallet,
-            oauthProviders = createSubOrgParams.oauthProviders ?: emptyList(),
+            oauthProviders = oauthProviders,
         )
     }
 
@@ -187,7 +193,7 @@ object Helpers {
                     ?: CreateSubOrgParams()
                 base.copy(
                     oauthProviders = listOf(
-                        V1OauthProviderParams(
+                        V1OauthProviderParamsV2(
                             providerName = overrideParams.providerName,
                             oidcToken = overrideParams.oidcToken,
                         )

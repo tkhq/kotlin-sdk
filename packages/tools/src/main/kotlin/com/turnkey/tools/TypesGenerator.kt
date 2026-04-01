@@ -9,6 +9,16 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 
+/* Class names referenced by the oneOf serializer generator */
+private val CN_JSON_CONTENT_POLYMORPHIC_SERIALIZER =
+    ClassName("kotlinx.serialization.json", "JsonContentPolymorphicSerializer")
+private val CN_DESERIALIZATION_STRATEGY =
+    ClassName("kotlinx.serialization", "DeserializationStrategy")
+private val CN_SERIALIZATION_EXCEPTION =
+    ClassName("kotlinx.serialization", "SerializationException")
+private val CN_JSON_ELEMENT = ClassName("kotlinx.serialization.json", "JsonElement")
+private val CN_SERIALIZABLE = ClassName("kotlinx.serialization", "Serializable")
+
 /** Entry point for generating Turnkey API types from OpenAPI specs */
 fun main(args: Array<String>) {
     val argv = args.toList()
@@ -40,6 +50,8 @@ fun main(args: Array<String>) {
         .addFileComment(GENERATED_FILE_HEADER)
         .addImport("kotlinx.serialization", "Serializable", "SerialName")
         .addImport("kotlinx.serialization.json", "JsonElement")
+        .addImport("kotlinx.serialization.json", "JsonContentPolymorphicSerializer", "jsonObject")
+        .addImport("kotlinx.serialization", "DeserializationStrategy", "SerializationException")
 
     generateDefinitionsFromComponents(swaggerSpecs, fileBuilder, pkg)
     generateApiTypes(swaggerSpecs, fileBuilder, pkg)
@@ -246,6 +258,202 @@ private fun classSpec(
     return tb.primaryConstructor(ctor.build()).build()
 }
 
+/**
+ * Generates a sealed interface + per-variant data classes + a polymorphic
+ * serializer for Swagger definitions that contain oneOf-style fields.
+ *
+ * Returns a pair: (sealed interface TypeSpec, serializer object TypeSpec).
+ */
+private fun oneOfClassSpec(
+    rawClassName: String,
+    schema: JsonObject,
+    defs: Map<String, JsonObject>,
+    pkg: String,
+    oneOfFieldNames: List<String>
+): Pair<TypeSpec, TypeSpec> {
+    val className = sanitizeTypeName(rawClassName)
+    val classCN = ClassName(pkg, className)
+    val serializerName = "${className}Serializer"
+    val serializerCN = ClassName(pkg, serializerName)
+
+    val props = (schema["properties"] as? JsonObject) ?: buildJsonObject { }
+    val required = (schema["required"] as? JsonArray)
+        ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+        ?.toSet() ?: emptySet()
+    val oneOfSet = oneOfFieldNames.toSet()
+
+    // Separate base fields from oneOf fields
+    val baseFields = props.filterKeys { it !in oneOfSet }
+    val oneOfFields = props.filterKeys { it in oneOfSet }
+
+    // --- Sealed interface ---
+    val sealedBuilder = TypeSpec.interfaceBuilder(className)
+        .addModifiers(KModifier.SEALED)
+        .addAnnotation(
+            AnnotationSpec.builder(CN_SERIALIZABLE)
+                .addMember("with = %T::class", serializerCN)
+                .build()
+        )
+
+    schema["description"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }?.let {
+        sealedBuilder.addKdoc("%L\n", it)
+    }
+
+    // --- Companion invoke factory so callers can use ClassName(...) syntax ---
+    run {
+        val invokeBuilder = FunSpec.builder("invoke")
+            .addModifiers(KModifier.OPERATOR)
+            .returns(classCN)
+
+        // Add all base fields as parameters
+        baseFields.toSortedMap().forEach { (jsonKey, sEl) ->
+            val s = sEl.jsonObject
+            val isReq = jsonKey in required
+            val tn = typeToKotlin(s, defs, pkg).let { if (isReq) it else it.copy(nullable = true) }
+            invokeBuilder.addParameter(
+                ParameterSpec.builder(sanitizeFieldName(jsonKey), tn)
+                    .apply { if (tn.isNullable) defaultValue("null") }
+                    .build()
+            )
+        }
+
+        // Add oneOf fields as nullable parameters (exactly one should be non-null)
+        for (oneOfKey in oneOfFieldNames) {
+            val oneOfSchema = oneOfFields[oneOfKey]?.jsonObject ?: continue
+            val oneOfType = typeToKotlin(oneOfSchema, defs, pkg).copy(nullable = true)
+            invokeBuilder.addParameter(
+                ParameterSpec.builder(sanitizeFieldName(oneOfKey), oneOfType)
+                    .defaultValue("null")
+                    .build()
+            )
+        }
+
+        // Build the when body that dispatches to the right variant
+        invokeBuilder.addCode(buildCodeBlock {
+            beginControlFlow("return when")
+            for (oneOfKey in oneOfFieldNames) {
+                val variantName = ucFirst(sanitizeFieldName(oneOfKey))
+                val sanitized = sanitizeFieldName(oneOfKey)
+                val baseArgs = baseFields.keys.sorted().joinToString(", ") { k ->
+                    val s = sanitizeFieldName(k); "$s = $s"
+                }
+                val allArgs = "$sanitized = $sanitized" +
+                    (if (baseArgs.isNotEmpty()) ", $baseArgs" else "")
+                addStatement(
+                    "$sanitized != null -> %T($allArgs)",
+                    ClassName(pkg, className, variantName)
+                )
+            }
+            addStatement(
+                "else -> throw %T(%S)",
+                ClassName("kotlin", "IllegalArgumentException"),
+                "Exactly one of ${oneOfFieldNames.joinToString()} must be non-null"
+            )
+            endControlFlow()
+        })
+
+        sealedBuilder.addType(
+            TypeSpec.companionObjectBuilder()
+                .addFunction(invokeBuilder.build())
+                .build()
+        )
+    }
+
+    // --- One data-class variant per oneOf field ---
+    for (oneOfKey in oneOfFieldNames) {
+        val oneOfSchema = oneOfFields[oneOfKey]?.jsonObject ?: continue
+        val variantName = ucFirst(sanitizeFieldName(oneOfKey))
+        val variantBuilder = TypeSpec.classBuilder(variantName)
+            .addModifiers(KModifier.DATA)
+            .addAnnotation(AnnotationSpec.builder(CN_SERIALIZABLE).build())
+            .addSuperinterface(classCN)
+
+        val ctor = FunSpec.constructorBuilder()
+
+        // oneOf field itself — always non-nullable (it defines the variant)
+        val oneOfType = typeToKotlin(oneOfSchema, defs, pkg)
+        ctor.addParameter(sanitizeFieldName(oneOfKey), oneOfType)
+        variantBuilder.addProperty(
+            PropertySpec.builder(sanitizeFieldName(oneOfKey), oneOfType)
+                .initializer(sanitizeFieldName(oneOfKey))
+                .addAnnotation(
+                    AnnotationSpec.builder(SerialName::class)
+                        .addMember("%S", oneOfKey)
+                        .build()
+                )
+                .apply {
+                    oneOfSchema["description"]?.jsonPrimitive?.contentOrNull
+                        ?.takeIf { it.isNotBlank() }?.let { addKdoc("%L\n", it) }
+                }
+                .build()
+        )
+
+        // All base (shared) fields
+        baseFields.toSortedMap().forEach { (jsonKey, sEl) ->
+            val s = sEl.jsonObject
+            val isReq = jsonKey in required
+            val tn = typeToKotlin(s, defs, pkg).let { if (isReq) it else it.copy(nullable = true) }
+            val sanitized = sanitizeFieldName(jsonKey)
+
+            ctor.addParameter(
+                ParameterSpec.builder(sanitized, tn)
+                    .apply { if (tn.isNullable) defaultValue("null") }
+                    .build()
+            )
+            variantBuilder.addProperty(
+                PropertySpec.builder(sanitized, tn)
+                    .initializer(sanitized)
+                    .addAnnotation(
+                        AnnotationSpec.builder(SerialName::class)
+                            .addMember("%S", jsonKey)
+                            .build()
+                    )
+                    .apply {
+                        s["description"]?.jsonPrimitive?.contentOrNull
+                            ?.takeIf { it.isNotBlank() }?.let { addKdoc("%L\n", it) }
+                    }
+                    .build()
+            )
+        }
+
+        variantBuilder.primaryConstructor(ctor.build())
+        sealedBuilder.addType(variantBuilder.build())
+    }
+
+    val sealedInterface = sealedBuilder.build()
+
+    // --- JsonContentPolymorphicSerializer ---
+    val selectFn = FunSpec.builder("selectDeserializer")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("element", CN_JSON_ELEMENT)
+        .returns(CN_DESERIALIZATION_STRATEGY.parameterizedBy(classCN))
+        .addCode(buildCodeBlock {
+            beginControlFlow("return when")
+            for (field in oneOfFieldNames) {
+                val variantName = ucFirst(sanitizeFieldName(field))
+                addStatement(
+                    "%S in element.jsonObject -> %T.serializer()",
+                    field, ClassName(pkg, className, variantName)
+                )
+            }
+            addStatement(
+                "else -> throw %T(%S)",
+                CN_SERIALIZATION_EXCEPTION,
+                "Unknown variant of $className: none of ${oneOfFieldNames.joinToString()} found"
+            )
+            endControlFlow()
+        })
+        .build()
+
+    val serializer = TypeSpec.objectBuilder(serializerName)
+        .superclass(CN_JSON_CONTENT_POLYMORPHIC_SERIALIZER.parameterizedBy(classCN))
+        .addSuperclassConstructorParameter("%T::class", classCN)
+        .addFunction(selectFn)
+        .build()
+
+    return sealedInterface to serializer
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*                         DEFINITIONS (ENUMS + CLASSES)                       */
@@ -273,7 +481,7 @@ fun generateDefinitionsFromComponents(
         }
     }
 
-    // 2) Object classes with properties
+    // 2) Object classes with properties (including oneOf sealed interfaces)
     apis.forEach { (_, swagger) ->
         val defs = (swagger["definitions"] as? JsonObject)?.mapValues { it.value.jsonObject } ?: emptyMap()
         defs.toSortedMap().forEach { (rawName, def) ->
@@ -281,7 +489,14 @@ fun generateDefinitionsFromComponents(
             val hasProps = (def["properties"] as? JsonObject)?.isNotEmpty() == true
             val isEnum = (def["enum"] as? JsonArray)?.isNotEmpty() == true
             if (hasProps && !isEnum) {
-                fileBuilder.addType(classSpec(rawName, def, defs, pkg))
+                val oneOfFields = OneOfFields.map[rawName]
+                if (oneOfFields != null) {
+                    val (sealedInterface, serializer) = oneOfClassSpec(rawName, def, defs, pkg, oneOfFields)
+                    fileBuilder.addType(sealedInterface)
+                    fileBuilder.addType(serializer)
+                } else {
+                    fileBuilder.addType(classSpec(rawName, def, defs, pkg))
+                }
                 seen += rawName
             }
         }

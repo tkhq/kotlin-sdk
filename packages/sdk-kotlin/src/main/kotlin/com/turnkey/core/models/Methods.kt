@@ -1,11 +1,13 @@
 package com.turnkey.core.models
 
 data class InitOtpResult(
-    val otpId: String
+    val otpId: String,
+    val otpEncryptionTargetBundle: String
 )
 
 data class VerifyOtpResult (
-    val verificationToken: String
+    val verificationToken: String,
+    val publicKey: String
 )
 
 data class LoginWithOtpResult(
