@@ -63,6 +63,7 @@ import com.turnkey.core.models.VerifyOtpResult
 import com.turnkey.core.models.Wallet
 import com.turnkey.core.models.errors.TurnkeyStorageError
 import com.turnkey.core.models.otpTypeToFilterTypeMap
+import com.turnkey.crypto.encryptOtpCodeToBundle
 import com.turnkey.crypto.encryptWalletToBundle
 import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
@@ -72,10 +73,11 @@ import com.turnkey.stamper.Stamper
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetWalletKitConfigBody
 import com.turnkey.types.ProxyTGetWalletKitConfigResponse
-import com.turnkey.types.ProxyTInitOtpBody
+import com.turnkey.types.ProxyTInitOtpV2Body
 import com.turnkey.types.ProxyTOAuth2AuthenticateBody
 import com.turnkey.types.ProxyTOAuthLoginBody
 import com.turnkey.types.ProxyTOtpLoginBody
+import com.turnkey.types.ProxyTOtpLoginV2Body
 import com.turnkey.types.ProxyTSignupBody
 import com.turnkey.types.ProxyTVerifyOtpBody
 import com.turnkey.types.TCreateWalletBody
@@ -97,6 +99,8 @@ import com.turnkey.types.V1PayloadEncoding
 import com.turnkey.types.V1SignRawPayloadResult
 import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
+import com.turnkey.types.ProxyTSignupV2Body
+import com.turnkey.types.ProxyTVerifyOtpV2Body
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.filter
@@ -1095,7 +1099,7 @@ object TurnkeyContext {
         )
 
         try {
-            val res = client.proxySignup(signUpBody)
+            val res = client.proxySignupV2(signUpBody)
             val orgId = res.organizationId
             if (orgId.isEmpty()) {
                 throw TurnkeyKotlinError.SignUpFailed("No organizationId returned")
@@ -1294,7 +1298,7 @@ object TurnkeyContext {
 
             val signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
-            val res = client.proxySignup(signUpBody)
+            val res = client.proxySignupV2(signUpBody)
 
             val orgId = res.organizationId
             if (orgId.isEmpty()) {
@@ -1333,7 +1337,7 @@ object TurnkeyContext {
      *
      * @param otpType the type of OTP (e.g., OtpType.OTP_TYPE_EMAIL, OtpType.OTP_TYPE_SMS)
      * @param contact the contact information (email address or phone number)
-     * @return InitOtpResult containing the OTP ID to use for verification
+     * @return InitOtpResult containing the OTP ID to use for verification and the signed encryption target bundle for encrypting the OTP code.
      * @throws TurnkeyKotlinError.FailedToInitOtp if OTP initialization fails
      */
     @Throws(TurnkeyKotlinError.FailedToInitOtp::class)
@@ -1341,12 +1345,12 @@ object TurnkeyContext {
         otpType: OtpType, contact: String
     ): InitOtpResult {
         try {
-            val res = client.proxyInitOtp(
-                ProxyTInitOtpBody(
+            val res = client.proxyInitOtpV2(
+                ProxyTInitOtpV2Body(
                     contact = contact, otpType = otpType.name
                 )
             )
-            return InitOtpResult(otpId = res.otpId)
+            return InitOtpResult(otpId = res.otpId, otpEncryptionTargetBundle = res.otpEncryptionTargetBundle)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToInitOtp(t)
         }
@@ -1356,26 +1360,35 @@ object TurnkeyContext {
      * Verifies an OTP code.
      *
      * This is the second step in OTP authentication. It verifies the code that was sent to
-     * the user's contact. If verification succeeds, a verification token is returned which
+     * the user's contact. If verification succeeds, a verification token bound to the public key is returned which
      * can be used to log in or sign up.
      *
      * @param otpCode the OTP code entered by the user
      * @param otpId the OTP ID returned from [initOtp]
-     * @param publicKey optional public key for the session; if null, a new one is generated
-     * @return VerifyOtpResult containing the verification token for login/sign-up
+     * @param otpEncryptionTargetBundle the encryption target bundle returned from `initOtp`.
+     * @param publicKey optional public key to bind to the verification token. If not provided, a new key pair will be generated via the configured `apiKeyStamper`.
+     *
+     * @return VerifyOtpResult containing the verification token for login/sign-up and the public key bound to the verification token (either the one provided or the auto-generated one).
      * @throws TurnkeyKotlinError.FailedToVerifyOtp if verification fails
      * @throws TurnkeyKotlinError.InvalidResponse if the server doesn't return a verification token
      */
     @Throws(TurnkeyKotlinError.FailedToVerifyOtp::class)
     suspend fun verifyOtp(
-        otpCode: String, otpId: String, publicKey: String? = null
+        otpId: String, otpCode: String, otpEncryptionTargetBundle: String, publicKey: String?
     ): VerifyOtpResult {
-        try {
-            val resolvedPublicKey = publicKey ?: createKeyPair()
+        val resolvedPublicKey = publicKey ?: createKeyPair()
 
-            val verifyOtpRes = client.proxyVerifyOtp(
-                ProxyTVerifyOtpBody(
-                    otpId, otpCode, resolvedPublicKey
+        try {
+            val encryptedOtpBundle = encryptOtpCodeToBundle(
+                otpCode = otpCode,
+                otpEncryptionTargetBundle = otpEncryptionTargetBundle,
+                publicKey = resolvedPublicKey
+            )
+
+            val verifyOtpRes = client.proxyVerifyOtpV2(
+                ProxyTVerifyOtpV2Body(
+                    otpId,
+                    encryptedOtpBundle
                 )
             )
             if (verifyOtpRes.verificationToken.isEmpty()) {
@@ -1393,9 +1406,11 @@ object TurnkeyContext {
             }
 
             return VerifyOtpResult(
-                verificationToken = verifyOtpRes.verificationToken
+                verificationToken = verifyOtpRes.verificationToken,
+                publicKey = resolvedPublicKey
             )
         } catch (t: Throwable) {
+            deleteKeyPair(resolvedPublicKey)
             throw TurnkeyKotlinError.FailedToVerifyOtp(t)
         }
     }
@@ -1406,6 +1421,8 @@ object TurnkeyContext {
      * This method authenticates an existing user with the verification token obtained from
      * [verifyOtp]. The user must have previously signed up. A new session is created and
      * stored locally.
+     * - The client signature is always produced using the private key bound to the verification token during `verifyOtp`.
+     * - The verification token's embedded key becomes the session public key.
      *
      * For new users, use [signUpWithOtp] instead. To handle both cases automatically,
      * use [loginOrSignUpWithOtp].
@@ -1413,7 +1430,6 @@ object TurnkeyContext {
      * @param verificationToken the verification token from [verifyOtp]
      * @param organizationId optional organization ID to log in to (for multi-org scenarios)
      * @param invalidateExisting if true, invalidates all other sessions for this user
-     * @param publicKey optional public key for the session; if null, a new one is generated
      * @param sessionKey optional key under which to store the session
      * @return LoginWithOtpResult containing the session JWT
      * @throws TurnkeyKotlinError.FailedToLoginWithOtp if login fails
@@ -1423,15 +1439,10 @@ object TurnkeyContext {
         verificationToken: String,
         organizationId: String? = null,
         invalidateExisting: Boolean = false,
-        publicKey: String? = null,
         sessionKey: String? = null,
     ): LoginWithOtpResult {
         try {
-            val sessionPublicKey = publicKey ?: createKeyPair()
-
-            val (message, clientSignaturePublicKey) = ClientSignature.forLogin(
-                verificationToken, sessionPublicKey
-            )
+            val (message, clientSignaturePublicKey) = ClientSignature.forLogin(verificationToken)
 
             val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
             val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
@@ -1443,10 +1454,10 @@ object TurnkeyContext {
                 signature = signature
             )
 
-            val res = client.proxyOtpLogin(
-                ProxyTOtpLoginBody(
+            val res = client.proxyOtpLoginV2(
+                ProxyTOtpLoginV2Body(
                     organizationId = organizationId,
-                    publicKey = sessionPublicKey,
+                    publicKey = clientSignaturePublicKey,
                     verificationToken = verificationToken,
                     invalidateExisting = invalidateExisting,
                     clientSignature = clientSignature
@@ -1469,13 +1480,14 @@ object TurnkeyContext {
      * with the verification token obtained from [verifyOtp]. After successful sign-up, the
      * user is automatically logged in and a session is created.
      *
+     * The verification token's embedded key becomes the session public key.
+     *
      * For existing users, use [loginWithOtp] instead. To handle both cases automatically,
      * use [loginOrSignUpWithOtp].
      *
      * @param verificationToken the verification token from [verifyOtp]
      * @param contact the contact information (email or phone number) used for OTP
      * @param otpType the type of OTP used (EMAIL or SMS)
-     * @param publicKey optional public key for the session; if null, a new one is generated
      * @param sessionKey optional key under which to store the session
      * @param createSubOrgParams optional sub-organization creation parameters (overrides config defaults)
      * @param invalidateExisting if true, invalidates all other sessions for this user
@@ -1488,7 +1500,6 @@ object TurnkeyContext {
         verificationToken: String,
         contact: String,
         otpType: OtpType,
-        publicKey: String? = null,
         sessionKey: String? = null,
         createSubOrgParams: CreateSubOrgParams? = null,
         invalidateExisting: Boolean = false
@@ -1523,7 +1534,7 @@ object TurnkeyContext {
         )
 
         // add client signature to sign up body
-        signUpBody = ProxyTSignupBody(
+        signUpBody = ProxyTSignupV2Body(
             apiKeys = signUpBody.apiKeys,
             authenticators = signUpBody.authenticators,
             oauthProviders = signUpBody.oauthProviders,
@@ -1538,7 +1549,7 @@ object TurnkeyContext {
         )
 
         try {
-            val res = client.proxySignup(signUpBody)
+            val res = client.proxySignupV2(signUpBody)
             val orgId = res.organizationId
 
             if (orgId.isEmpty()) {
@@ -1559,7 +1570,6 @@ object TurnkeyContext {
                 organizationId = orgId,
                 sessionKey = sessionKey,
                 invalidateExisting = invalidateExisting,
-                publicKey = publicKey
             )
 
             return SignUpWithOtpResult(sessionJwt = loginRes.sessionJwt)
@@ -1575,14 +1585,17 @@ object TurnkeyContext {
      * given contact. If an account exists, it logs in the user. If no account exists, it signs
      * up a new user.
      *
+     * The key bound to the verification token during `verifyOtp` is always reused as the session public key.
+     *
      * This is the recommended method for OTP authentication when you don't know if the user
      * is new or returning. It combines [verifyOtp] with the login/sign-up logic.
      *
      * @param otpId the OTP ID returned from [initOtp]
      * @param otpCode the OTP code entered by the user
+     * @param otpEncryptionTargetBundle the encryption target bundle returned from `initOtp`
      * @param contact the contact information (email or phone number)
      * @param otpType the type of OTP (EMAIL or SMS)
-     * @param publicKey optional public key for the session; if null, a new one is generated
+     * @param publicKey public key to bind to the verification token via `verifyOtp`. If not provided, a new key pair will be generated. This key becomes the session public key.
      * @param invalidateExisting if true, invalidates all other sessions for this user (login only)
      * @param sessionKey optional key under which to store the session
      * @param createSubOrgParams optional sub-organization creation parameters (sign-up only)
@@ -1593,6 +1606,7 @@ object TurnkeyContext {
     suspend fun loginOrSignUpWithOtp(
         otpId: String,
         otpCode: String,
+        otpEncryptionTargetBundle: String,
         contact: String,
         otpType: OtpType,
         publicKey: String? = null,
@@ -1606,6 +1620,7 @@ object TurnkeyContext {
             val verifyRes = verifyOtp(
                 otpCode = otpCode,
                 otpId = otpId,
+                otpEncryptionTargetBundle = otpEncryptionTargetBundle,
                 publicKey = resolvedPublicKey,
             )
 
@@ -1623,7 +1638,6 @@ object TurnkeyContext {
                     verificationToken = verifyRes.verificationToken,
                     contact = contact,
                     otpType = otpType,
-                    publicKey = resolvedPublicKey,
                     sessionKey = sessionKey,
                     createSubOrgParams = createSubOrgParams,
                     invalidateExisting = invalidateExisting
@@ -1635,7 +1649,6 @@ object TurnkeyContext {
                     verificationToken = verifyRes.verificationToken,
                     organizationId = subOrganizationId,
                     invalidateExisting = invalidateExisting,
-                    publicKey = resolvedPublicKey,
                     sessionKey = sessionKey
                 )
                 return LoginOrSignUpWithOtpResult(sessionJwt = loginRes.sessionJwt)

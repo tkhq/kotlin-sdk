@@ -11,14 +11,19 @@
 package com.turnkey.types
 
 import kotlin.Boolean
+import kotlin.IllegalArgumentException
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Map
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 
 @Serializable
 public enum class Externaldatav1SignatureScheme {
@@ -288,6 +293,26 @@ public enum class V1ActivityType {
   ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS,
   @SerialName("ACTIVITY_TYPE_SOL_SEND_TRANSACTION")
   ACTIVITY_TYPE_SOL_SEND_TRANSACTION,
+  @SerialName("ACTIVITY_TYPE_INIT_OTP_V3")
+  ACTIVITY_TYPE_INIT_OTP_V3,
+  @SerialName("ACTIVITY_TYPE_VERIFY_OTP_V2")
+  ACTIVITY_TYPE_VERIFY_OTP_V2,
+  @SerialName("ACTIVITY_TYPE_OTP_LOGIN_V2")
+  ACTIVITY_TYPE_OTP_LOGIN_V2,
+  @SerialName("ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME")
+  ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME,
+  @SerialName("ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8")
+  ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8,
+  @SerialName("ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2")
+  ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2,
+  @SerialName("ACTIVITY_TYPE_CREATE_USERS_V4")
+  ACTIVITY_TYPE_CREATE_USERS_V4,
+  @SerialName("ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT")
+  ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT,
+  @SerialName("ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT")
+  ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT,
+  @SerialName("ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT")
+  ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT,
 }
 
 @Serializable
@@ -456,6 +481,8 @@ public enum class V1FeatureName {
   FEATURE_NAME_OTP_EMAIL_AUTH,
   @SerialName("FEATURE_NAME_AUTH_PROXY")
   FEATURE_NAME_AUTH_PROXY,
+  @SerialName("FEATURE_NAME_SOLANA_RENT_PREFUND_ENABLED")
+  FEATURE_NAME_SOLANA_RENT_PREFUND_ENABLED,
 }
 
 @Serializable
@@ -605,16 +632,6 @@ public enum class V1HashFunction {
 }
 
 @Serializable
-public enum class V1InvitationStatus {
-  @SerialName("INVITATION_STATUS_CREATED")
-  INVITATION_STATUS_CREATED,
-  @SerialName("INVITATION_STATUS_ACCEPTED")
-  INVITATION_STATUS_ACCEPTED,
-  @SerialName("INVITATION_STATUS_REVOKED")
-  INVITATION_STATUS_REVOKED,
-}
-
-@Serializable
 public enum class V1MnemonicLanguage {
   @SerialName("MNEMONIC_LANGUAGE_ENGLISH")
   MNEMONIC_LANGUAGE_ENGLISH,
@@ -735,15 +752,11 @@ public enum class V1TransactionType {
 }
 
 @Serializable
-public enum class V1TvcDeploymentStage {
-  @SerialName("TVC_DEPLOYMENT_STAGE_APPROVE")
-  TVC_DEPLOYMENT_STAGE_APPROVE,
-  @SerialName("TVC_DEPLOYMENT_STAGE_PROVISION")
-  TVC_DEPLOYMENT_STAGE_PROVISION,
-  @SerialName("TVC_DEPLOYMENT_STAGE_LIVE")
-  TVC_DEPLOYMENT_STAGE_LIVE,
-  @SerialName("TVC_DEPLOYMENT_STAGE_DELETE")
-  TVC_DEPLOYMENT_STAGE_DELETE,
+public enum class V1TvcHealthCheckType {
+  @SerialName("TVC_HEALTH_CHECK_TYPE_HTTP")
+  TVC_HEALTH_CHECK_TYPE_HTTP,
+  @SerialName("TVC_HEALTH_CHECK_TYPE_GRPC")
+  TVC_HEALTH_CHECK_TYPE_GRPC,
 }
 
 @Serializable
@@ -1276,6 +1289,25 @@ public data class V1AppProof(
 )
 
 @Serializable
+public data class V1AppStatus(
+  /**
+   * Unique identifier for this TVC App
+   */
+  @SerialName("appId")
+  public val appId: String,
+  /**
+   * List of deployment statuses for this app
+   */
+  @SerialName("deployments")
+  public val deployments: List<V1DeploymentStatus>,
+  /**
+   * The deployment ID currently serving traffic for this app
+   */
+  @SerialName("targetedDeploymentId")
+  public val targetedDeploymentId: String,
+)
+
+@Serializable
 public data class V1ApproveActivityIntent(
   /**
    * An artifact verifying a User's action.
@@ -1648,26 +1680,6 @@ public data class V1CreateApiOnlyUsersIntent(
 )
 
 @Serializable
-public data class V1CreateApiOnlyUsersRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateApiOnlyUsersIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
 public data class V1CreateApiOnlyUsersResult(
   /**
    * A list of API-only User IDs.
@@ -1897,6 +1909,20 @@ public data class V1CreateOauthProvidersIntent(
 )
 
 @Serializable
+public data class V1CreateOauthProvidersIntentV2(
+  /**
+   * A list of Oauth providers.
+   */
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
+  /**
+   * The ID of the User to add an Oauth provider to
+   */
+  @SerialName("userId")
+  public val userId: String,
+)
+
+@Serializable
 public data class V1CreateOauthProvidersRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -1906,7 +1932,7 @@ public data class V1CreateOauthProvidersRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1CreateOauthProvidersIntent,
+  public val parameters: V1CreateOauthProvidersIntentV2,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -1918,6 +1944,15 @@ public data class V1CreateOauthProvidersRequest(
 
 @Serializable
 public data class V1CreateOauthProvidersResult(
+  /**
+   * A list of unique identifiers for Oauth Providers
+   */
+  @SerialName("providerIds")
+  public val providerIds: List<String>,
+)
+
+@Serializable
+public data class V1CreateOauthProvidersResultV2(
   /**
    * A list of unique identifiers for Oauth Providers
    */
@@ -2688,6 +2723,60 @@ public data class V1CreateSubOrganizationIntentV7(
 )
 
 @Serializable
+public data class V1CreateSubOrganizationIntentV8(
+  /**
+   * Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
+  /**
+   * Disable email auth for the sub-organization
+   */
+  @SerialName("disableEmailAuth")
+  public val disableEmailAuth: Boolean? = null,
+  /**
+   * Disable email recovery for the sub-organization
+   */
+  @SerialName("disableEmailRecovery")
+  public val disableEmailRecovery: Boolean? = null,
+  /**
+   * Disable OTP email auth for the sub-organization
+   */
+  @SerialName("disableOtpEmailAuth")
+  public val disableOtpEmailAuth: Boolean? = null,
+  /**
+   * Disable OTP SMS auth for the sub-organization
+   */
+  @SerialName("disableSmsAuth")
+  public val disableSmsAuth: Boolean? = null,
+  /**
+   * The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+   */
+  @SerialName("rootQuorumThreshold")
+  public val rootQuorumThreshold: Long,
+  /**
+   * Root users to create within this sub-organization
+   */
+  @SerialName("rootUsers")
+  public val rootUsers: List<V1RootUserParamsV5>,
+  /**
+   * Name for this sub-organization
+   */
+  @SerialName("subOrganizationName")
+  public val subOrganizationName: String,
+  /**
+   * Signed JWT containing a unique id, expiry, verification type, contact
+   */
+  @SerialName("verificationToken")
+  public val verificationToken: String? = null,
+  /**
+   * The wallet to create for the sub-organization
+   */
+  @SerialName("wallet")
+  public val wallet: V1WalletParams? = null,
+)
+
+@Serializable
 public data class V1CreateSubOrganizationRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -2697,7 +2786,7 @@ public data class V1CreateSubOrganizationRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1CreateSubOrganizationIntentV7,
+  public val parameters: V1CreateSubOrganizationIntentV8,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -2769,12 +2858,22 @@ public data class V1CreateSubOrganizationResultV7(
 )
 
 @Serializable
+public data class V1CreateSubOrganizationResultV8(
+  @SerialName("rootUserIds")
+  public val rootUserIds: List<String>? = null,
+  @SerialName("subOrganizationId")
+  public val subOrganizationId: String,
+  @SerialName("wallet")
+  public val wallet: V1WalletResult? = null,
+)
+
+@Serializable
 public data class V1CreateTvcAppIntent(
   /**
-   * Enables external connectivity for this TVC app. Default if not provided: false.
+   * Enables network egress for this TVC app. Default if not provided: false.
    */
-  @SerialName("externalConnectivity")
-  public val externalConnectivity: Boolean? = null,
+  @SerialName("enableEgress")
+  public val enableEgress: Boolean? = null,
   /**
    * Unique identifier for an existing TVC operator set to use as the Manifest Set for this TVC application. If left empty, a new Manifest Set configuration is required
    */
@@ -2805,24 +2904,6 @@ public data class V1CreateTvcAppIntent(
    */
   @SerialName("shareSetParams")
   public val shareSetParams: V1TvcOperatorSetParams? = null,
-)
-
-@Serializable
-public data class V1CreateTvcAppRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateTvcAppIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -2857,30 +2938,25 @@ public data class V1CreateTvcDeploymentIntent(
   @SerialName("appId")
   public val appId: String,
   /**
+   * Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false.
+   */
+  @SerialName("debugMode")
+  public val debugMode: Boolean? = null,
+  /**
    * Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity.
    */
   @SerialName("expectedPivotDigest")
   public val expectedPivotDigest: String,
   /**
-   * Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"]
+   * Port to use for health checks.
    */
-  @SerialName("hostArgs")
-  public val hostArgs: List<String>,
+  @SerialName("healthCheckPort")
+  public val healthCheckPort: Long,
   /**
-   * Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty.
+   * Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol.
    */
-  @SerialName("hostContainerEncryptedPullSecret")
-  public val hostContainerEncryptedPullSecret: String? = null,
-  /**
-   * URL of the container containing the host binary
-   */
-  @SerialName("hostContainerImageUrl")
-  public val hostContainerImageUrl: String,
-  /**
-   * Location of the binary inside the host container
-   */
-  @SerialName("hostPath")
-  public val hostPath: String,
+  @SerialName("healthCheckType")
+  public val healthCheckType: V1TvcHealthCheckType,
   /**
    * Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds.
    */
@@ -2907,28 +2983,15 @@ public data class V1CreateTvcDeploymentIntent(
   @SerialName("pivotPath")
   public val pivotPath: String,
   /**
+   * Port to use for public ingress.
+   */
+  @SerialName("publicIngressPort")
+  public val publicIngressPort: Long,
+  /**
    * The QuorumOS version to use to deploy this application
    */
   @SerialName("qosVersion")
   public val qosVersion: String,
-)
-
-@Serializable
-public data class V1CreateTvcDeploymentRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateTvcDeploymentIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -2957,24 +3020,6 @@ public data class V1CreateTvcManifestApprovalsIntent(
    */
   @SerialName("manifestId")
   public val manifestId: String,
-)
-
-@Serializable
-public data class V1CreateTvcManifestApprovalsRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateTvcManifestApprovalsIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -3062,6 +3107,15 @@ public data class V1CreateUsersIntentV3(
 )
 
 @Serializable
+public data class V1CreateUsersIntentV4(
+  /**
+   * A list of Users.
+   */
+  @SerialName("users")
+  public val users: List<V1UserParamsV4>,
+)
+
+@Serializable
 public data class V1CreateUsersRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -3071,7 +3125,7 @@ public data class V1CreateUsersRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1CreateUsersIntentV3,
+  public val parameters: V1CreateUsersIntentV4,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -3189,6 +3243,59 @@ public data class V1CreateWalletResult(
    */
   @SerialName("walletId")
   public val walletId: String,
+)
+
+@Serializable
+public data class V1CreateWebhookEndpointIntent(
+  /**
+   * Human-readable name for this webhook endpoint.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Event subscriptions to create for this endpoint.
+   */
+  @SerialName("subscriptions")
+  public val subscriptions: List<V1WebhookSubscriptionParams>? = null,
+  /**
+   * The destination URL for webhook delivery.
+   */
+  @SerialName("url")
+  public val url: String,
+)
+
+@Serializable
+public data class V1CreateWebhookEndpointRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateWebhookEndpointIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1CreateWebhookEndpointResult(
+  /**
+   * Unique identifier of the created webhook endpoint.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+  /**
+   * The created webhook endpoint data.
+   */
+  @SerialName("webhookEndpoint")
+  public val webhookEndpoint: V1WebhookEndpointData,
 )
 
 @Serializable
@@ -3878,6 +3985,68 @@ public data class V1DeleteWalletsResult(
 )
 
 @Serializable
+public data class V1DeleteWebhookEndpointIntent(
+  /**
+   * Unique identifier of the webhook endpoint to delete.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+)
+
+@Serializable
+public data class V1DeleteWebhookEndpointRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1DeleteWebhookEndpointIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1DeleteWebhookEndpointResult(
+  /**
+   * Unique identifier of the deleted webhook endpoint.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+)
+
+@Serializable
+public data class V1DeploymentStatus(
+  /**
+   * Unique identifier for this deployment (corresponds to k8s deployment label)
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+  /**
+   * Desired number of replicas
+   */
+  @SerialName("desiredReplicas")
+  public val desiredReplicas: Long,
+  /**
+   * Last time this deployment was updated
+   */
+  @SerialName("lastUpdatedTime")
+  public val lastUpdatedTime: Externaldatav1Timestamp,
+  /**
+   * Number of ready replicas
+   */
+  @SerialName("readyReplicas")
+  public val readyReplicas: Long,
+)
+
+@Serializable
 public data class V1DisablePrivateKeyIntent(
   /**
    * Unique identifier for a given Private Key.
@@ -4168,6 +4337,15 @@ public data class V1EnableAuthProxyResult(
 )
 
 @Serializable
+public data class V1EthFailureDetails(
+  /**
+   * Ethereum revert chain, ordered from outermost to innermost.
+   */
+  @SerialName("revertChain")
+  public val revertChain: List<V1RevertChainEntry>? = null,
+)
+
+@Serializable
 public data class V1EthSendRawTransactionIntent(
   /**
    * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
@@ -4179,26 +4357,6 @@ public data class V1EthSendRawTransactionIntent(
    */
   @SerialName("signedTransaction")
   public val signedTransaction: String,
-)
-
-@Serializable
-public data class V1EthSendRawTransactionRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1EthSendRawTransactionIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -4626,6 +4784,29 @@ public data class V1GetAppProofsResponse(
 )
 
 @Serializable
+public data class V1GetAppStatusRequest(
+  /**
+   * Unique identifier for a given TVC App.
+   */
+  @SerialName("appId")
+  public val appId: String,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetAppStatusResponse(
+  /**
+   * Live runtime status for the TVC App
+   */
+  @SerialName("appStatus")
+  public val appStatus: V1AppStatus,
+)
+
+@Serializable
 public data class V1GetAuthenticatorRequest(
   /**
    * Unique identifier for a given authenticator.
@@ -4860,24 +5041,6 @@ public data class V1GetOrganizationConfigsResponse(
 )
 
 @Serializable
-public data class V1GetOrganizationRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetOrganizationResponse(
-  /**
-   * Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization.
-   */
-  @SerialName("organizationData")
-  public val organizationData: V1OrganizationData,
-)
-
-@Serializable
 public data class V1GetPoliciesRequest(
   /**
    * Unique identifier for a given organization.
@@ -5006,6 +5169,11 @@ public data class V1GetSendTransactionStatusResponse(
   @SerialName("eth")
   public val eth: V1EthSendTransactionStatus? = null,
   /**
+   * Solana-specific transaction status.
+   */
+  @SerialName("solana")
+  public val solana: V1SolanaSendTransactionStatus? = null,
+  /**
    * The error encountered when broadcasting or confirming the transaction, if any.
    */
   @SerialName("txError")
@@ -5089,93 +5257,6 @@ public data class V1GetSubOrgIdsResponse(
    */
   @SerialName("organizationIds")
   public val organizationIds: List<String>,
-)
-
-@Serializable
-public data class V1GetTvcAppDeploymentsRequest(
-  /**
-   * Unique identifier for a given TVC App.
-   */
-  @SerialName("appId")
-  public val appId: String,
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcAppDeploymentsResponse(
-  /**
-   * List of deployments for this TVC App
-   */
-  @SerialName("tvcDeployments")
-  public val tvcDeployments: List<V1TvcDeployment>,
-)
-
-@Serializable
-public data class V1GetTvcAppRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * Unique identifier for a given TVC App.
-   */
-  @SerialName("tvcAppId")
-  public val tvcAppId: String,
-)
-
-@Serializable
-public data class V1GetTvcAppResponse(
-  /**
-   * Details about a single TVC App
-   */
-  @SerialName("tvcApp")
-  public val tvcApp: V1TvcApp,
-)
-
-@Serializable
-public data class V1GetTvcAppsRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcAppsResponse(
-  /**
-   * A list of TVC Apps.
-   */
-  @SerialName("tvcApps")
-  public val tvcApps: List<V1TvcApp>,
-)
-
-@Serializable
-public data class V1GetTvcDeploymentRequest(
-  /**
-   * Unique identifier for a given TVC Deployment.
-   */
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcDeploymentResponse(
-  /**
-   * Details about a single TVC Deployment
-   */
-  @SerialName("tvcDeployment")
-  public val tvcDeployment: V1TvcDeployment,
 )
 
 @Serializable
@@ -5321,12 +5402,12 @@ public data class V1GetWalletAccountsResponse(
 @Serializable
 public data class V1GetWalletAddressBalancesRequest(
   /**
-   * Address corresponding to a wallet account.
+   * Address corresponding to a wallet account. Private key addresses are not supported.
    */
   @SerialName("address")
   public val address: String,
   /**
-   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
    */
   @SerialName("caip2")
   public val caip2: String,
@@ -5574,7 +5655,7 @@ public data class V1InitFiatOnRampIntent(
   @SerialName("network")
   public val network: V1FiatOnRampBlockchainNetwork,
   /**
-   * Enum to specifiy which on-ramp provider to use
+   * Enum to specify which on-ramp provider to use
    */
   @SerialName("onrampProvider")
   public val onrampProvider: V1FiatOnRampProvider,
@@ -5728,7 +5809,7 @@ public data class V1InitOtpAuthIntent(
   @SerialName("emailCustomization")
   public val emailCustomization: V1EmailCustomizationParams? = null,
   /**
-   * Enum to specifiy whether to send OTP via SMS or email
+   * Enum to specify whether to send OTP via SMS or email
    */
   @SerialName("otpType")
   public val otpType: String,
@@ -5782,7 +5863,7 @@ public data class V1InitOtpAuthIntentV2(
   @SerialName("otpLength")
   public val otpLength: Long? = null,
   /**
-   * Enum to specifiy whether to send OTP via SMS or email
+   * Enum to specify whether to send OTP via SMS or email
    */
   @SerialName("otpType")
   public val otpType: String,
@@ -6039,6 +6120,70 @@ public data class V1InitOtpIntentV2(
 )
 
 @Serializable
+public data class V1InitOtpIntentV3(
+  /**
+   * Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true
+   */
+  @SerialName("alphanumeric")
+  public val alphanumeric: Boolean? = null,
+  /**
+   * The name of the application.
+   */
+  @SerialName("appName")
+  public val appName: String,
+  /**
+   * Email or phone number to send the OTP code to
+   */
+  @SerialName("contact")
+  public val contact: String,
+  /**
+   * Optional parameters for customizing emails. If not provided, the default email will be used.
+   */
+  @SerialName("emailCustomization")
+  public val emailCustomization: V1EmailCustomizationParamsV2? = null,
+  /**
+   * Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)
+   */
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
+  /**
+   * Optional length of the OTP code. Default = 9
+   */
+  @SerialName("otpLength")
+  public val otpLength: Long? = null,
+  /**
+   * Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL
+   */
+  @SerialName("otpType")
+  public val otpType: String,
+  /**
+   * Optional custom email address to use as reply-to
+   */
+  @SerialName("replyToEmailAddress")
+  public val replyToEmailAddress: String? = null,
+  /**
+   * Optional custom email address from which to send the OTP email
+   */
+  @SerialName("sendFromEmailAddress")
+  public val sendFromEmailAddress: String? = null,
+  /**
+   * Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'
+   */
+  @SerialName("sendFromEmailSenderName")
+  public val sendFromEmailSenderName: String? = null,
+  /**
+   * Optional parameters for customizing SMS message. If not provided, the default sms message will be used.
+   */
+  @SerialName("smsCustomization")
+  public val smsCustomization: V1SmsCustomizationParams? = null,
+  /**
+   * Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address.
+   */
+  @SerialName("userIdentifier")
+  public val userIdentifier: String? = null,
+)
+
+@Serializable
 public data class V1InitOtpRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -6048,7 +6193,7 @@ public data class V1InitOtpRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1InitOtpIntentV2,
+  public val parameters: V1InitOtpIntentV3,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -6062,6 +6207,20 @@ public data class V1InitOtpRequest(
 public data class V1InitOtpResult(
   /**
    * Unique identifier for an OTP authentication
+   */
+  @SerialName("otpId")
+  public val otpId: String,
+)
+
+@Serializable
+public data class V1InitOtpResultV2(
+  /**
+   * Signed bundle containing a target encryption key to use when submitting OTP codes.
+   */
+  @SerialName("otpEncryptionTargetBundle")
+  public val otpEncryptionTargetBundle: String,
+  /**
+   * Unique identifier for an OTP flow
    */
   @SerialName("otpId")
   public val otpId: String,
@@ -6202,6 +6361,8 @@ public data class V1Intent(
   public val createOauth2CredentialIntent: V1CreateOauth2CredentialIntent? = null,
   @SerialName("createOauthProvidersIntent")
   public val createOauthProvidersIntent: V1CreateOauthProvidersIntent? = null,
+  @SerialName("createOauthProvidersIntentV2")
+  public val createOauthProvidersIntentV2: V1CreateOauthProvidersIntentV2? = null,
   @SerialName("createOrganizationIntent")
   public val createOrganizationIntent: V1CreateOrganizationIntent? = null,
   @SerialName("createOrganizationIntentV2")
@@ -6242,6 +6403,8 @@ public data class V1Intent(
   public val createSubOrganizationIntentV6: V1CreateSubOrganizationIntentV6? = null,
   @SerialName("createSubOrganizationIntentV7")
   public val createSubOrganizationIntentV7: V1CreateSubOrganizationIntentV7? = null,
+  @SerialName("createSubOrganizationIntentV8")
+  public val createSubOrganizationIntentV8: V1CreateSubOrganizationIntentV8? = null,
   @SerialName("createTvcAppIntent")
   public val createTvcAppIntent: V1CreateTvcAppIntent? = null,
   @SerialName("createTvcDeploymentIntent")
@@ -6256,10 +6419,14 @@ public data class V1Intent(
   public val createUsersIntentV2: V1CreateUsersIntentV2? = null,
   @SerialName("createUsersIntentV3")
   public val createUsersIntentV3: V1CreateUsersIntentV3? = null,
+  @SerialName("createUsersIntentV4")
+  public val createUsersIntentV4: V1CreateUsersIntentV4? = null,
   @SerialName("createWalletAccountsIntent")
   public val createWalletAccountsIntent: V1CreateWalletAccountsIntent? = null,
   @SerialName("createWalletIntent")
   public val createWalletIntent: V1CreateWalletIntent? = null,
+  @SerialName("createWebhookEndpointIntent")
+  public val createWebhookEndpointIntent: V1CreateWebhookEndpointIntent? = null,
   @SerialName("deleteApiKeysIntent")
   public val deleteApiKeysIntent: V1DeleteApiKeysIntent? = null,
   @SerialName("deleteAuthenticatorsIntent")
@@ -6296,6 +6463,8 @@ public data class V1Intent(
   public val deleteWalletAccountsIntent: V1DeleteWalletAccountsIntent? = null,
   @SerialName("deleteWalletsIntent")
   public val deleteWalletsIntent: V1DeleteWalletsIntent? = null,
+  @SerialName("deleteWebhookEndpointIntent")
+  public val deleteWebhookEndpointIntent: V1DeleteWebhookEndpointIntent? = null,
   @SerialName("disableAuthProxyIntent")
   public val disableAuthProxyIntent: V1DisableAuthProxyIntent? = null,
   @SerialName("disablePrivateKeyIntent")
@@ -6338,6 +6507,8 @@ public data class V1Intent(
   public val initOtpIntent: V1InitOtpIntent? = null,
   @SerialName("initOtpIntentV2")
   public val initOtpIntentV2: V1InitOtpIntentV2? = null,
+  @SerialName("initOtpIntentV3")
+  public val initOtpIntentV3: V1InitOtpIntentV3? = null,
   @SerialName("initUserEmailRecoveryIntent")
   public val initUserEmailRecoveryIntent: V1InitUserEmailRecoveryIntent? = null,
   @SerialName("initUserEmailRecoveryIntentV2")
@@ -6352,6 +6523,8 @@ public data class V1Intent(
   public val otpAuthIntent: V1OtpAuthIntent? = null,
   @SerialName("otpLoginIntent")
   public val otpLoginIntent: V1OtpLoginIntent? = null,
+  @SerialName("otpLoginIntentV2")
+  public val otpLoginIntentV2: V1OtpLoginIntentV2? = null,
   @SerialName("recoverUserIntent")
   public val recoverUserIntent: V1RecoverUserIntent? = null,
   @SerialName("rejectActivityIntent")
@@ -6386,6 +6559,8 @@ public data class V1Intent(
   public val updateFiatOnRampCredentialIntent: V1UpdateFiatOnRampCredentialIntent? = null,
   @SerialName("updateOauth2CredentialIntent")
   public val updateOauth2CredentialIntent: V1UpdateOauth2CredentialIntent? = null,
+  @SerialName("updateOrganizationNameIntent")
+  public val updateOrganizationNameIntent: V1UpdateOrganizationNameIntent? = null,
   @SerialName("updatePolicyIntent")
   public val updatePolicyIntent: V1UpdatePolicyIntent? = null,
   @SerialName("updatePolicyIntentV2")
@@ -6406,53 +6581,14 @@ public data class V1Intent(
   public val updateUserTagIntent: V1UpdateUserTagIntent? = null,
   @SerialName("updateWalletIntent")
   public val updateWalletIntent: V1UpdateWalletIntent? = null,
+  @SerialName("updateWebhookEndpointIntent")
+  public val updateWebhookEndpointIntent: V1UpdateWebhookEndpointIntent? = null,
   @SerialName("upsertGasUsageConfigIntent")
   public val upsertGasUsageConfigIntent: V1UpsertGasUsageConfigIntent? = null,
   @SerialName("verifyOtpIntent")
   public val verifyOtpIntent: V1VerifyOtpIntent? = null,
-)
-
-@Serializable
-public data class V1Invitation(
-  /**
-   * The User's permissible access method(s).
-   */
-  @SerialName("accessType")
-  public val accessType: V1AccessType,
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Unique identifier for a given Invitation object.
-   */
-  @SerialName("invitationId")
-  public val invitationId: String,
-  /**
-   * The email address of the intended Invitation recipient.
-   */
-  @SerialName("receiverEmail")
-  public val receiverEmail: String,
-  /**
-   * The name of the intended Invitation recipient.
-   */
-  @SerialName("receiverUserName")
-  public val receiverUserName: String,
-  /**
-   * A list of tags assigned to the Invitation recipient.
-   */
-  @SerialName("receiverUserTags")
-  public val receiverUserTags: List<String>,
-  /**
-   * Unique identifier for the Sender of an Invitation.
-   */
-  @SerialName("senderUserId")
-  public val senderUserId: String,
-  /**
-   * The current processing status of a specified Invitation.
-   */
-  @SerialName("status")
-  public val status: V1InvitationStatus,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
+  @SerialName("verifyOtpIntentV2")
+  public val verifyOtpIntentV2: V1VerifyOtpIntentV2? = null,
 )
 
 @Serializable
@@ -6535,7 +6671,7 @@ public data class V1ListPrivateKeyTagsResponse(
 @Serializable
 public data class V1ListSupportedAssetsRequest(
   /**
-   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+   * CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
    */
   @SerialName("caip2")
   public val caip2: String,
@@ -6571,6 +6707,21 @@ public data class V1ListUserTagsResponse(
    */
   @SerialName("userTags")
   public val userTags: List<Datav1Tag>,
+)
+
+@Serializable
+public data class V1ListWebhookEndpointsRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1ListWebhookEndpointsResponse(
+  @SerialName("webhookEndpoints")
+  public val webhookEndpoints: List<V1WebhookEndpointData>,
 )
 
 @Serializable
@@ -6834,6 +6985,57 @@ public data class V1OauthProviderParams(
   public val providerName: String,
 )
 
+@Serializable(with = V1OauthProviderParamsV2Serializer::class)
+public sealed interface V1OauthProviderParamsV2 {
+  public companion object {
+    public operator fun invoke(
+      providerName: String,
+      oidcToken: String? = null,
+      oidcClaims: V1OidcClaims? = null,
+    ): V1OauthProviderParamsV2 = when {
+      oidcToken != null -> OidcToken(oidcToken = oidcToken, providerName = providerName)
+      oidcClaims != null -> OidcClaims(oidcClaims = oidcClaims, providerName = providerName)
+      else -> throw IllegalArgumentException("Exactly one of oidcToken, oidcClaims must be non-null")
+    }
+  }
+
+  @Serializable
+  public data class OidcToken(
+    /**
+     * Base64 encoded OIDC token
+     */
+    @SerialName("oidcToken")
+    public val oidcToken: String,
+    /**
+     * Human-readable name to identify a Provider.
+     */
+    @SerialName("providerName")
+    public val providerName: String,
+  ) : V1OauthProviderParamsV2
+
+  @Serializable
+  public data class OidcClaims(
+    /**
+     * OIDC claims (iss, sub, aud) to uniquely identify the user
+     */
+    @SerialName("oidcClaims")
+    public val oidcClaims: V1OidcClaims,
+    /**
+     * Human-readable name to identify a Provider.
+     */
+    @SerialName("providerName")
+    public val providerName: String,
+  ) : V1OauthProviderParamsV2
+}
+
+public object V1OauthProviderParamsV2Serializer : JsonContentPolymorphicSerializer<V1OauthProviderParamsV2>(V1OauthProviderParamsV2::class) {
+  override fun selectDeserializer(element: JsonElement): DeserializationStrategy<V1OauthProviderParamsV2> = when {
+    "oidcToken" in element.jsonObject -> V1OauthProviderParamsV2.OidcToken.serializer()
+    "oidcClaims" in element.jsonObject -> V1OauthProviderParamsV2.OidcClaims.serializer()
+    else -> throw SerializationException("Unknown variant of V1OauthProviderParamsV2: none of oidcToken, oidcClaims found")
+  }
+}
+
 @Serializable
 public data class V1OauthRequest(
   @SerialName("generateAppProofs")
@@ -6874,29 +7076,22 @@ public data class V1OauthResult(
 )
 
 @Serializable
-public data class V1OrganizationData(
-  @SerialName("features")
-  public val features: List<V1Feature>? = null,
-  @SerialName("invitations")
-  public val invitations: List<V1Invitation>? = null,
-  @SerialName("name")
-  public val name: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("policies")
-  public val policies: List<V1Policy>? = null,
-  @SerialName("privateKeys")
-  public val privateKeys: List<V1PrivateKey>? = null,
-  @SerialName("rootQuorum")
-  public val rootQuorum: Externaldatav1Quorum? = null,
-  @SerialName("smartContractInterfaceReferences")
-  public val smartContractInterfaceReferences: List<V1SmartContractInterfaceReference>? = null,
-  @SerialName("tags")
-  public val tags: List<Datav1Tag>? = null,
-  @SerialName("users")
-  public val users: List<V1User>? = null,
-  @SerialName("wallets")
-  public val wallets: List<V1Wallet>? = null,
+public data class V1OidcClaims(
+  /**
+   * The audience from the OIDC token (aud claim)
+   */
+  @SerialName("aud")
+  public val aud: String,
+  /**
+   * The issuer identifier from the OIDC token (iss claim)
+   */
+  @SerialName("iss")
+  public val iss: String,
+  /**
+   * The subject identifier from the OIDC token (sub claim)
+   */
+  @SerialName("sub")
+  public val sub: String,
 )
 
 @Serializable
@@ -7002,6 +7197,35 @@ public data class V1OtpLoginIntent(
 )
 
 @Serializable
+public data class V1OtpLoginIntentV2(
+  /**
+   * Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature,
+  /**
+   * Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used.
+   */
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
+  /**
+   * Invalidate all other previously generated Login sessions
+   */
+  @SerialName("invalidateExisting")
+  public val invalidateExisting: Boolean? = null,
+  /**
+   * Client-side public key generated by the user, used as the session public key upon successful login
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+  /**
+   * Signed Verification Token containing a unique id, expiry, verification type, contact
+   */
+  @SerialName("verificationToken")
+  public val verificationToken: String,
+)
+
+@Serializable
 public data class V1OtpLoginRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -7011,7 +7235,7 @@ public data class V1OtpLoginRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1OtpLoginIntent,
+  public val parameters: V1OtpLoginIntentV2,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -7313,6 +7537,8 @@ public data class V1Result(
   public val createOauth2CredentialResult: V1CreateOauth2CredentialResult? = null,
   @SerialName("createOauthProvidersResult")
   public val createOauthProvidersResult: V1CreateOauthProvidersResult? = null,
+  @SerialName("createOauthProvidersResultV2")
+  public val createOauthProvidersResultV2: V1CreateOauthProvidersResultV2? = null,
   @SerialName("createOrganizationResult")
   public val createOrganizationResult: V1CreateOrganizationResult? = null,
   @SerialName("createPoliciesResult")
@@ -7345,6 +7571,8 @@ public data class V1Result(
   public val createSubOrganizationResultV6: V1CreateSubOrganizationResultV6? = null,
   @SerialName("createSubOrganizationResultV7")
   public val createSubOrganizationResultV7: V1CreateSubOrganizationResultV7? = null,
+  @SerialName("createSubOrganizationResultV8")
+  public val createSubOrganizationResultV8: V1CreateSubOrganizationResultV8? = null,
   @SerialName("createTvcAppResult")
   public val createTvcAppResult: V1CreateTvcAppResult? = null,
   @SerialName("createTvcDeploymentResult")
@@ -7359,6 +7587,8 @@ public data class V1Result(
   public val createWalletAccountsResult: V1CreateWalletAccountsResult? = null,
   @SerialName("createWalletResult")
   public val createWalletResult: V1CreateWalletResult? = null,
+  @SerialName("createWebhookEndpointResult")
+  public val createWebhookEndpointResult: V1CreateWebhookEndpointResult? = null,
   @SerialName("deleteApiKeysResult")
   public val deleteApiKeysResult: V1DeleteApiKeysResult? = null,
   @SerialName("deleteAuthenticatorsResult")
@@ -7395,6 +7625,8 @@ public data class V1Result(
   public val deleteWalletAccountsResult: V1DeleteWalletAccountsResult? = null,
   @SerialName("deleteWalletsResult")
   public val deleteWalletsResult: V1DeleteWalletsResult? = null,
+  @SerialName("deleteWebhookEndpointResult")
+  public val deleteWebhookEndpointResult: V1DeleteWebhookEndpointResult? = null,
   @SerialName("disableAuthProxyResult")
   public val disableAuthProxyResult: V1DisableAuthProxyResult? = null,
   @SerialName("disablePrivateKeyResult")
@@ -7429,6 +7661,8 @@ public data class V1Result(
   public val initOtpAuthResultV2: V1InitOtpAuthResultV2? = null,
   @SerialName("initOtpResult")
   public val initOtpResult: V1InitOtpResult? = null,
+  @SerialName("initOtpResultV2")
+  public val initOtpResultV2: V1InitOtpResultV2? = null,
   @SerialName("initUserEmailRecoveryResult")
   public val initUserEmailRecoveryResult: V1InitUserEmailRecoveryResult? = null,
   @SerialName("oauth2AuthenticateResult")
@@ -7467,6 +7701,8 @@ public data class V1Result(
   public val updateFiatOnRampCredentialResult: V1UpdateFiatOnRampCredentialResult? = null,
   @SerialName("updateOauth2CredentialResult")
   public val updateOauth2CredentialResult: V1UpdateOauth2CredentialResult? = null,
+  @SerialName("updateOrganizationNameResult")
+  public val updateOrganizationNameResult: V1UpdateOrganizationNameResult? = null,
   @SerialName("updatePolicyResult")
   public val updatePolicyResult: V1UpdatePolicyResult? = null,
   @SerialName("updatePolicyResultV2")
@@ -7487,6 +7723,8 @@ public data class V1Result(
   public val updateUserTagResult: V1UpdateUserTagResult? = null,
   @SerialName("updateWalletResult")
   public val updateWalletResult: V1UpdateWalletResult? = null,
+  @SerialName("updateWebhookEndpointResult")
+  public val updateWebhookEndpointResult: V1UpdateWebhookEndpointResult? = null,
   @SerialName("upsertGasUsageConfigResult")
   public val upsertGasUsageConfigResult: V1UpsertGasUsageConfigResult? = null,
   @SerialName("verifyOtpResult")
@@ -7626,6 +7864,40 @@ public data class V1RootUserParamsV4(
    */
   @SerialName("oauthProviders")
   public val oauthProviders: List<V1OauthProviderParams>,
+  /**
+   * The user's email address.
+   */
+  @SerialName("userEmail")
+  public val userEmail: String? = null,
+  /**
+   * Human-readable name for a User.
+   */
+  @SerialName("userName")
+  public val userName: String,
+  /**
+   * The user's phone number in E.164 format e.g. +13214567890
+   */
+  @SerialName("userPhoneNumber")
+  public val userPhoneNumber: String? = null,
+)
+
+@Serializable
+public data class V1RootUserParamsV5(
+  /**
+   * A list of API Key parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>,
+  /**
+   * A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>,
+  /**
+   * A list of Oauth providers. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
   /**
    * The user's email address.
    */
@@ -7916,6 +8188,20 @@ public data class V1SignupUsage(
 )
 
 @Serializable
+public data class V1SignupUsageV2(
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>? = null,
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>? = null,
+  @SerialName("email")
+  public val email: String? = null,
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>? = null,
+  @SerialName("phoneNumber")
+  public val phoneNumber: String? = null,
+)
+
+@Serializable
 public data class V1SimpleClientExtensionResults(
   @SerialName("appid")
   public val appid: Boolean? = null,
@@ -7923,16 +8209,6 @@ public data class V1SimpleClientExtensionResults(
   public val appidExclude: Boolean? = null,
   @SerialName("credProps")
   public val credProps: V1CredPropsAuthenticationExtensionsClientOutputs? = null,
-)
-
-@Serializable
-public data class V1SmartContractInterfaceReference(
-  @SerialName("digest")
-  public val digest: String? = null,
-  @SerialName("smartContractAddress")
-  public val smartContractAddress: String? = null,
-  @SerialName("smartContractInterfaceId")
-  public val smartContractInterfaceId: String? = null,
 )
 
 @Serializable
@@ -8003,6 +8279,63 @@ public data class V1SolSendTransactionResult(
 )
 
 @Serializable
+public data class V1SolanaConfig(
+  /**
+   * Whether Solana rent prefunding is enabled for the organization. When omitted, the existing rent-prefund state is left unchanged.
+   */
+  @SerialName("rentPrefundEnabled")
+  public val rentPrefundEnabled: Boolean? = null,
+)
+
+@Serializable
+public data class V1SolanaFailureDetails(
+  /**
+   * The raw Solana inner instructions payload serialized as JSON, if available.
+   */
+  @SerialName("innerInstructionsJson")
+  public val innerInstructionsJson: String? = null,
+  /**
+   * Program logs returned by Solana simulation or preflight, if available.
+   */
+  @SerialName("logs")
+  public val logs: List<String>? = null,
+  /**
+   * The Solana JSON-RPC error code, if available.
+   */
+  @SerialName("rpcCode")
+  public val rpcCode: Long? = null,
+  /**
+   * The Solana JSON-RPC error message, if available.
+   */
+  @SerialName("rpcMessage")
+  public val rpcMessage: String? = null,
+  /**
+   * Where the Solana failure occurred, such as simulation or preflight.
+   */
+  @SerialName("source")
+  public val source: String? = null,
+  /**
+   * The raw Solana transaction error object serialized as JSON, if available.
+   */
+  @SerialName("transactionErrorJson")
+  public val transactionErrorJson: String? = null,
+  /**
+   * Compute units consumed during simulation or preflight, if available.
+   */
+  @SerialName("unitsConsumed")
+  public val unitsConsumed: String? = null,
+)
+
+@Serializable
+public data class V1SolanaSendTransactionStatus(
+  /**
+   * The Solana transaction signature, if available.
+   */
+  @SerialName("signature")
+  public val signature: String? = null,
+)
+
+@Serializable
 public data class V1StampLoginIntent(
   /**
    * Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used.
@@ -8051,30 +8384,13 @@ public data class V1StampLoginResult(
 )
 
 @Serializable
-public data class V1TestRateLimitsRequest(
-  /**
-   * Whether or not to set a limit on this request.
-   */
-  @SerialName("isSetLimit")
-  public val isSetLimit: Boolean,
-  /**
-   * Rate limit to set for org, if is_set_limit is set to true.
-   */
-  @SerialName("limit")
-  public val limit: Long,
-  /**
-   * Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
 public data class V1TokenUsage(
   @SerialName("login")
   public val login: V1LoginUsage? = null,
   @SerialName("signup")
   public val signup: V1SignupUsage? = null,
+  @SerialName("signupV2")
+  public val signupV2: V1SignupUsageV2? = null,
   /**
    * Unique identifier for the verification token
    */
@@ -8085,154 +8401,6 @@ public data class V1TokenUsage(
    */
   @SerialName("type")
   public val type: V1UsageType,
-)
-
-@Serializable
-public data class V1TvcApp(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Whether or not this TVC App has external connectivity enabled.
-   */
-  @SerialName("externalConnectivity")
-  public val externalConnectivity: Boolean,
-  /**
-   * Unique Identifier for this TVC App.
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * Manifest Set (people who can approve manifests)
-   */
-  @SerialName("manifestSet")
-  public val manifestSet: V1TvcOperatorSet,
-  /**
-   * Name for this TVC App.
-   */
-  @SerialName("name")
-  public val name: String,
-  /**
-   * Unique Identifier of the Organization for this TVC App
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * Public key for the Quorum Key associated with this TVC App
-   */
-  @SerialName("quorumPublicKey")
-  public val quorumPublicKey: String,
-  /**
-   * Share Set (people who have a share of the Quorum Key)
-   */
-  @SerialName("shareSet")
-  public val shareSet: V1TvcOperatorSet,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
-)
-
-@Serializable
-public data class V1TvcContainerSpec(
-  /**
-   * The arguments to pass to the executable.
-   */
-  @SerialName("args")
-  public val args: List<String>,
-  /**
-   * The URL for this container image.
-   */
-  @SerialName("containerUrl")
-  public val containerUrl: String,
-  /**
-   * Whether or not this container requires a pull secret to access.
-   */
-  @SerialName("hasPullSecret")
-  public val hasPullSecret: Boolean,
-  /**
-   * The path (in-container) to the executable binary.
-   */
-  @SerialName("path")
-  public val path: String,
-)
-
-@Serializable
-public data class V1TvcDeployment(
-  /**
-   * Unique Identifier of the TVC App for this deployment
-   */
-  @SerialName("appId")
-  public val appId: String,
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * The pivot container spec for this deployment
-   */
-  @SerialName("hostContainer")
-  public val hostContainer: V1TvcContainerSpec,
-  /**
-   * Unique Identifier for this TVC Deployment.
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * The manifest used for this deployment
-   */
-  @SerialName("manifest")
-  public val manifest: V1TvcManifest,
-  /**
-   * List of operator approvals for this manifest
-   */
-  @SerialName("manifestApprovals")
-  public val manifestApprovals: List<V1TvcOperatorApproval>,
-  /**
-   * Set of TVC operators who can approve this deployment
-   */
-  @SerialName("manifestSet")
-  public val manifestSet: V1TvcOperatorSet,
-  /**
-   * Unique Identifier of the Organization for this TVC Deployment
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * The pivot container spec for this deployment
-   */
-  @SerialName("pivotContainer")
-  public val pivotContainer: V1TvcContainerSpec,
-  /**
-   * QOS Version used for this deployment
-   */
-  @SerialName("qosVersion")
-  public val qosVersion: String,
-  /**
-   * Set of TVC operators who have a share of the Quorum Key
-   */
-  @SerialName("shareSet")
-  public val shareSet: V1TvcOperatorSet,
-  /**
-   * Current stage for this deployment
-   */
-  @SerialName("stage")
-  public val stage: V1TvcDeploymentStage,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
-)
-
-@Serializable
-public data class V1TvcManifest(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Unique Identifier for this TVC Manifest.
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * The manifest content (raw UTF-8 JSON bytes)
-   */
-  @SerialName("manifest")
-  public val manifest: String,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -8250,57 +8418,6 @@ public data class V1TvcManifestApproval(
 )
 
 @Serializable
-public data class V1TvcOperator(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Unique Identifier for this TVC Operator.
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * Name of this TVC Operator.
-   */
-  @SerialName("name")
-  public val name: String,
-  /**
-   * Public key for this TVC Operator.
-   */
-  @SerialName("publicKey")
-  public val publicKey: String,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
-)
-
-@Serializable
-public data class V1TvcOperatorApproval(
-  /**
-   * Signature of the operator over the deployment manifest
-   */
-  @SerialName("approval")
-  public val approval: String,
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Unique ID for this approval
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * Unique Identifier of the TVC Manifest being approved
-   */
-  @SerialName("manifestId")
-  public val manifestId: String,
-  /**
-   * The TVC Operator who made this approval
-   */
-  @SerialName("operator")
-  public val `operator`: V1TvcOperator,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
-)
-
-@Serializable
 public data class V1TvcOperatorParams(
   /**
    * The name for this new operator
@@ -8312,39 +8429,6 @@ public data class V1TvcOperatorParams(
    */
   @SerialName("publicKey")
   public val publicKey: String,
-)
-
-@Serializable
-public data class V1TvcOperatorSet(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  /**
-   * Unique Identifier for this TVC Operator Set.
-   */
-  @SerialName("id")
-  public val id: String,
-  /**
-   * Name of this TVC Operator Set.
-   */
-  @SerialName("name")
-  public val name: String,
-  /**
-   * List of TVC Operators in this set
-   */
-  @SerialName("operators")
-  public val operators: List<V1TvcOperator>,
-  /**
-   * Unique Identifier of the Organization for this TVC Operator Set
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * Threshold number of operators required for quorum.
-   */
-  @SerialName("threshold")
-  public val threshold: Long,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -8374,6 +8458,11 @@ public data class V1TvcOperatorSetParams(
 @Serializable
 public data class V1TxError(
   /**
+   * Ethereum-specific failure details, if available.
+   */
+  @SerialName("eth")
+  public val eth: V1EthFailureDetails? = null,
+  /**
    * Human-readable error message describing what went wrong.
    */
   @SerialName("message")
@@ -8383,6 +8472,11 @@ public data class V1TxError(
    */
   @SerialName("revertChain")
   public val revertChain: List<V1RevertChainEntry>? = null,
+  /**
+   * Solana-specific failure details for simulation or preflight errors, if available.
+   */
+  @SerialName("solana")
+  public val solana: V1SolanaFailureDetails? = null,
 )
 
 @Serializable
@@ -8475,6 +8569,11 @@ public data class V1UpdateAuthProxyConfigIntent(
    */
   @SerialName("smsCustomizationParams")
   public val smsCustomizationParams: V1SmsCustomizationParams? = null,
+  /**
+   * Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider.
+   */
+  @SerialName("socialLinkingClientIds")
+  public val socialLinkingClientIds: List<String>? = null,
   /**
    * Verification-token lifetime in seconds.
    */
@@ -8615,6 +8714,47 @@ public data class V1UpdateOauth2CredentialResult(
    */
   @SerialName("oauth2CredentialId")
   public val oauth2CredentialId: String,
+)
+
+@Serializable
+public data class V1UpdateOrganizationNameIntent(
+  /**
+   * New name for the Organization.
+   */
+  @SerialName("organizationName")
+  public val organizationName: String,
+)
+
+@Serializable
+public data class V1UpdateOrganizationNameRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1UpdateOrganizationNameIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1UpdateOrganizationNameResult(
+  /**
+   * Unique identifier for the Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The updated organization name.
+   */
+  @SerialName("organizationName")
+  public val organizationName: String,
 )
 
 @Serializable
@@ -9104,6 +9244,64 @@ public data class V1UpdateWalletResult(
 )
 
 @Serializable
+public data class V1UpdateWebhookEndpointIntent(
+  /**
+   * Unique identifier of the webhook endpoint to update.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+  /**
+   * Whether this webhook endpoint is active.
+   */
+  @SerialName("isActive")
+  public val isActive: Boolean? = null,
+  /**
+   * Updated human-readable name for this webhook endpoint.
+   */
+  @SerialName("name")
+  public val name: String? = null,
+  /**
+   * Updated destination URL for webhook delivery.
+   */
+  @SerialName("url")
+  public val url: String? = null,
+)
+
+@Serializable
+public data class V1UpdateWebhookEndpointRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1UpdateWebhookEndpointIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1UpdateWebhookEndpointResult(
+  /**
+   * Unique identifier of the updated webhook endpoint.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+  /**
+   * The updated webhook endpoint data.
+   */
+  @SerialName("webhookEndpoint")
+  public val webhookEndpoint: V1WebhookEndpointData,
+)
+
+@Serializable
 public data class V1UpsertGasUsageConfigIntent(
   /**
    * Whether gas sponsorship is enabled for the organization.
@@ -9115,6 +9313,11 @@ public data class V1UpsertGasUsageConfigIntent(
    */
   @SerialName("orgWindowLimitUsd")
   public val orgWindowLimitUsd: String,
+  /**
+   * Optional Solana sponsorship settings. If omitted, the existing Solana sponsorship state is left unchanged.
+   */
+  @SerialName("solanaConfig")
+  public val solanaConfig: V1SolanaConfig? = null,
   /**
    * Gas sponsorship USD limit for sub-organizations under the billing organization.
    */
@@ -9287,6 +9490,45 @@ public data class V1UserParamsV3(
 )
 
 @Serializable
+public data class V1UserParamsV4(
+  /**
+   * A list of API Key parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>,
+  /**
+   * A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>,
+  /**
+   * A list of Oauth providers. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
+  /**
+   * The user's email address.
+   */
+  @SerialName("userEmail")
+  public val userEmail: String? = null,
+  /**
+   * Human-readable name for a User.
+   */
+  @SerialName("userName")
+  public val userName: String,
+  /**
+   * The user's phone number in E.164 format e.g. +13214567890
+   */
+  @SerialName("userPhoneNumber")
+  public val userPhoneNumber: String? = null,
+  /**
+   * A list of User Tag IDs. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("userTags")
+  public val userTags: List<String>,
+)
+
+@Serializable
 public data class V1VerifyOtpIntent(
   /**
    * Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours)
@@ -9311,6 +9553,25 @@ public data class V1VerifyOtpIntent(
 )
 
 @Serializable
+public data class V1VerifyOtpIntentV2(
+  /**
+   * Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result.
+   */
+  @SerialName("encryptedOtpBundle")
+  public val encryptedOtpBundle: String,
+  /**
+   * Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours)
+   */
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
+  /**
+   * UUID representing an OTP flow. A new UUID is created for each init OTP activity.
+   */
+  @SerialName("otpId")
+  public val otpId: String,
+)
+
+@Serializable
 public data class V1VerifyOtpRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -9320,7 +9581,7 @@ public data class V1VerifyOtpRequest(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("parameters")
-  public val parameters: V1VerifyOtpIntent,
+  public val parameters: V1VerifyOtpIntentV2,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -9571,6 +9832,59 @@ public data class V1WebAuthnStamp(
 )
 
 @Serializable
+public data class V1WebhookEndpointData(
+  /**
+   * Unique identifier of the webhook endpoint.
+   */
+  @SerialName("endpointId")
+  public val endpointId: String,
+  /**
+   * Whether this webhook endpoint is active.
+   */
+  @SerialName("isActive")
+  public val isActive: Boolean,
+  /**
+   * Human-readable name for this webhook endpoint.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Current subscriptions attached to this endpoint.
+   */
+  @SerialName("subscriptions")
+  public val subscriptions: List<V1WebhookSubscriptionParams>? = null,
+  /**
+   * The destination URL for webhook delivery.
+   */
+  @SerialName("url")
+  public val url: String,
+)
+
+@Serializable
+public data class V1WebhookSubscriptionParams(
+  /**
+   * The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES).
+   */
+  @SerialName("eventType")
+  public val eventType: String,
+  /**
+   * JSON-encoded filter criteria for this subscription.
+   */
+  @SerialName("filtersJson")
+  public val filtersJson: String? = null,
+  /**
+   * Whether this subscription is active.
+   */
+  @SerialName("isActive")
+  public val isActive: Boolean? = null,
+)
+
+@Serializable
 public data class V1GetAccountRequest(
   /**
    * Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY'
@@ -9637,6 +9951,34 @@ public data class V1GetWalletKitConfigResponse(
 public data class V1InitOtpResponse(
   /**
    * Unique identifier for an OTP authentication
+   */
+  @SerialName("otpId")
+  public val otpId: String,
+)
+
+@Serializable
+public data class V1InitOtpV2Request(
+  /**
+   * Email or phone number to send the OTP code to
+   */
+  @SerialName("contact")
+  public val contact: String,
+  /**
+   * Enum to specify whether to send OTP code via SMS or email
+   */
+  @SerialName("otpType")
+  public val otpType: String,
+)
+
+@Serializable
+public data class V1InitOtpV2Response(
+  /**
+   * Signed bundle containing a target encryption key to use when submitting OTP codes.
+   */
+  @SerialName("otpEncryptionTargetBundle")
+  public val otpEncryptionTargetBundle: String,
+  /**
+   * Unique identifier for an OTP flow.
    */
   @SerialName("otpId")
   public val otpId: String,
@@ -9728,6 +10070,44 @@ public data class V1OtpLoginResponse(
 )
 
 @Serializable
+public data class V1OtpLoginV2Request(
+  /**
+   * Signature proving authorization for this login. The signature is over the verification token ID and the new session public key.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature,
+  /**
+   * Invalidate all other previously generated Login sessions
+   */
+  @SerialName("invalidateExisting")
+  public val invalidateExisting: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  /**
+   * Client-side public key generated by the user, used as the session public key upon successful login.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+  /**
+   * Session containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)
+   */
+  @SerialName("verificationToken")
+  public val verificationToken: String,
+)
+
+@Serializable
+public data class V1OtpLoginV2Response(
+  /**
+   * Session containing an expiry, public key, session type, user id, and organization id
+   */
+  @SerialName("session")
+  public val session: String,
+)
+
+@Serializable
 public data class V1SignupRequest(
   /**
    * A list of API Key parameters. This field, if not needed, should be an empty array in your request body.
@@ -9790,9 +10170,94 @@ public data class V1SignupResponse(
 )
 
 @Serializable
+public data class V1SignupV2Request(
+  /**
+   * A list of API Key parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>,
+  /**
+   * A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>,
+  /**
+   * Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step.
+   */
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
+  /**
+   * A list of Oauth providers. This field, if not needed, should be an empty array in your request body.
+   */
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
+  @SerialName("organizationName")
+  public val organizationName: String? = null,
+  @SerialName("userEmail")
+  public val userEmail: String? = null,
+  @SerialName("userName")
+  public val userName: String? = null,
+  @SerialName("userPhoneNumber")
+  public val userPhoneNumber: String? = null,
+  @SerialName("userTag")
+  public val userTag: String? = null,
+  @SerialName("verificationToken")
+  public val verificationToken: String? = null,
+  /**
+   * The wallet to create for the sub-organization
+   */
+  @SerialName("wallet")
+  public val wallet: V1WalletParams? = null,
+)
+
+@Serializable
+public data class V1SignupV2Response(
+  /**
+   * A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations.
+   */
+  @SerialName("appProofs")
+  public val appProofs: List<V1AppProof>? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Root user ID created for this sub-organization
+   */
+  @SerialName("userId")
+  public val userId: String,
+  /**
+   * Wallet created for the sub-organization, if provided in the request
+   */
+  @SerialName("wallet")
+  public val wallet: V1WalletResult? = null,
+)
+
+@Serializable
 public data class V1VerifyOtpResponse(
   /**
    * Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)
+   */
+  @SerialName("verificationToken")
+  public val verificationToken: String,
+)
+
+@Serializable
+public data class V1VerifyOtpV2Request(
+  /**
+   * Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result.
+   */
+  @SerialName("encryptedOtpBundle")
+  public val encryptedOtpBundle: String,
+  /**
+   * ID representing the result of an init OTP activity.
+   */
+  @SerialName("otpId")
+  public val otpId: String,
+)
+
+@Serializable
+public data class V1VerifyOtpV2Response(
+  /**
+   * Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)
    */
   @SerialName("verificationToken")
   public val verificationToken: String,
@@ -9809,15 +10274,6 @@ public class V1DisableAuthProxyResult()
 
 @Serializable
 public class V1EnableAuthProxyIntent()
-
-@Serializable
-public class V1RefreshFeatureFlagsRequest()
-
-@Serializable
-public class V1RefreshFeatureFlagsResponse()
-
-@Serializable
-public class V1TestRateLimitsResponse()
 
 @Serializable
 public class V1UpdateAllowedOriginsResult()
@@ -9908,6 +10364,29 @@ public class TGetApiKeysBody(
 public class TGetApiKeysInput(
   @SerialName("body")
   public val body: TGetApiKeysBody,
+)
+
+@Serializable
+public data class TGetAppStatusResponse(
+  /**
+   * Live runtime status for the TVC App
+   */
+  @SerialName("appStatus")
+  public val appStatus: V1AppStatus,
+)
+
+@Serializable
+public class TGetAppStatusBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public class TGetAppStatusInput(
+  @SerialName("body")
+  public val body: TGetAppStatusBody,
 )
 
 @Serializable
@@ -10130,27 +10609,6 @@ public class TGetOnRampTransactionStatusInput(
 )
 
 @Serializable
-public data class TGetOrganizationResponse(
-  /**
-   * Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization.
-   */
-  @SerialName("organizationData")
-  public val organizationData: V1OrganizationData,
-)
-
-@Serializable
-public class TGetOrganizationBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-)
-
-@Serializable
-public class TGetOrganizationInput(
-  @SerialName("body")
-  public val body: TGetOrganizationBody,
-)
-
-@Serializable
 public data class TGetOrganizationConfigsResponse(
   /**
    * Organization configs including quorum settings and organization features.
@@ -10250,6 +10708,11 @@ public data class TGetSendTransactionStatusResponse(
   @SerialName("eth")
   public val eth: V1EthSendTransactionStatus? = null,
   /**
+   * Solana-specific transaction status.
+   */
+  @SerialName("solana")
+  public val solana: V1SolanaSendTransactionStatus? = null,
+  /**
    * The error encountered when broadcasting or confirming the transaction, if any.
    */
   @SerialName("txError")
@@ -10296,52 +10759,6 @@ public class TGetSmartContractInterfaceBody(
 public class TGetSmartContractInterfaceInput(
   @SerialName("body")
   public val body: TGetSmartContractInterfaceBody,
-)
-
-@Serializable
-public data class TGetTvcAppResponse(
-  /**
-   * Details about a single TVC App
-   */
-  @SerialName("tvcApp")
-  public val tvcApp: V1TvcApp,
-)
-
-@Serializable
-public class TGetTvcAppBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("tvcAppId")
-  public val tvcAppId: String,
-)
-
-@Serializable
-public class TGetTvcAppInput(
-  @SerialName("body")
-  public val body: TGetTvcAppBody,
-)
-
-@Serializable
-public data class TGetTvcDeploymentResponse(
-  /**
-   * Details about a single TVC Deployment
-   */
-  @SerialName("tvcDeployment")
-  public val tvcDeployment: V1TvcDeployment,
-)
-
-@Serializable
-public class TGetTvcDeploymentBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-)
-
-@Serializable
-public class TGetTvcDeploymentInput(
-  @SerialName("body")
-  public val body: TGetTvcDeploymentBody,
 )
 
 @Serializable
@@ -10660,50 +11077,6 @@ public class TListSupportedAssetsInput(
 )
 
 @Serializable
-public data class TGetTvcAppDeploymentsResponse(
-  /**
-   * List of deployments for this TVC App
-   */
-  @SerialName("tvcDeployments")
-  public val tvcDeployments: List<V1TvcDeployment>,
-)
-
-@Serializable
-public class TGetTvcAppDeploymentsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("appId")
-  public val appId: String,
-)
-
-@Serializable
-public class TGetTvcAppDeploymentsInput(
-  @SerialName("body")
-  public val body: TGetTvcAppDeploymentsBody,
-)
-
-@Serializable
-public data class TGetTvcAppsResponse(
-  /**
-   * A list of TVC Apps.
-   */
-  @SerialName("tvcApps")
-  public val tvcApps: List<V1TvcApp>,
-)
-
-@Serializable
-public class TGetTvcAppsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-)
-
-@Serializable
-public class TGetTvcAppsInput(
-  @SerialName("body")
-  public val body: TGetTvcAppsBody,
-)
-
-@Serializable
 public data class TListUserTagsResponse(
   /**
    * A list of user tags.
@@ -10821,6 +11194,24 @@ public class TGetWalletsInput(
 )
 
 @Serializable
+public data class TListWebhookEndpointsResponse(
+  @SerialName("webhookEndpoints")
+  public val webhookEndpoints: List<V1WebhookEndpointData>,
+)
+
+@Serializable
+public class TListWebhookEndpointsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+)
+
+@Serializable
+public class TListWebhookEndpointsInput(
+  @SerialName("body")
+  public val body: TListWebhookEndpointsBody,
+)
+
+@Serializable
 public data class TGetWhoamiResponse(
   /**
    * Unique identifier for a given organization.
@@ -10902,30 +11293,6 @@ public class TCreateApiKeysBody(
 public class TCreateApiKeysInput(
   @SerialName("body")
   public val body: TCreateApiKeysBody,
-)
-
-@Serializable
-public class TCreateApiOnlyUsersResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateApiOnlyUsersResult,
-)
-
-@Serializable
-public class TCreateApiOnlyUsersBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("apiOnlyUsers")
-  public val apiOnlyUsers: List<V1ApiOnlyUserParams>,
-)
-
-@Serializable
-public class TCreateApiOnlyUsersInput(
-  @SerialName("body")
-  public val body: TCreateApiOnlyUsersBody,
 )
 
 @Serializable
@@ -11045,7 +11412,7 @@ public class TCreateOauthProvidersResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreateOauthProvidersResult,
+  public val result: V1CreateOauthProvidersResultV2,
 )
 
 @Serializable
@@ -11057,7 +11424,7 @@ public class TCreateOauthProvidersBody(
   @SerialName("userId")
   public val userId: String,
   @SerialName("oauthProviders")
-  public val oauthProviders: List<V1OauthProviderParams>,
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
 )
 
 @Serializable
@@ -11263,7 +11630,7 @@ public class TCreateSubOrganizationResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreateSubOrganizationResultV7,
+  public val result: V1CreateSubOrganizationResultV8,
 )
 
 @Serializable
@@ -11275,7 +11642,7 @@ public class TCreateSubOrganizationBody(
   @SerialName("subOrganizationName")
   public val subOrganizationName: String,
   @SerialName("rootUsers")
-  public val rootUsers: List<V1RootUserParamsV4>,
+  public val rootUsers: List<V1RootUserParamsV5>,
   @SerialName("rootQuorumThreshold")
   public val rootQuorumThreshold: Long,
   @SerialName("wallet")
@@ -11298,114 +11665,6 @@ public class TCreateSubOrganizationBody(
 public class TCreateSubOrganizationInput(
   @SerialName("body")
   public val body: TCreateSubOrganizationBody,
-)
-
-@Serializable
-public class TCreateTvcAppResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateTvcAppResult,
-)
-
-@Serializable
-public class TCreateTvcAppBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("name")
-  public val name: String,
-  @SerialName("quorumPublicKey")
-  public val quorumPublicKey: String,
-  @SerialName("manifestSetId")
-  public val manifestSetId: String? = null,
-  @SerialName("manifestSetParams")
-  public val manifestSetParams: V1TvcOperatorSetParams? = null,
-  @SerialName("shareSetId")
-  public val shareSetId: String? = null,
-  @SerialName("shareSetParams")
-  public val shareSetParams: V1TvcOperatorSetParams? = null,
-  @SerialName("externalConnectivity")
-  public val externalConnectivity: Boolean? = null,
-)
-
-@Serializable
-public class TCreateTvcAppInput(
-  @SerialName("body")
-  public val body: TCreateTvcAppBody,
-)
-
-@Serializable
-public class TCreateTvcDeploymentResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateTvcDeploymentResult,
-)
-
-@Serializable
-public class TCreateTvcDeploymentBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("appId")
-  public val appId: String,
-  @SerialName("qosVersion")
-  public val qosVersion: String,
-  @SerialName("pivotContainerImageUrl")
-  public val pivotContainerImageUrl: String,
-  @SerialName("pivotPath")
-  public val pivotPath: String,
-  @SerialName("pivotArgs")
-  public val pivotArgs: List<String>,
-  @SerialName("expectedPivotDigest")
-  public val expectedPivotDigest: String,
-  @SerialName("hostContainerImageUrl")
-  public val hostContainerImageUrl: String,
-  @SerialName("hostPath")
-  public val hostPath: String,
-  @SerialName("hostArgs")
-  public val hostArgs: List<String>,
-  @SerialName("nonce")
-  public val nonce: Long? = null,
-  @SerialName("pivotContainerEncryptedPullSecret")
-  public val pivotContainerEncryptedPullSecret: String? = null,
-  @SerialName("hostContainerEncryptedPullSecret")
-  public val hostContainerEncryptedPullSecret: String? = null,
-)
-
-@Serializable
-public class TCreateTvcDeploymentInput(
-  @SerialName("body")
-  public val body: TCreateTvcDeploymentBody,
-)
-
-@Serializable
-public class TCreateTvcManifestApprovalsResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateTvcManifestApprovalsResult,
-)
-
-@Serializable
-public class TCreateTvcManifestApprovalsBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("manifestId")
-  public val manifestId: String,
-  @SerialName("approvals")
-  public val approvals: List<V1TvcManifestApproval>,
-)
-
-@Serializable
-public class TCreateTvcManifestApprovalsInput(
-  @SerialName("body")
-  public val body: TCreateTvcManifestApprovalsBody,
 )
 
 @Serializable
@@ -11449,7 +11708,7 @@ public class TCreateUsersBody(
   @SerialName("organizationId")
   public val organizationId: String,
   @SerialName("users")
-  public val users: List<V1UserParamsV3>,
+  public val users: List<V1UserParamsV4>,
 )
 
 @Serializable
@@ -11512,6 +11771,34 @@ public class TCreateWalletAccountsBody(
 public class TCreateWalletAccountsInput(
   @SerialName("body")
   public val body: TCreateWalletAccountsBody,
+)
+
+@Serializable
+public class TCreateWebhookEndpointResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateWebhookEndpointResult,
+)
+
+@Serializable
+public class TCreateWebhookEndpointBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("url")
+  public val url: String,
+  @SerialName("name")
+  public val name: String,
+  @SerialName("subscriptions")
+  public val subscriptions: List<V1WebhookSubscriptionParams>? = null,
+)
+
+@Serializable
+public class TCreateWebhookEndpointInput(
+  @SerialName("body")
+  public val body: TCreateWebhookEndpointBody,
 )
 
 @Serializable
@@ -11911,6 +12198,30 @@ public class TDeleteWalletsInput(
 )
 
 @Serializable
+public class TDeleteWebhookEndpointResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteWebhookEndpointResult,
+)
+
+@Serializable
+public class TDeleteWebhookEndpointBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("endpointId")
+  public val endpointId: String,
+)
+
+@Serializable
+public class TDeleteWebhookEndpointInput(
+  @SerialName("body")
+  public val body: TDeleteWebhookEndpointBody,
+)
+
+@Serializable
 public class TEmailAuthResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -11948,32 +12259,6 @@ public class TEmailAuthBody(
 public class TEmailAuthInput(
   @SerialName("body")
   public val body: TEmailAuthBody,
-)
-
-@Serializable
-public class TEthSendRawTransactionResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1EthSendRawTransactionResult,
-)
-
-@Serializable
-public class TEthSendRawTransactionBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("signedTransaction")
-  public val signedTransaction: String,
-  @SerialName("caip2")
-  public val caip2: String,
-)
-
-@Serializable
-public class TEthSendRawTransactionInput(
-  @SerialName("body")
-  public val body: TEthSendRawTransactionBody,
 )
 
 @Serializable
@@ -12259,7 +12544,7 @@ public class TInitOtpResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1InitOtpResult,
+  public val result: V1InitOtpResultV2,
 )
 
 @Serializable
@@ -12272,10 +12557,10 @@ public class TInitOtpBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
-  @SerialName("otpLength")
-  public val otpLength: Long? = null,
   @SerialName("appName")
   public val appName: String,
+  @SerialName("otpLength")
+  public val otpLength: Long? = null,
   @SerialName("emailCustomization")
   public val emailCustomization: V1EmailCustomizationParamsV2? = null,
   @SerialName("smsCustomization")
@@ -12530,12 +12815,12 @@ public class TOtpLoginBody(
   public val verificationToken: String,
   @SerialName("publicKey")
   public val publicKey: String,
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature,
   @SerialName("expirationSeconds")
   public val expirationSeconds: String? = null,
   @SerialName("invalidateExisting")
   public val invalidateExisting: Boolean? = null,
-  @SerialName("clientSignature")
-  public val clientSignature: V1ClientSignature? = null,
 )
 
 @Serializable
@@ -12855,6 +13140,30 @@ public class TUpdateOauth2CredentialInput(
 )
 
 @Serializable
+public class TUpdateOrganizationNameResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateOrganizationNameResult,
+)
+
+@Serializable
+public class TUpdateOrganizationNameBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("organizationName")
+  public val organizationName: String,
+)
+
+@Serializable
+public class TUpdateOrganizationNameInput(
+  @SerialName("body")
+  public val body: TUpdateOrganizationNameBody,
+)
+
+@Serializable
 public class TUpdatePolicyResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -13115,6 +13424,36 @@ public class TUpdateWalletInput(
 )
 
 @Serializable
+public class TUpdateWebhookEndpointResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateWebhookEndpointResult,
+)
+
+@Serializable
+public class TUpdateWebhookEndpointBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("endpointId")
+  public val endpointId: String,
+  @SerialName("url")
+  public val url: String? = null,
+  @SerialName("name")
+  public val name: String? = null,
+  @SerialName("isActive")
+  public val isActive: Boolean? = null,
+)
+
+@Serializable
+public class TUpdateWebhookEndpointInput(
+  @SerialName("body")
+  public val body: TUpdateWebhookEndpointBody,
+)
+
+@Serializable
 public class TVerifyOtpResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -13130,12 +13469,10 @@ public class TVerifyOtpBody(
   public val organizationId: String,
   @SerialName("otpId")
   public val otpId: String,
-  @SerialName("otpCode")
-  public val otpCode: String,
+  @SerialName("encryptedOtpBundle")
+  public val encryptedOtpBundle: String,
   @SerialName("expirationSeconds")
   public val expirationSeconds: String? = null,
-  @SerialName("publicKey")
-  public val publicKey: String? = null,
 )
 
 @Serializable
@@ -13159,25 +13496,6 @@ public class TNOOPCodegenAnchorBody()
 public class TNOOPCodegenAnchorInput(
   @SerialName("body")
   public val body: TNOOPCodegenAnchorBody,
-)
-
-@Serializable
-public class TTestRateLimitsResponse()
-
-@Serializable
-public class TTestRateLimitsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("isSetLimit")
-  public val isSetLimit: Boolean,
-  @SerialName("limit")
-  public val limit: Long,
-)
-
-@Serializable
-public class TTestRateLimitsInput(
-  @SerialName("body")
-  public val body: TTestRateLimitsBody,
 )
 
 @Serializable
@@ -13286,6 +13604,34 @@ public class ProxyTInitOtpInput(
 )
 
 @Serializable
+public data class ProxyTInitOtpV2Response(
+  /**
+   * Signed bundle containing a target encryption key to use when submitting OTP codes.
+   */
+  @SerialName("otpEncryptionTargetBundle")
+  public val otpEncryptionTargetBundle: String,
+  /**
+   * Unique identifier for an OTP flow.
+   */
+  @SerialName("otpId")
+  public val otpId: String,
+)
+
+@Serializable
+public class ProxyTInitOtpV2Body(
+  @SerialName("otpType")
+  public val otpType: String,
+  @SerialName("contact")
+  public val contact: String,
+)
+
+@Serializable
+public class ProxyTInitOtpV2Input(
+  @SerialName("body")
+  public val body: ProxyTInitOtpV2Body,
+)
+
+@Serializable
 public data class ProxyTOtpLoginResponse(
   /**
    * Signed JWT containing an expiry, public key, session type, user id, and organization id
@@ -13315,6 +13661,35 @@ public class ProxyTOtpLoginInput(
 )
 
 @Serializable
+public data class ProxyTOtpLoginV2Response(
+  /**
+   * Session containing an expiry, public key, session type, user id, and organization id
+   */
+  @SerialName("session")
+  public val session: String,
+)
+
+@Serializable
+public class ProxyTOtpLoginV2Body(
+  @SerialName("verificationToken")
+  public val verificationToken: String,
+  @SerialName("publicKey")
+  public val publicKey: String,
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature,
+  @SerialName("invalidateExisting")
+  public val invalidateExisting: Boolean? = null,
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+)
+
+@Serializable
+public class ProxyTOtpLoginV2Input(
+  @SerialName("body")
+  public val body: ProxyTOtpLoginV2Body,
+)
+
+@Serializable
 public data class ProxyTVerifyOtpResponse(
   /**
    * Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)
@@ -13337,6 +13712,29 @@ public class ProxyTVerifyOtpBody(
 public class ProxyTVerifyOtpInput(
   @SerialName("body")
   public val body: ProxyTVerifyOtpBody,
+)
+
+@Serializable
+public data class ProxyTVerifyOtpV2Response(
+  /**
+   * Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)
+   */
+  @SerialName("verificationToken")
+  public val verificationToken: String,
+)
+
+@Serializable
+public class ProxyTVerifyOtpV2Body(
+  @SerialName("otpId")
+  public val otpId: String,
+  @SerialName("encryptedOtpBundle")
+  public val encryptedOtpBundle: String,
+)
+
+@Serializable
+public class ProxyTVerifyOtpV2Input(
+  @SerialName("body")
+  public val body: ProxyTVerifyOtpV2Body,
 )
 
 @Serializable
@@ -13390,6 +13788,59 @@ public class ProxyTSignupBody(
 public class ProxyTSignupInput(
   @SerialName("body")
   public val body: ProxyTSignupBody,
+)
+
+@Serializable
+public data class ProxyTSignupV2Response(
+  /**
+   * A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations.
+   */
+  @SerialName("appProofs")
+  public val appProofs: List<V1AppProof>? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Root user ID created for this sub-organization
+   */
+  @SerialName("userId")
+  public val userId: String,
+  /**
+   * Wallet created for the sub-organization, if provided in the request
+   */
+  @SerialName("wallet")
+  public val wallet: V1WalletResult? = null,
+)
+
+@Serializable
+public class ProxyTSignupV2Body(
+  @SerialName("userEmail")
+  public val userEmail: String? = null,
+  @SerialName("userPhoneNumber")
+  public val userPhoneNumber: String? = null,
+  @SerialName("userTag")
+  public val userTag: String? = null,
+  @SerialName("userName")
+  public val userName: String? = null,
+  @SerialName("organizationName")
+  public val organizationName: String? = null,
+  @SerialName("verificationToken")
+  public val verificationToken: String? = null,
+  @SerialName("apiKeys")
+  public val apiKeys: List<V1ApiKeyParamsV2>,
+  @SerialName("authenticators")
+  public val authenticators: List<V1AuthenticatorParamsV2>,
+  @SerialName("oauthProviders")
+  public val oauthProviders: List<V1OauthProviderParamsV2>,
+  @SerialName("wallet")
+  public val wallet: V1WalletParams? = null,
+  @SerialName("clientSignature")
+  public val clientSignature: V1ClientSignature? = null,
+)
+
+@Serializable
+public class ProxyTSignupV2Input(
+  @SerialName("body")
+  public val body: ProxyTSignupV2Body,
 )
 
 @Serializable

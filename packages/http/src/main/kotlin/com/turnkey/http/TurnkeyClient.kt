@@ -19,22 +19,28 @@ import com.turnkey.types.ProxyTGetWalletKitConfigBody
 import com.turnkey.types.ProxyTGetWalletKitConfigResponse
 import com.turnkey.types.ProxyTInitOtpBody
 import com.turnkey.types.ProxyTInitOtpResponse
+import com.turnkey.types.ProxyTInitOtpV2Body
+import com.turnkey.types.ProxyTInitOtpV2Response
 import com.turnkey.types.ProxyTOAuth2AuthenticateBody
 import com.turnkey.types.ProxyTOAuth2AuthenticateResponse
 import com.turnkey.types.ProxyTOAuthLoginBody
 import com.turnkey.types.ProxyTOAuthLoginResponse
 import com.turnkey.types.ProxyTOtpLoginBody
 import com.turnkey.types.ProxyTOtpLoginResponse
+import com.turnkey.types.ProxyTOtpLoginV2Body
+import com.turnkey.types.ProxyTOtpLoginV2Response
 import com.turnkey.types.ProxyTSignupBody
 import com.turnkey.types.ProxyTSignupResponse
+import com.turnkey.types.ProxyTSignupV2Body
+import com.turnkey.types.ProxyTSignupV2Response
 import com.turnkey.types.ProxyTVerifyOtpBody
 import com.turnkey.types.ProxyTVerifyOtpResponse
+import com.turnkey.types.ProxyTVerifyOtpV2Body
+import com.turnkey.types.ProxyTVerifyOtpV2Response
 import com.turnkey.types.TApproveActivityBody
 import com.turnkey.types.TApproveActivityResponse
 import com.turnkey.types.TCreateApiKeysBody
 import com.turnkey.types.TCreateApiKeysResponse
-import com.turnkey.types.TCreateApiOnlyUsersBody
-import com.turnkey.types.TCreateApiOnlyUsersResponse
 import com.turnkey.types.TCreateAuthenticatorsBody
 import com.turnkey.types.TCreateAuthenticatorsResponse
 import com.turnkey.types.TCreateFiatOnRampCredentialBody
@@ -61,12 +67,6 @@ import com.turnkey.types.TCreateSmartContractInterfaceBody
 import com.turnkey.types.TCreateSmartContractInterfaceResponse
 import com.turnkey.types.TCreateSubOrganizationBody
 import com.turnkey.types.TCreateSubOrganizationResponse
-import com.turnkey.types.TCreateTvcAppBody
-import com.turnkey.types.TCreateTvcAppResponse
-import com.turnkey.types.TCreateTvcDeploymentBody
-import com.turnkey.types.TCreateTvcDeploymentResponse
-import com.turnkey.types.TCreateTvcManifestApprovalsBody
-import com.turnkey.types.TCreateTvcManifestApprovalsResponse
 import com.turnkey.types.TCreateUserTagBody
 import com.turnkey.types.TCreateUserTagResponse
 import com.turnkey.types.TCreateUsersBody
@@ -75,6 +75,8 @@ import com.turnkey.types.TCreateWalletAccountsBody
 import com.turnkey.types.TCreateWalletAccountsResponse
 import com.turnkey.types.TCreateWalletBody
 import com.turnkey.types.TCreateWalletResponse
+import com.turnkey.types.TCreateWebhookEndpointBody
+import com.turnkey.types.TCreateWebhookEndpointResponse
 import com.turnkey.types.TDeleteApiKeysBody
 import com.turnkey.types.TDeleteApiKeysResponse
 import com.turnkey.types.TDeleteAuthenticatorsBody
@@ -107,10 +109,10 @@ import com.turnkey.types.TDeleteWalletAccountsBody
 import com.turnkey.types.TDeleteWalletAccountsResponse
 import com.turnkey.types.TDeleteWalletsBody
 import com.turnkey.types.TDeleteWalletsResponse
+import com.turnkey.types.TDeleteWebhookEndpointBody
+import com.turnkey.types.TDeleteWebhookEndpointResponse
 import com.turnkey.types.TEmailAuthBody
 import com.turnkey.types.TEmailAuthResponse
-import com.turnkey.types.TEthSendRawTransactionBody
-import com.turnkey.types.TEthSendRawTransactionResponse
 import com.turnkey.types.TEthSendTransactionBody
 import com.turnkey.types.TEthSendTransactionResponse
 import com.turnkey.types.TExportPrivateKeyBody
@@ -129,6 +131,8 @@ import com.turnkey.types.TGetApiKeysBody
 import com.turnkey.types.TGetApiKeysResponse
 import com.turnkey.types.TGetAppProofsBody
 import com.turnkey.types.TGetAppProofsResponse
+import com.turnkey.types.TGetAppStatusBody
+import com.turnkey.types.TGetAppStatusResponse
 import com.turnkey.types.TGetAuthenticatorBody
 import com.turnkey.types.TGetAuthenticatorResponse
 import com.turnkey.types.TGetAuthenticatorsBody
@@ -147,10 +151,8 @@ import com.turnkey.types.TGetOauthProvidersBody
 import com.turnkey.types.TGetOauthProvidersResponse
 import com.turnkey.types.TGetOnRampTransactionStatusBody
 import com.turnkey.types.TGetOnRampTransactionStatusResponse
-import com.turnkey.types.TGetOrganizationBody
 import com.turnkey.types.TGetOrganizationConfigsBody
 import com.turnkey.types.TGetOrganizationConfigsResponse
-import com.turnkey.types.TGetOrganizationResponse
 import com.turnkey.types.TGetPoliciesBody
 import com.turnkey.types.TGetPoliciesResponse
 import com.turnkey.types.TGetPolicyBody
@@ -169,14 +171,6 @@ import com.turnkey.types.TGetSmartContractInterfacesBody
 import com.turnkey.types.TGetSmartContractInterfacesResponse
 import com.turnkey.types.TGetSubOrgIdsBody
 import com.turnkey.types.TGetSubOrgIdsResponse
-import com.turnkey.types.TGetTvcAppBody
-import com.turnkey.types.TGetTvcAppDeploymentsBody
-import com.turnkey.types.TGetTvcAppDeploymentsResponse
-import com.turnkey.types.TGetTvcAppResponse
-import com.turnkey.types.TGetTvcAppsBody
-import com.turnkey.types.TGetTvcAppsResponse
-import com.turnkey.types.TGetTvcDeploymentBody
-import com.turnkey.types.TGetTvcDeploymentResponse
 import com.turnkey.types.TGetUserBody
 import com.turnkey.types.TGetUserResponse
 import com.turnkey.types.TGetUsersBody
@@ -221,6 +215,8 @@ import com.turnkey.types.TListSupportedAssetsBody
 import com.turnkey.types.TListSupportedAssetsResponse
 import com.turnkey.types.TListUserTagsBody
 import com.turnkey.types.TListUserTagsResponse
+import com.turnkey.types.TListWebhookEndpointsBody
+import com.turnkey.types.TListWebhookEndpointsResponse
 import com.turnkey.types.TNOOPCodegenAnchorResponse
 import com.turnkey.types.TOauth2AuthenticateBody
 import com.turnkey.types.TOauth2AuthenticateResponse
@@ -252,12 +248,12 @@ import com.turnkey.types.TSolSendTransactionResponse
 import com.turnkey.types.TStamp
 import com.turnkey.types.TStampLoginBody
 import com.turnkey.types.TStampLoginResponse
-import com.turnkey.types.TTestRateLimitsBody
-import com.turnkey.types.TTestRateLimitsResponse
 import com.turnkey.types.TUpdateFiatOnRampCredentialBody
 import com.turnkey.types.TUpdateFiatOnRampCredentialResponse
 import com.turnkey.types.TUpdateOauth2CredentialBody
 import com.turnkey.types.TUpdateOauth2CredentialResponse
+import com.turnkey.types.TUpdateOrganizationNameBody
+import com.turnkey.types.TUpdateOrganizationNameResponse
 import com.turnkey.types.TUpdatePolicyBody
 import com.turnkey.types.TUpdatePolicyResponse
 import com.turnkey.types.TUpdatePrivateKeyTagBody
@@ -276,6 +272,8 @@ import com.turnkey.types.TUpdateUserTagBody
 import com.turnkey.types.TUpdateUserTagResponse
 import com.turnkey.types.TUpdateWalletBody
 import com.turnkey.types.TUpdateWalletResponse
+import com.turnkey.types.TUpdateWebhookEndpointBody
+import com.turnkey.types.TUpdateWebhookEndpointResponse
 import com.turnkey.types.TVerifyOtpBody
 import com.turnkey.types.TVerifyOtpResponse
 import com.turnkey.types.V1Activity
@@ -499,6 +497,33 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
     val url = "$apiBaseUrl/public/v1/query/get_api_keys"
     val bodyJson = json.encodeToJsonElement(TGetApiKeysBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  public suspend fun getAppStatus(input: TGetAppStatusBody): TGetAppStatusResponse {
+    val url = "$apiBaseUrl/public/v1/query/get_app_status"
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val bodyJson = json.encodeToJsonElement(TGetAppStatusBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/get_app_status: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(TGetAppStatusResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun stampGetAppStatus(input: TGetAppStatusBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/query/get_app_status"
+    val bodyJson = json.encodeToJsonElement(TGetAppStatusBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
@@ -747,33 +772,6 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
-  public suspend fun getOrganization(input: TGetOrganizationBody): TGetOrganizationResponse {
-    val url = "$apiBaseUrl/public/v1/query/get_organization"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TGetOrganizationBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /public/v1/query/get_organization: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TGetOrganizationResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampGetOrganization(input: TGetOrganizationBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/query/get_organization"
-    val bodyJson = json.encodeToJsonElement(TGetOrganizationBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
   public suspend fun getOrganizationConfigs(input: TGetOrganizationConfigsBody): TGetOrganizationConfigsResponse {
     val url = "$apiBaseUrl/public/v1/query/get_organization_configs"
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
@@ -931,60 +929,6 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
     val url = "$apiBaseUrl/public/v1/query/get_smart_contract_interface"
     val bodyJson = json.encodeToJsonElement(TGetSmartContractInterfaceBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun getTvcApp(input: TGetTvcAppBody): TGetTvcAppResponse {
-    val url = "$apiBaseUrl/public/v1/query/get_tvc_app"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /public/v1/query/get_tvc_app: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TGetTvcAppResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampGetTvcApp(input: TGetTvcAppBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/query/get_tvc_app"
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun getTvcDeployment(input: TGetTvcDeploymentBody): TGetTvcDeploymentResponse {
-    val url = "$apiBaseUrl/public/v1/query/get_tvc_deployment"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TGetTvcDeploymentBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /public/v1/query/get_tvc_deployment: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TGetTvcDeploymentResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampGetTvcDeployment(input: TGetTvcDeploymentBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/query/get_tvc_deployment"
-    val bodyJson = json.encodeToJsonElement(TGetTvcDeploymentBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
@@ -1368,60 +1312,6 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
-  public suspend fun getTvcAppDeployments(input: TGetTvcAppDeploymentsBody): TGetTvcAppDeploymentsResponse {
-    val url = "$apiBaseUrl/public/v1/query/list_tvc_app_deployments"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppDeploymentsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /public/v1/query/list_tvc_app_deployments: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TGetTvcAppDeploymentsResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampGetTvcAppDeployments(input: TGetTvcAppDeploymentsBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/query/list_tvc_app_deployments"
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppDeploymentsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun getTvcApps(input: TGetTvcAppsBody): TGetTvcAppsResponse {
-    val url = "$apiBaseUrl/public/v1/query/list_tvc_apps"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /public/v1/query/list_tvc_apps: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TGetTvcAppsResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampGetTvcApps(input: TGetTvcAppsBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/query/list_tvc_apps"
-    val bodyJson = json.encodeToJsonElement(TGetTvcAppsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
   public suspend fun listUserTags(input: TListUserTagsBody): TListUserTagsResponse {
     val url = "$apiBaseUrl/public/v1/query/list_user_tags"
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
@@ -1557,6 +1447,33 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
+  public suspend fun listWebhookEndpoints(input: TListWebhookEndpointsBody): TListWebhookEndpointsResponse {
+    val url = "$apiBaseUrl/public/v1/query/list_webhook_endpoints"
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val bodyJson = json.encodeToJsonElement(TListWebhookEndpointsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /public/v1/query/list_webhook_endpoints: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(TListWebhookEndpointsResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun stampListWebhookEndpoints(input: TListWebhookEndpointsBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/query/list_webhook_endpoints"
+    val bodyJson = json.encodeToJsonElement(TListWebhookEndpointsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
   public suspend fun getWhoami(input: TGetWhoamiBody): TGetWhoamiResponse {
     val url = "$apiBaseUrl/public/v1/query/whoami"
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
@@ -1625,30 +1542,6 @@ public class TurnkeyClient(
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
     val activityType = "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun createApiOnlyUsers(input: TCreateApiOnlyUsersBody): TCreateApiOnlyUsersResponse {
-    val url = "$apiBaseUrl/public/v1/submit/create_api_only_users"
-    val activityType = "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
-    val activityRes = activity<TCreateApiOnlyUsersBody>(url, input, activityType)
-    return TCreateApiOnlyUsersResponse(activity = activityRes, result = activityRes.result.createApiOnlyUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_api_only_users"))
-  }
-
-  public suspend fun stampCreateApiOnlyUsers(input: TCreateApiOnlyUsersBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/submit/create_api_only_users"
-    val inputElem = json.encodeToJsonElement(TCreateApiOnlyUsersBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -1754,9 +1647,9 @@ public class TurnkeyClient(
 
   public suspend fun createOauthProviders(input: TCreateOauthProvidersBody): TCreateOauthProvidersResponse {
     val url = "$apiBaseUrl/public/v1/submit/create_oauth_providers"
-    val activityType = "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"
+    val activityType = "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
     val activityRes = activity<TCreateOauthProvidersBody>(url, input, activityType)
-    return TCreateOauthProvidersResponse(activity = activityRes, result = activityRes.result.createOauthProvidersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth_providers"))
+    return TCreateOauthProvidersResponse(activity = activityRes, result = activityRes.result.createOauthProvidersResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth_providers"))
   }
 
   public suspend fun stampCreateOauthProviders(input: TCreateOauthProvidersBody): TSignedRequest {
@@ -1768,7 +1661,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"
+    val activityType = "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -1946,9 +1839,9 @@ public class TurnkeyClient(
 
   public suspend fun createSubOrganization(input: TCreateSubOrganizationBody): TCreateSubOrganizationResponse {
     val url = "$apiBaseUrl/public/v1/submit/create_sub_organization"
-    val activityType = "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+    val activityType = "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
     val activityRes = activity<TCreateSubOrganizationBody>(url, input, activityType)
-    return TCreateSubOrganizationResponse(activity = activityRes, result = activityRes.result.createSubOrganizationResultV7 ?: throw RuntimeException("No result found from /public/v1/submit/create_sub_organization"))
+    return TCreateSubOrganizationResponse(activity = activityRes, result = activityRes.result.createSubOrganizationResultV8 ?: throw RuntimeException("No result found from /public/v1/submit/create_sub_organization"))
   }
 
   public suspend fun stampCreateSubOrganization(input: TCreateSubOrganizationBody): TSignedRequest {
@@ -1960,79 +1853,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun createTvcApp(input: TCreateTvcAppBody): TCreateTvcAppResponse {
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_app"
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_APP"
-    val activityRes = activity<TCreateTvcAppBody>(url, input, activityType)
-    return TCreateTvcAppResponse(activity = activityRes, result = activityRes.result.createTvcAppResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_app"))
-  }
-
-  public suspend fun stampCreateTvcApp(input: TCreateTvcAppBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_app"
-    val inputElem = json.encodeToJsonElement(TCreateTvcAppBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_APP"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun createTvcDeployment(input: TCreateTvcDeploymentBody): TCreateTvcDeploymentResponse {
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_deployment"
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
-    val activityRes = activity<TCreateTvcDeploymentBody>(url, input, activityType)
-    return TCreateTvcDeploymentResponse(activity = activityRes, result = activityRes.result.createTvcDeploymentResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_deployment"))
-  }
-
-  public suspend fun stampCreateTvcDeployment(input: TCreateTvcDeploymentBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_deployment"
-    val inputElem = json.encodeToJsonElement(TCreateTvcDeploymentBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun createTvcManifestApprovals(input: TCreateTvcManifestApprovalsBody): TCreateTvcManifestApprovalsResponse {
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_manifest_approvals"
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
-    val activityRes = activity<TCreateTvcManifestApprovalsBody>(url, input, activityType)
-    return TCreateTvcManifestApprovalsResponse(activity = activityRes, result = activityRes.result.createTvcManifestApprovalsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_manifest_approvals"))
-  }
-
-  public suspend fun stampCreateTvcManifestApprovals(input: TCreateTvcManifestApprovalsBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/submit/create_tvc_manifest_approvals"
-    val inputElem = json.encodeToJsonElement(TCreateTvcManifestApprovalsBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
+    val activityType = "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -2066,7 +1887,7 @@ public class TurnkeyClient(
 
   public suspend fun createUsers(input: TCreateUsersBody): TCreateUsersResponse {
     val url = "$apiBaseUrl/public/v1/submit/create_users"
-    val activityType = "ACTIVITY_TYPE_CREATE_USERS_V3"
+    val activityType = "ACTIVITY_TYPE_CREATE_USERS_V4"
     val activityRes = activity<TCreateUsersBody>(url, input, activityType)
     return TCreateUsersResponse(activity = activityRes, result = activityRes.result.createUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_users"))
   }
@@ -2080,7 +1901,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_CREATE_USERS_V3"
+    val activityType = "ACTIVITY_TYPE_CREATE_USERS_V4"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -2129,6 +1950,30 @@ public class TurnkeyClient(
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
     val activityType = "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
+    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
+  public suspend fun createWebhookEndpoint(input: TCreateWebhookEndpointBody): TCreateWebhookEndpointResponse {
+    val url = "$apiBaseUrl/public/v1/submit/create_webhook_endpoint"
+    val activityType = "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
+    val activityRes = activity<TCreateWebhookEndpointBody>(url, input, activityType)
+    return TCreateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.createWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/create_webhook_endpoint"))
+  }
+
+  public suspend fun stampCreateWebhookEndpoint(input: TCreateWebhookEndpointBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/submit/create_webhook_endpoint"
+    val inputElem = json.encodeToJsonElement(TCreateWebhookEndpointBody.serializer(), input)
+    val obj = inputElem.jsonObject
+    val inputOrgId = obj["organizationId"]
+    val inputTimestamp = obj["timestampMs"]
+    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
+    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
+    val activityType = "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -2520,6 +2365,30 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
+  public suspend fun deleteWebhookEndpoint(input: TDeleteWebhookEndpointBody): TDeleteWebhookEndpointResponse {
+    val url = "$apiBaseUrl/public/v1/submit/delete_webhook_endpoint"
+    val activityType = "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    val activityRes = activity<TDeleteWebhookEndpointBody>(url, input, activityType)
+    return TDeleteWebhookEndpointResponse(activity = activityRes, result = activityRes.result.deleteWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_webhook_endpoint"))
+  }
+
+  public suspend fun stampDeleteWebhookEndpoint(input: TDeleteWebhookEndpointBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/submit/delete_webhook_endpoint"
+    val inputElem = json.encodeToJsonElement(TDeleteWebhookEndpointBody.serializer(), input)
+    val obj = inputElem.jsonObject
+    val inputOrgId = obj["organizationId"]
+    val inputTimestamp = obj["timestampMs"]
+    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
+    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
+    val activityType = "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
+    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
   public suspend fun emailAuth(input: TEmailAuthBody): TEmailAuthResponse {
     val url = "$apiBaseUrl/public/v1/submit/email_auth"
     val activityType = "ACTIVITY_TYPE_EMAIL_AUTH_V3"
@@ -2537,30 +2406,6 @@ public class TurnkeyClient(
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
     val activityType = "ACTIVITY_TYPE_EMAIL_AUTH_V3"
-    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
-    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun ethSendRawTransaction(input: TEthSendRawTransactionBody): TEthSendRawTransactionResponse {
-    val url = "$apiBaseUrl/public/v1/submit/eth_send_raw_transaction"
-    val activityType = "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"
-    val activityRes = activity<TEthSendRawTransactionBody>(url, input, activityType)
-    return TEthSendRawTransactionResponse(activity = activityRes, result = activityRes.result.ethSendRawTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/eth_send_raw_transaction"))
-  }
-
-  public suspend fun stampEthSendRawTransaction(input: TEthSendRawTransactionBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/public/v1/submit/eth_send_raw_transaction"
-    val inputElem = json.encodeToJsonElement(TEthSendRawTransactionBody.serializer(), input)
-    val obj = inputElem.jsonObject
-    val inputOrgId = obj["organizationId"]
-    val inputTimestamp = obj["timestampMs"]
-    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
-    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -2786,9 +2631,9 @@ public class TurnkeyClient(
 
   public suspend fun initOtp(input: TInitOtpBody): TInitOtpResponse {
     val url = "$apiBaseUrl/public/v1/submit/init_otp"
-    val activityType = "ACTIVITY_TYPE_INIT_OTP_V2"
+    val activityType = "ACTIVITY_TYPE_INIT_OTP_V3"
     val activityRes = activity<TInitOtpBody>(url, input, activityType)
-    return TInitOtpResponse(activity = activityRes, result = activityRes.result.initOtpResult ?: throw RuntimeException("No result found from /public/v1/submit/init_otp"))
+    return TInitOtpResponse(activity = activityRes, result = activityRes.result.initOtpResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/init_otp"))
   }
 
   public suspend fun stampInitOtp(input: TInitOtpBody): TSignedRequest {
@@ -2800,7 +2645,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_INIT_OTP_V2"
+    val activityType = "ACTIVITY_TYPE_INIT_OTP_V3"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -2954,7 +2799,7 @@ public class TurnkeyClient(
 
   public suspend fun otpLogin(input: TOtpLoginBody): TOtpLoginResponse {
     val url = "$apiBaseUrl/public/v1/submit/otp_login"
-    val activityType = "ACTIVITY_TYPE_OTP_LOGIN"
+    val activityType = "ACTIVITY_TYPE_OTP_LOGIN_V2"
     val activityRes = activity<TOtpLoginBody>(url, input, activityType)
     return TOtpLoginResponse(activity = activityRes, result = activityRes.result.otpLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/otp_login"))
   }
@@ -2968,7 +2813,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_OTP_LOGIN"
+    val activityType = "ACTIVITY_TYPE_OTP_LOGIN_V2"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -3240,6 +3085,30 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
+  public suspend fun updateOrganizationName(input: TUpdateOrganizationNameBody): TUpdateOrganizationNameResponse {
+    val url = "$apiBaseUrl/public/v1/submit/update_organization_name"
+    val activityType = "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
+    val activityRes = activity<TUpdateOrganizationNameBody>(url, input, activityType)
+    return TUpdateOrganizationNameResponse(activity = activityRes, result = activityRes.result.updateOrganizationNameResult ?: throw RuntimeException("No result found from /public/v1/submit/update_organization_name"))
+  }
+
+  public suspend fun stampUpdateOrganizationName(input: TUpdateOrganizationNameBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/submit/update_organization_name"
+    val inputElem = json.encodeToJsonElement(TUpdateOrganizationNameBody.serializer(), input)
+    val obj = inputElem.jsonObject
+    val inputOrgId = obj["organizationId"]
+    val inputTimestamp = obj["timestampMs"]
+    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
+    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
+    val activityType = "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
+    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
+    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
   public suspend fun updatePolicy(input: TUpdatePolicyBody): TUpdatePolicyResponse {
     val url = "$apiBaseUrl/public/v1/submit/update_policy"
     val activityType = "ACTIVITY_TYPE_UPDATE_POLICY_V2"
@@ -3456,9 +3325,33 @@ public class TurnkeyClient(
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
   }
 
+  public suspend fun updateWebhookEndpoint(input: TUpdateWebhookEndpointBody): TUpdateWebhookEndpointResponse {
+    val url = "$apiBaseUrl/public/v1/submit/update_webhook_endpoint"
+    val activityType = "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
+    val activityRes = activity<TUpdateWebhookEndpointBody>(url, input, activityType)
+    return TUpdateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.updateWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/update_webhook_endpoint"))
+  }
+
+  public suspend fun stampUpdateWebhookEndpoint(input: TUpdateWebhookEndpointBody): TSignedRequest {
+    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
+    val url = "$apiBaseUrl/public/v1/submit/update_webhook_endpoint"
+    val inputElem = json.encodeToJsonElement(TUpdateWebhookEndpointBody.serializer(), input)
+    val obj = inputElem.jsonObject
+    val inputOrgId = obj["organizationId"]
+    val inputTimestamp = obj["timestampMs"]
+    val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
+    val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
+    val activityType = "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
+    val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
+    val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
+    val (hName, hValue) = stamper.stamp(bodyJson)
+    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
+    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
+  }
+
   public suspend fun verifyOtp(input: TVerifyOtpBody): TVerifyOtpResponse {
     val url = "$apiBaseUrl/public/v1/submit/verify_otp"
-    val activityType = "ACTIVITY_TYPE_VERIFY_OTP"
+    val activityType = "ACTIVITY_TYPE_VERIFY_OTP_V2"
     val activityRes = activity<TVerifyOtpBody>(url, input, activityType)
     return TVerifyOtpResponse(activity = activityRes, result = activityRes.result.verifyOtpResult ?: throw RuntimeException("No result found from /public/v1/submit/verify_otp"))
   }
@@ -3472,7 +3365,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_VERIFY_OTP"
+    val activityType = "ACTIVITY_TYPE_VERIFY_OTP_V2"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -3502,33 +3395,6 @@ public class TurnkeyClient(
     if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
     val url = "$apiBaseUrl/tkhq/api/v1/noop-codegen-anchor"
     val bodyJson = ""
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
-    return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
-  }
-
-  public suspend fun testRateLimits(input: TTestRateLimitsBody): TTestRateLimitsResponse {
-    val url = "$apiBaseUrl/tkhq/api/v1/test_rate_limits"
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val bodyJson = json.encodeToJsonElement(TTestRateLimitsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
-    val (hName, hValue) = stamper.stamp(bodyJson)
-    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header(hName, hValue).header("X-Client-Version", Version.VERSION).build()
-    val call = http.newCall(req)
-    val resp = call.await()
-    resp.use {
-      if (!it.isSuccessful) {
-        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
-        throw RuntimeException("""HTTP error from /tkhq/api/v1/test_rate_limits: """ + it.code)
-      }
-      val text = withContext(Dispatchers.IO) { it.body.string() }
-      return json.decodeFromString(TTestRateLimitsResponse.serializer(), text)
-    }
-  }
-
-  public suspend fun stampTestRateLimits(input: TTestRateLimitsBody): TSignedRequest {
-    if (stamper == null) throw TurnkeyHttpError.StamperNotInitialized()
-    val url = "$apiBaseUrl/tkhq/api/v1/test_rate_limits"
-    val bodyJson = json.encodeToJsonElement(TTestRateLimitsBody.serializer(), input).jsonObject.let { obj -> kotlinx.serialization.json.buildJsonObject { obj.filterKeys { it != "organizationId" }.forEach { (k, v) -> put(k, v) }; put("organizationId", obj["organizationId"] ?: kotlinx.serialization.json.JsonPrimitive(organizationId)) } }.let { json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), it) }
     val (hName, hValue) = stamper.stamp(bodyJson)
     val stamp = TStamp(stampHeaderName = hName, stampHeaderValue = hValue)
     return TSignedRequest(body = bodyJson, stamp = stamp, url = url)
@@ -3602,6 +3468,23 @@ public class TurnkeyClient(
     }
   }
 
+  public suspend fun proxyInitOtpV2(input: ProxyTInitOtpV2Body): ProxyTInitOtpV2Response {
+    val url = "$authProxyUrl/v1/otp_init_v2"
+    if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
+    val bodyJson = json.encodeToString(ProxyTInitOtpV2Body.serializer(), input)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_init_v2: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(ProxyTInitOtpV2Response.serializer(), text)
+    }
+  }
+
   public suspend fun proxyOtpLogin(input: ProxyTOtpLoginBody): ProxyTOtpLoginResponse {
     val url = "$authProxyUrl/v1/otp_login"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
@@ -3616,6 +3499,23 @@ public class TurnkeyClient(
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTOtpLoginResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun proxyOtpLoginV2(input: ProxyTOtpLoginV2Body): ProxyTOtpLoginV2Response {
+    val url = "$authProxyUrl/v1/otp_login_v2"
+    if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
+    val bodyJson = json.encodeToString(ProxyTOtpLoginV2Body.serializer(), input)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_login_v2: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(ProxyTOtpLoginV2Response.serializer(), text)
     }
   }
 
@@ -3636,6 +3536,23 @@ public class TurnkeyClient(
     }
   }
 
+  public suspend fun proxyVerifyOtpV2(input: ProxyTVerifyOtpV2Body): ProxyTVerifyOtpV2Response {
+    val url = "$authProxyUrl/v1/otp_verify_v2"
+    if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
+    val bodyJson = json.encodeToString(ProxyTVerifyOtpV2Body.serializer(), input)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/otp_verify_v2: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(ProxyTVerifyOtpV2Response.serializer(), text)
+    }
+  }
+
   public suspend fun proxySignup(input: ProxyTSignupBody): ProxyTSignupResponse {
     val url = "$authProxyUrl/v1/signup"
     if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
@@ -3650,6 +3567,23 @@ public class TurnkeyClient(
       }
       val text = withContext(Dispatchers.IO) { it.body.string() }
       return json.decodeFromString(ProxyTSignupResponse.serializer(), text)
+    }
+  }
+
+  public suspend fun proxySignupV2(input: ProxyTSignupV2Body): ProxyTSignupV2Response {
+    val url = "$authProxyUrl/v1/signup_v2"
+    if (authProxyConfigId.isNullOrBlank()) throw TurnkeyHttpError.MissingAuthProxyConfigId()
+    val bodyJson = json.encodeToString(ProxyTSignupV2Body.serializer(), input)
+    val req = Request.Builder().url(url).post(bodyJson.toRequestBody("application/json".toMediaType())).header("X-Auth-Proxy-Config-ID", authProxyConfigId).header("X-Client-Version", Version.VERSION).build()
+    val call = http.newCall(req)
+    val resp = call.await()
+    resp.use {
+      if (!it.isSuccessful) {
+        val errBody = withContext(Dispatchers.IO) { kotlin.runCatching { it.body.string() }.getOrNull() }
+        throw RuntimeException("""HTTP error from /v1/signup_v2: """ + it.code)
+      }
+      val text = withContext(Dispatchers.IO) { it.body.string() }
+      return json.decodeFromString(ProxyTSignupV2Response.serializer(), text)
     }
   }
 

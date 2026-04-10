@@ -17,6 +17,7 @@ import com.turnkey.crypto.models.KeyFormat
 import com.turnkey.crypto.models.P256KeyPair
 import com.turnkey.crypto.models.RawP256KeyPair
 import com.turnkey.crypto.utils.TurnkeyCryptoError
+import com.turnkey.crypto.utils.TurnkeyConstants
 import kotlinx.serialization.json.Json
 import org.bouncycastle.asn1.nist.NISTNamedCurves
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
@@ -305,6 +306,62 @@ fun encryptWalletToBundle(
     val uncompressedPub = ecPointCompressedToUncompressed(compressed)
     val json = mapOf("encappedPublic" to uncompressedPub.toHexString(), "ciphertext" to cipher.toHexString())
     Json.encodeToString(json)
+} catch (e: Exception) {
+    throw TurnkeyCryptoError.wrap(e)
+}
+
+/**
+ * Encrypts an OTP code and a client public key to the target encryption key
+ * provided by the enclave during initOtp. The resulting encrypted bundle is
+ * sent to verifyOtpV2 so the enclave can decrypt it, verify the OTP code,
+ * and issue a verification token bound to the client's public key.
+ *
+ * Verifies the enclave signature on the target bundle before encrypting.
+ *
+ * @param otpCode The OTP code entered by the user.
+ * @param otpEncryptionTargetBundle The signed target encryption bundle returned from initOtp.
+ * @param publicKey Compressed hex public key to embed in the encrypted bundle.
+ * @param dangerouslyOverrideSignerPublicKey Optional override for the TLS fetcher signing key
+ *        used to verify the bundle signature. Only use in test/preprod environments.
+ * @return The encrypted OTP bundle as a JSON string.
+ * @throws TurnkeyCryptoError if signature verification or encryption fails.
+ */
+@Throws(TurnkeyCryptoError::class)
+fun encryptOtpCodeToBundle(
+    otpCode: String,
+    otpEncryptionTargetBundle: String,
+    publicKey: String,
+    dangerouslyOverrideSignerPublicKey: String? = null,
+): String = try {
+    val outer = decodeBundleOuter(otpEncryptionTargetBundle)
+
+    val signerKey = dangerouslyOverrideSignerPublicKey ?: TurnkeyConstants.PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY
+    val ok = verifyEnclaveSignature(
+        outer.enclaveQuorumPublic,
+        outer.dataSignature,
+        outer.data,
+        signerKey
+    )
+    if (!ok) throw TurnkeyCryptoError.SignatureVerificationFailed()
+
+    val inner = decodeSignedInner(outer.data)
+    val targetHex = inner.targetPublic ?: throw TurnkeyCryptoError.MissingEncappedPublic()
+
+    val plaintext = Json.encodeToString(
+        mapOf("otp_code" to otpCode, "public_key" to publicKey)
+    ).toByteArray(StandardCharsets.UTF_8)
+
+    val bundleBytes = hpkeEncrypt(plaintext, targetHex)
+
+    if (bundleBytes.size <= 33) throw TurnkeyCryptoError.InvalidCompressedKeyLength(bundleBytes.size)
+
+    val compressed = bundleBytes.copyOfRange(0, 33)
+    val cipher = bundleBytes.copyOfRange(33, bundleBytes.size)
+
+    val uncompressedPub = ecPointCompressedToUncompressed(compressed)
+    Json.encodeToString(
+        mapOf("encappedPublic" to uncompressedPub.toHexString(), "ciphertext" to cipher.toHexString())
+    )
 } catch (e: Exception) {
     throw TurnkeyCryptoError.wrap(e)
 }

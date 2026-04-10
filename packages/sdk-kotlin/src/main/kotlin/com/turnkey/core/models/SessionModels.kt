@@ -55,5 +55,7 @@ data class VerificationToken (
     @SerialName("public_key")
     val publicKey: String?,
     @SerialName("verification_type")
-    val verificationType: String
+    val verificationType: String,
+    @SerialName("organization_id")
+    val organizationId: String
 )

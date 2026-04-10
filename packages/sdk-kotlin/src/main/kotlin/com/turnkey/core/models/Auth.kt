@@ -2,8 +2,8 @@ package com.turnkey.core.models
 
 import com.turnkey.types.V1ApiKeyCurve
 import com.turnkey.types.V1Attestation
-import com.turnkey.types.V1OauthProviderParams
 import com.turnkey.types.V1WalletAccountParams
+import com.turnkey.types.V1OauthProviderParamsV2
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,7 +27,7 @@ data class CreateSubOrgParams(
     /** custom wallets to create during sub-org creation time */
     val customWallet: CustomWallet? = null,
     /** list of oauth providers */
-    val oauthProviders: List<V1OauthProviderParams>? = null,
+    val oauthProviders: List<V1OauthProviderParamsV2>? = null,
 )
 
 @Serializable

@@ -5,10 +5,11 @@ import com.turnkey.core.models.errors.TurnkeyKotlinError
 import com.turnkey.types.V1ApiKeyParamsV2
 import com.turnkey.types.V1AuthenticatorParamsV2
 import com.turnkey.types.V1LoginUsage
-import com.turnkey.types.V1OauthProviderParams
+import com.turnkey.types.V1OauthProviderParamsV2
 import com.turnkey.types.V1SignupUsage
 import com.turnkey.types.V1TokenUsage
 import com.turnkey.types.V1UsageType
+import com.turnkey.types.V1SignupUsageV2
 import kotlinx.serialization.json.Json
 
 /**
@@ -69,7 +70,7 @@ object ClientSignature {
         phoneNumber: String? = null,
         apiKeys: List<V1ApiKeyParamsV2>? = null,
         authenticators: List<V1AuthenticatorParamsV2>? = null,
-        oauthProviders: List<V1OauthProviderParams>? = null
+        oauthProviders: List<V1OauthProviderParamsV2>? = null
     ): ClientSignaturePayload {
         try {
             val decoded = Helpers.decodeVerificationToken(verificationToken)
@@ -77,7 +78,7 @@ object ClientSignature {
             if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
             val verificationPublicKey = decoded.publicKey
 
-            val usage = V1SignupUsage(
+            val usage = V1SignupUsageV2(
                 apiKeys = apiKeys,
                 authenticators = authenticators,
                 email = email,
@@ -85,7 +86,7 @@ object ClientSignature {
                 oauthProviders = oauthProviders
             )
 
-            val payload = V1TokenUsage(signup = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_SIGNUP)
+            val payload = V1TokenUsage(signupV2 = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_SIGNUP)
 
             val jsonString: String = Json.encodeToString(V1TokenUsage.serializer(), payload)
 
