@@ -313,6 +313,28 @@ public enum class V1ActivityType {
   ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT,
   @SerialName("ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT")
   ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT,
+  @SerialName("ACTIVITY_TYPE_SET_IP_ALLOWLIST")
+  ACTIVITY_TYPE_SET_IP_ALLOWLIST,
+  @SerialName("ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST")
+  ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST,
+  @SerialName("ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT")
+  ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT,
+  @SerialName("ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT")
+  ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT,
+  @SerialName("ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS")
+  ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS,
+  @SerialName("ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT")
+  ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT,
+  @SerialName("ACTIVITY_TYPE_SPARK_SIGN_FROST")
+  ACTIVITY_TYPE_SPARK_SIGN_FROST,
+  @SerialName("ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER")
+  ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER,
+  @SerialName("ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER")
+  ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER,
+  @SerialName("ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE")
+  ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE,
+  @SerialName("ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE")
+  ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE,
 }
 
 @Serializable
@@ -389,6 +411,10 @@ public enum class V1AddressFormat {
   ADDRESS_FORMAT_TON_V5R1,
   @SerialName("ADDRESS_FORMAT_XRP")
   ADDRESS_FORMAT_XRP,
+  @SerialName("ADDRESS_FORMAT_SPARK_MAINNET")
+  ADDRESS_FORMAT_SPARK_MAINNET,
+  @SerialName("ADDRESS_FORMAT_SPARK_REGTEST")
+  ADDRESS_FORMAT_SPARK_REGTEST,
 }
 
 @Serializable
@@ -788,6 +814,8 @@ public data class ApiApiKeyParams(
 
 @Serializable
 public data class BillingActivateBillingTierIntent(
+  @SerialName("orbPlanId")
+  public val orbPlanId: String? = null,
   /**
    * The product that the customer wants to subscribe to.
    */
@@ -1564,15 +1592,20 @@ public data class V1BootProof(
   @SerialName("owner")
   public val owner: String,
   /**
-   * The borsch serialized base64 encoded Manifest.
+   * The base64 encoded QOS manifest. Encoding depends on qos_manifest_version.
    */
   @SerialName("qosManifestB64")
   public val qosManifestB64: String,
   /**
-   * The borsch serialized base64 encoded Manifest Envelope.
+   * The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version.
    */
   @SerialName("qosManifestEnvelopeB64")
   public val qosManifestEnvelopeB64: String,
+  /**
+   * QOS manifest schema version.
+   */
+  @SerialName("qosManifestVersion")
+  public val qosManifestVersion: String? = null,
 )
 
 @Serializable
@@ -2360,7 +2393,7 @@ public data class V1CreateReadWriteSessionIntentV2(
   @SerialName("targetPublicKey")
   public val targetPublicKey: String,
   /**
-   * Unique identifier for a given User.
+   * Optional unique identifier for a given User. If none provided, the read write session will be created for the user who is making the request.
    */
   @SerialName("userId")
   public val userId: String? = null,
@@ -2907,6 +2940,24 @@ public data class V1CreateTvcAppIntent(
 )
 
 @Serializable
+public data class V1CreateTvcAppRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcAppIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
 public data class V1CreateTvcAppResult(
   /**
    * The unique identifier for the TVC application
@@ -2995,6 +3046,24 @@ public data class V1CreateTvcDeploymentIntent(
 )
 
 @Serializable
+public data class V1CreateTvcDeploymentRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcDeploymentIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
 public data class V1CreateTvcDeploymentResult(
   /**
    * The unique identifier for the TVC deployment
@@ -3020,6 +3089,24 @@ public data class V1CreateTvcManifestApprovalsIntent(
    */
   @SerialName("manifestId")
   public val manifestId: String,
+)
+
+@Serializable
+public data class V1CreateTvcManifestApprovalsRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateTvcManifestApprovalsIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
 )
 
 @Serializable
@@ -3818,6 +3905,82 @@ public data class V1DeleteSubOrganizationResult(
 )
 
 @Serializable
+public data class V1DeleteTvcAppAndDeploymentsIntent(
+  /**
+   * The unique identifier of the TVC app to delete. The app and all associated deployments will be removed.
+   */
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public data class V1DeleteTvcAppAndDeploymentsRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1DeleteTvcAppAndDeploymentsIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1DeleteTvcAppAndDeploymentsResult(
+  /**
+   * The unique identifier of the deleted TVC app.
+   */
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public data class V1DeleteTvcDeploymentIntent(
+  /**
+   * The unique identifier of the TVC deployment to delete.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public data class V1DeleteTvcDeploymentRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1DeleteTvcDeploymentIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1DeleteTvcDeploymentResult(
+  /**
+   * The unique identifier of the deleted TVC deployment.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
 public data class V1DeleteUserTagsIntent(
   /**
    * A list of User Tag IDs.
@@ -4381,6 +4544,11 @@ public data class V1EthSendTransactionIntent(
   @SerialName("data")
   public val `data`: String? = null,
   /**
+   * Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true.
+   */
+  @SerialName("deadline")
+  public val deadline: String? = null,
+  /**
    * A wallet or private key address to sign with. This does not support private key IDs.
    */
   @SerialName("from")
@@ -4895,6 +5063,26 @@ public data class V1GetGasUsageResponse(
 )
 
 @Serializable
+public data class V1GetIpAllowlistRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * If provided, return only the allowlist for this specific API key.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+)
+
+@Serializable
+public data class V1GetIpAllowlistResponse(
+  @SerialName("allowlist")
+  public val allowlist: V1IpAllowlist,
+)
+
+@Serializable
 public data class V1GetLatestBootProofRequest(
   /**
    * Name of enclave app.
@@ -5257,6 +5445,93 @@ public data class V1GetSubOrgIdsResponse(
    */
   @SerialName("organizationIds")
   public val organizationIds: List<String>,
+)
+
+@Serializable
+public data class V1GetTvcAppDeploymentsRequest(
+  /**
+   * Unique identifier for a given TVC App.
+   */
+  @SerialName("appId")
+  public val appId: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppDeploymentsResponse(
+  /**
+   * List of deployments for this TVC App
+   */
+  @SerialName("tvcDeployments")
+  public val tvcDeployments: List<V1TvcDeployment>,
+)
+
+@Serializable
+public data class V1GetTvcAppRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Unique identifier for a given TVC App.
+   */
+  @SerialName("tvcAppId")
+  public val tvcAppId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppResponse(
+  /**
+   * Details about a single TVC App
+   */
+  @SerialName("tvcApp")
+  public val tvcApp: V1TvcApp,
+)
+
+@Serializable
+public data class V1GetTvcAppsRequest(
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcAppsResponse(
+  /**
+   * A list of TVC Apps.
+   */
+  @SerialName("tvcApps")
+  public val tvcApps: List<V1TvcApp>,
+)
+
+@Serializable
+public data class V1GetTvcDeploymentRequest(
+  /**
+   * Unique identifier for a given TVC Deployment.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+  /**
+   * Unique identifier for a given organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public data class V1GetTvcDeploymentResponse(
+  /**
+   * Details about a single TVC Deployment
+   */
+  @SerialName("tvcDeployment")
+  public val tvcDeployment: V1TvcDeployment,
 )
 
 @Serializable
@@ -6455,6 +6730,10 @@ public data class V1Intent(
   public val deleteSmartContractInterfaceIntent: V1DeleteSmartContractInterfaceIntent? = null,
   @SerialName("deleteSubOrganizationIntent")
   public val deleteSubOrganizationIntent: V1DeleteSubOrganizationIntent? = null,
+  @SerialName("deleteTvcAppAndDeploymentsIntent")
+  public val deleteTvcAppAndDeploymentsIntent: V1DeleteTvcAppAndDeploymentsIntent? = null,
+  @SerialName("deleteTvcDeploymentIntent")
+  public val deleteTvcDeploymentIntent: V1DeleteTvcDeploymentIntent? = null,
   @SerialName("deleteUserTagsIntent")
   public val deleteUserTagsIntent: V1DeleteUserTagsIntent? = null,
   @SerialName("deleteUsersIntent")
@@ -6525,12 +6804,20 @@ public data class V1Intent(
   public val otpLoginIntent: V1OtpLoginIntent? = null,
   @SerialName("otpLoginIntentV2")
   public val otpLoginIntentV2: V1OtpLoginIntentV2? = null,
+  @SerialName("postTvcQuorumKeyShareIntent")
+  public val postTvcQuorumKeyShareIntent: V1PostTvcQuorumKeyShareIntent? = null,
   @SerialName("recoverUserIntent")
   public val recoverUserIntent: V1RecoverUserIntent? = null,
   @SerialName("rejectActivityIntent")
   public val rejectActivityIntent: V1RejectActivityIntent? = null,
+  @SerialName("removeIpAllowlistIntent")
+  public val removeIpAllowlistIntent: V1RemoveIpAllowlistIntent? = null,
   @SerialName("removeOrganizationFeatureIntent")
   public val removeOrganizationFeatureIntent: V1RemoveOrganizationFeatureIntent? = null,
+  @SerialName("restoreTvcDeploymentIntent")
+  public val restoreTvcDeploymentIntent: V1RestoreTvcDeploymentIntent? = null,
+  @SerialName("setIpAllowlistIntent")
+  public val setIpAllowlistIntent: V1SetIpAllowlistIntent? = null,
   @SerialName("setOrganizationFeatureIntent")
   public val setOrganizationFeatureIntent: V1SetOrganizationFeatureIntent? = null,
   @SerialName("setPaymentMethodIntent")
@@ -6549,6 +6836,14 @@ public data class V1Intent(
   public val signTransactionIntentV2: V1SignTransactionIntentV2? = null,
   @SerialName("solSendTransactionIntent")
   public val solSendTransactionIntent: V1SolSendTransactionIntent? = null,
+  @SerialName("sparkClaimTransferIntent")
+  public val sparkClaimTransferIntent: V1SparkClaimTransferIntent? = null,
+  @SerialName("sparkPrepareLightningReceiveIntent")
+  public val sparkPrepareLightningReceiveIntent: V1SparkPrepareLightningReceiveIntent? = null,
+  @SerialName("sparkPrepareTransferIntent")
+  public val sparkPrepareTransferIntent: V1SparkPrepareTransferIntent? = null,
+  @SerialName("sparkSignFrostIntent")
+  public val sparkSignFrostIntent: V1SparkSignFrostIntent? = null,
   @SerialName("stampLoginIntent")
   public val stampLoginIntent: V1StampLoginIntent? = null,
   @SerialName("updateAllowedOriginsIntent")
@@ -6569,6 +6864,8 @@ public data class V1Intent(
   public val updatePrivateKeyTagIntent: V1UpdatePrivateKeyTagIntent? = null,
   @SerialName("updateRootQuorumIntent")
   public val updateRootQuorumIntent: V1UpdateRootQuorumIntent? = null,
+  @SerialName("updateTvcAppLiveDeploymentIntent")
+  public val updateTvcAppLiveDeploymentIntent: V1UpdateTvcAppLiveDeploymentIntent? = null,
   @SerialName("updateUserEmailIntent")
   public val updateUserEmailIntent: V1UpdateUserEmailIntent? = null,
   @SerialName("updateUserIntent")
@@ -6618,6 +6915,68 @@ public data class V1InvitationParams(
    */
   @SerialName("senderUserId")
   public val senderUserId: String,
+)
+
+@Serializable
+public data class V1IpAllowlist(
+  /**
+   * Whether the IP allowlist is enabled. Only present for organization-level allowlists. Null for API key-level allowlists (presence of the allowlist implies enablement).
+   */
+  @SerialName("enabled")
+  public val enabled: Boolean? = null,
+  /**
+   * Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY.
+   */
+  @SerialName("onEvaluationError")
+  public val onEvaluationError: String? = null,
+  /**
+   * Unique identifier for the organization this allowlist belongs to.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Public key of the API key this allowlist applies to. Null means the allowlist applies to the entire organization.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+  /**
+   * List of IP allowlist rules with their metadata.
+   */
+  @SerialName("rules")
+  public val rules: List<V1IpAllowlistRule>,
+)
+
+@Serializable
+public data class V1IpAllowlistIntentRule(
+  /**
+   * CIDR block (e.g., '192.168.1.0/24', '2001:db8::/32').
+   */
+  @SerialName("cidr")
+  public val cidr: String,
+  /**
+   * Optional human-readable label for this rule (e.g., 'Office VPN').
+   */
+  @SerialName("label")
+  public val label: String? = null,
+)
+
+@Serializable
+public data class V1IpAllowlistRule(
+  /**
+   * CIDR block (e.g., '192.168.1.0/24').
+   */
+  @SerialName("cidr")
+  public val cidr: String,
+  /**
+   * Creation timestamp as millisecond epoch string.
+   */
+  @SerialName("createdAt")
+  public val createdAt: String? = null,
+  /**
+   * Optional human-readable label for this rule.
+   */
+  @SerialName("label")
+  public val label: String? = null,
 )
 
 @Serializable
@@ -6778,10 +7137,10 @@ public data class V1Oauth2AuthenticateIntent(
   @SerialName("codeVerifier")
   public val codeVerifier: String,
   /**
-   * An optional nonce used by the client to prevent replay/substitution of an ID token
+   * A nonce value set to sha256(publicKey), used to bind the OIDC token to a specific public key
    */
   @SerialName("nonce")
-  public val nonce: String? = null,
+  public val nonce: String,
   /**
    * The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow
    */
@@ -7312,6 +7671,34 @@ public data class V1Policy(
 )
 
 @Serializable
+public data class V1PostTvcQuorumKeyShareIntent(
+  /**
+   * Unique identifier of the TVC deployment receiving quorum key share
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+  /**
+   * Hex-encoded ephemeral public key used to encrypt the quorum key share
+   */
+  @SerialName("ephemeralPublicKeyHex")
+  public val ephemeralPublicKeyHex: String,
+  /**
+   * Re-encrypted quorum key share and approval
+   */
+  @SerialName("shareApprovalBundle")
+  public val shareApprovalBundle: V1QuorumKeyShareApprovalBundle,
+)
+
+@Serializable
+public data class V1PostTvcQuorumKeyShareResult(
+  /**
+   * The unique identifier for the provisioning quorum key share
+   */
+  @SerialName("provisioningShareId")
+  public val provisioningShareId: String,
+)
+
+@Serializable
 public data class V1PrivateKey(
   /**
    * Derived cryptocurrency addresses for a given Private Key.
@@ -7408,6 +7795,25 @@ public data class V1PublicKeyCredentialWithAttestation(
 )
 
 @Serializable
+public data class V1QuorumKeyShareApprovalBundle(
+  /**
+   * Unique identifier of the operator providing this quorum key share
+   */
+  @SerialName("operatorId")
+  public val operatorId: String,
+  /**
+   * Hex-encoded re-encrypted quorum key share
+   */
+  @SerialName("reEncryptedShareHex")
+  public val reEncryptedShareHex: String,
+  /**
+   * Signature from the share set operator approving the manifest
+   */
+  @SerialName("signature")
+  public val signature: String,
+)
+
+@Serializable
 public data class V1RecoverUserIntent(
   /**
    * The new authenticator to register.
@@ -7480,6 +7886,35 @@ public data class V1RejectActivityRequest(
 )
 
 @Serializable
+public data class V1RemoveIpAllowlistIntent(
+  /**
+   * The public component of an API key. If null, removes the organization-level IP allowlist. If set, removes the IP allowlist for this specific API key.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+)
+
+@Serializable
+public data class V1RemoveIpAllowlistRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1RemoveIpAllowlistIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
 public data class V1RemoveOrganizationFeatureIntent(
   /**
    * Name of the feature to remove
@@ -7515,6 +7950,44 @@ public data class V1RemoveOrganizationFeatureResult(
    */
   @SerialName("features")
   public val features: List<V1Feature>,
+)
+
+@Serializable
+public data class V1RestoreTvcDeploymentIntent(
+  /**
+   * The unique identifier of the TVC deployment to restore.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public data class V1RestoreTvcDeploymentRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1RestoreTvcDeploymentIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1RestoreTvcDeploymentResult(
+  /**
+   * The unique identifier of the restored TVC deployment.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
 )
 
 @Serializable
@@ -7617,6 +8090,10 @@ public data class V1Result(
   public val deleteSmartContractInterfaceResult: V1DeleteSmartContractInterfaceResult? = null,
   @SerialName("deleteSubOrganizationResult")
   public val deleteSubOrganizationResult: V1DeleteSubOrganizationResult? = null,
+  @SerialName("deleteTvcAppAndDeploymentsResult")
+  public val deleteTvcAppAndDeploymentsResult: V1DeleteTvcAppAndDeploymentsResult? = null,
+  @SerialName("deleteTvcDeploymentResult")
+  public val deleteTvcDeploymentResult: V1DeleteTvcDeploymentResult? = null,
   @SerialName("deleteUserTagsResult")
   public val deleteUserTagsResult: V1DeleteUserTagsResult? = null,
   @SerialName("deleteUsersResult")
@@ -7675,10 +8152,18 @@ public data class V1Result(
   public val otpAuthResult: V1OtpAuthResult? = null,
   @SerialName("otpLoginResult")
   public val otpLoginResult: V1OtpLoginResult? = null,
+  @SerialName("postTvcQuorumKeyShareResult")
+  public val postTvcQuorumKeyShareResult: V1PostTvcQuorumKeyShareResult? = null,
   @SerialName("recoverUserResult")
   public val recoverUserResult: V1RecoverUserResult? = null,
+  @SerialName("removeIpAllowlistResult")
+  public val removeIpAllowlistResult: V1RemoveIpAllowlistResult? = null,
   @SerialName("removeOrganizationFeatureResult")
   public val removeOrganizationFeatureResult: V1RemoveOrganizationFeatureResult? = null,
+  @SerialName("restoreTvcDeploymentResult")
+  public val restoreTvcDeploymentResult: V1RestoreTvcDeploymentResult? = null,
+  @SerialName("setIpAllowlistResult")
+  public val setIpAllowlistResult: V1SetIpAllowlistResult? = null,
   @SerialName("setOrganizationFeatureResult")
   public val setOrganizationFeatureResult: V1SetOrganizationFeatureResult? = null,
   @SerialName("setPaymentMethodResult")
@@ -7691,6 +8176,14 @@ public data class V1Result(
   public val signTransactionResult: V1SignTransactionResult? = null,
   @SerialName("solSendTransactionResult")
   public val solSendTransactionResult: V1SolSendTransactionResult? = null,
+  @SerialName("sparkClaimTransferResult")
+  public val sparkClaimTransferResult: V1SparkClaimTransferResult? = null,
+  @SerialName("sparkPrepareLightningReceiveResult")
+  public val sparkPrepareLightningReceiveResult: V1SparkPrepareLightningReceiveResult? = null,
+  @SerialName("sparkPrepareTransferResult")
+  public val sparkPrepareTransferResult: V1SparkPrepareTransferResult? = null,
+  @SerialName("sparkSignFrostResult")
+  public val sparkSignFrostResult: V1SparkSignFrostResult? = null,
   @SerialName("stampLoginResult")
   public val stampLoginResult: V1StampLoginResult? = null,
   @SerialName("updateAllowedOriginsResult")
@@ -7711,6 +8204,8 @@ public data class V1Result(
   public val updatePrivateKeyTagResult: V1UpdatePrivateKeyTagResult? = null,
   @SerialName("updateRootQuorumResult")
   public val updateRootQuorumResult: V1UpdateRootQuorumResult? = null,
+  @SerialName("updateTvcAppLiveDeploymentResult")
+  public val updateTvcAppLiveDeploymentResult: V1UpdateTvcAppLiveDeploymentResult? = null,
   @SerialName("updateUserEmailResult")
   public val updateUserEmailResult: V1UpdateUserEmailResult? = null,
   @SerialName("updateUserNameResult")
@@ -7933,6 +8428,50 @@ public data class V1SelectorV2(
   public val subject: String? = null,
   @SerialName("targets")
   public val targets: List<String>? = null,
+)
+
+@Serializable
+public data class V1SetIpAllowlistIntent(
+  /**
+   * Whether the IP allowlist is enabled. Only meaningful for organization-level allowlists. Omit for API key-level allowlists.
+   */
+  @SerialName("enabled")
+  public val enabled: Boolean? = null,
+  /**
+   * Behavior when an error occurs during IP allowlist evaluation. Valid values: ALLOW, DENY. Defaults to DENY.
+   */
+  @SerialName("onEvaluationError")
+  public val onEvaluationError: String? = null,
+  /**
+   * The public component of an API key. If null, the IP allowlist applies at the organization level. If set, it applies only to this specific API key.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+  /**
+   * List of IP allowlist rules with CIDR blocks and optional labels.
+   */
+  @SerialName("rules")
+  public val rules: List<V1IpAllowlistIntentRule>? = null,
+)
+
+@Serializable
+public data class V1SetIpAllowlistRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SetIpAllowlistIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
 )
 
 @Serializable
@@ -8223,7 +8762,7 @@ public data class V1SmsCustomizationParams(
 @Serializable
 public data class V1SolSendTransactionIntent(
   /**
-   * CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet).
+   * CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values.
    */
   @SerialName("caip2")
   public val caip2: String,
@@ -8336,6 +8875,471 @@ public data class V1SolanaSendTransactionStatus(
 )
 
 @Serializable
+public data class V1SparkClaimLeaf(
+  /**
+   * ECIES ciphertext (hex-encoded) containing the inbound transfer secret. Decrypted inside the enclave using the wallet's Identity key.
+   */
+  @SerialName("ciphertext")
+  public val ciphertext: String,
+  /**
+   * Leaf identifier (UUID).
+   */
+  @SerialName("leafId")
+  public val leafId: String,
+  /**
+   * Hex-encoded 64-byte compact ECDSA signature binding (leaf_id, transfer_id, ciphertext) to the sender's identity key. Verified inside the enclave before decryption.
+   */
+  @SerialName("senderSignature")
+  public val senderSignature: String,
+)
+
+@Serializable
+public data class V1SparkClaimPackage(
+  /**
+   * Leaves being claimed.
+   */
+  @SerialName("leaves")
+  public val leaves: List<V1SparkClaimLeaf>,
+  /**
+   * Operators that will receive Shamir shares.
+   */
+  @SerialName("operatorRecipients")
+  public val operatorRecipients: List<V1SparkOperatorRecipient>,
+  /**
+   * Sender's compressed secp256k1 identity public key (hex-encoded, 33 bytes). Used to verify the per-leaf sender_signature fields.
+   */
+  @SerialName("senderIdentityPublicKey")
+  public val senderIdentityPublicKey: String,
+  /**
+   * Shamir threshold for reconstructing the per-leaf claim secret.
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+  /**
+   * Spark transfer identifier (UUID). Used together with each leaf's sender_signature to verify the sender bound this ciphertext to this transfer.
+   */
+  @SerialName("transferId")
+  public val transferId: String,
+)
+
+@Serializable
+public data class V1SparkClaimTransferIntent(
+  /**
+   * Claim package parameters.
+   */
+  @SerialName("claim")
+  public val claim: V1SparkClaimPackage,
+  /**
+   * A Spark wallet account address identifying the wallet.
+   */
+  @SerialName("signWith")
+  public val signWith: String,
+)
+
+@Serializable
+public data class V1SparkClaimTransferRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SparkClaimTransferIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1SparkClaimTransferResult(
+  /**
+   * Newly-derived SigningLeaf public keys, one per leaf, in input order.
+   */
+  @SerialName("newLeafPublicKeys")
+  public val newLeafPublicKeys: List<V1SparkLeafPublicKey>,
+  /**
+   * Per-operator ECIES-encrypted packages.
+   */
+  @SerialName("operatorPackages")
+  public val operatorPackages: List<V1SparkEncryptedOperatorPackage>,
+)
+
+@Serializable
+public data class V1SparkEncryptedOperatorPackage(
+  /**
+   * ECIES ciphertext (hex-encoded) opaque to Turnkey after emission.
+   */
+  @SerialName("encryptedPackage")
+  public val encryptedPackage: String,
+  /**
+   * Spark operator identifier (UUID).
+   */
+  @SerialName("operatorId")
+  public val operatorId: String,
+)
+
+@Serializable
+public data class V1SparkFrostCommitment(
+  /**
+   * Binding commitment E, hex-encoded compressed secp256k1 point.
+   */
+  @SerialName("binding")
+  public val binding: String,
+  /**
+   * Hiding commitment D, hex-encoded compressed secp256k1 point.
+   */
+  @SerialName("hiding")
+  public val hiding: String,
+  /**
+   * FROST participant identifier, hex-encoded (32-byte scalar).
+   */
+  @SerialName("id")
+  public val id: String,
+)
+
+@Serializable
+public data class V1SparkKeyDerivation(
+  /**
+   * Spark deposit key derivation.
+   */
+  @SerialName("deposit")
+  public val deposit: V1SparkDepositDerivation? = null,
+  /**
+   * Spark HTLC preimage key derivation.
+   */
+  @SerialName("htlcPreimage")
+  public val htlcPreimage: V1SparkHtlcPreimageDerivation? = null,
+  /**
+   * Spark identity key derivation.
+   */
+  @SerialName("identity")
+  public val identity: V1SparkIdentityDerivation? = null,
+  /**
+   * Spark signing leaf key derivation, identified by leaf ID.
+   */
+  @SerialName("signingLeaf")
+  public val signingLeaf: V1SparkSigningLeafDerivation? = null,
+  /**
+   * Spark static deposit key derivation, identified by index.
+   */
+  @SerialName("staticDeposit")
+  public val staticDeposit: V1SparkStaticDepositDerivation? = null,
+)
+
+@Serializable
+public data class V1SparkLeafPublicKey(
+  /**
+   * The Spark leaf_id this public key was derived for.
+   */
+  @SerialName("leafId")
+  public val leafId: String,
+  /**
+   * Hex-encoded compressed secp256k1 point (33 bytes) for the SigningLeaf derivation at leaf_id.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+)
+
+@Serializable
+public data class V1SparkLightningReceivePackage(
+  /**
+   * Operators that will receive Feldman shares of the preimage. Order must match the operators' numeric IDs in the Spark operator config - share index is the 1-based position in this list.
+   */
+  @SerialName("operatorRecipients")
+  public val operatorRecipients: List<V1SparkOperatorRecipient>,
+  /**
+   * Feldman VSS threshold for reconstructing the preimage.
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+)
+
+@Serializable
+public data class V1SparkOperatorRecipient(
+  /**
+   * Operator's ECIES encryption pubkey (hex-encoded compressed secp256k1 point).
+   */
+  @SerialName("encryptionPublicKey")
+  public val encryptionPublicKey: String,
+  /**
+   * Spark operator identifier (UUID).
+   */
+  @SerialName("operatorId")
+  public val operatorId: String,
+)
+
+@Serializable
+public data class V1SparkPartialSignature(
+  /**
+   * Turnkey's binding commitment E (hex-encoded compressed secp256k1 point). Forward to the Spark Operator.
+   */
+  @SerialName("binding")
+  public val binding: String,
+  /**
+   * Turnkey's hiding commitment D (hex-encoded compressed secp256k1 point). Forward to the Spark Operator.
+   */
+  @SerialName("hiding")
+  public val hiding: String,
+  /**
+   * Hex-encoded FROST partial signature.
+   */
+  @SerialName("signatureShare")
+  public val signatureShare: String,
+)
+
+@Serializable
+public data class V1SparkPrepareLightningReceiveIntent(
+  /**
+   * Lightning receive package parameters: threshold and operator recipients.
+   */
+  @SerialName("lightningReceive")
+  public val lightningReceive: V1SparkLightningReceivePackage,
+  /**
+   * A Spark wallet account address identifying the wallet.
+   */
+  @SerialName("signWith")
+  public val signWith: String,
+)
+
+@Serializable
+public data class V1SparkPrepareLightningReceiveRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SparkPrepareLightningReceiveIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1SparkPrepareLightningReceiveResult(
+  /**
+   * Per-operator ECIES-encrypted Feldman share packages.
+   */
+  @SerialName("operatorPackages")
+  public val operatorPackages: List<V1SparkEncryptedOperatorPackage>,
+  /**
+   * Hex-encoded SHA256(preimage). Forward to the Lightning node.
+   */
+  @SerialName("paymentHash")
+  public val paymentHash: String,
+)
+
+@Serializable
+public data class V1SparkPrepareTransferIntent(
+  /**
+   * A Spark wallet account address identifying the wallet.
+   */
+  @SerialName("signWith")
+  public val signWith: String,
+  /**
+   * Transfer package parameters for HD key tweak splitting.
+   */
+  @SerialName("transfer")
+  public val transfer: V1SparkTransferPackage,
+)
+
+@Serializable
+public data class V1SparkPrepareTransferRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SparkPrepareTransferIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1SparkPrepareTransferResult(
+  /**
+   * Newly-derived SigningLeaf public keys, one per leaf, in input order.
+   */
+  @SerialName("newLeafPublicKeys")
+  public val newLeafPublicKeys: List<V1SparkLeafPublicKey>,
+  /**
+   * Per-operator ECIES-encrypted packages.
+   */
+  @SerialName("operatorPackages")
+  public val operatorPackages: List<V1SparkEncryptedOperatorPackage>,
+  /**
+   * Hex-encoded ECDSA-DER signature of the TransferPackage signing payload, signed with the wallet's IDENTITY key.
+   */
+  @SerialName("transferUserSignature")
+  public val transferUserSignature: String,
+)
+
+@Serializable
+public data class V1SparkSignFrostIntent(
+  /**
+   * A Spark wallet account address identifying the wallet to sign with.
+   */
+  @SerialName("signWith")
+  public val signWith: String,
+  /**
+   * Batched sign requests. Each produces a partial signature plus Turnkey's public commitments.
+   */
+  @SerialName("signatures")
+  public val signatures: List<V1SparkSignatureRequest>,
+)
+
+@Serializable
+public data class V1SparkSignFrostRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1SparkSignFrostIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1SparkSignFrostResult(
+  /**
+   * Partial signatures plus Turnkey commitments, one per request, in order.
+   */
+  @SerialName("signatures")
+  public val signatures: List<V1SparkPartialSignature>,
+)
+
+@Serializable
+public data class V1SparkSignatureRequest(
+  /**
+   * Optional adaptor point T (hex-encoded 33-byte compressed secp256k1 pubkey). When set, Turnkey produces a Schnorr adaptor pre-signature with the FROST challenge bound to `R+T` (where `R` is the aggregate group nonce commitment from FROST). The party holding the discrete log `t` completes the pre-sig to a valid BIP-340 signature by adding `t` (or `-t`, for parity) to the signature scalar `s`. This is primarily used by Spark leaves-swap and other adaptor-bound flows; absent or empty leads to plain FROST signing (the typical case).
+   */
+  @SerialName("adaptorPublicKey")
+  public val adaptorPublicKey: String? = null,
+  /**
+   * Which key to sign with.
+   */
+  @SerialName("derivation")
+  public val derivation: V1SparkKeyDerivation,
+  /**
+   * Hex-encoded 32-byte sighash to sign.
+   */
+  @SerialName("message")
+  public val message: String,
+  /**
+   * Commitments for every non-Turnkey participant. MUST NOT include an entry under Turnkey's identifier. Bound into the nonce HMAC.
+   */
+  @SerialName("operatorCommitments")
+  public val operatorCommitments: List<V1SparkFrostCommitment>,
+  /**
+   * Aggregate group verifying key (hex-encoded compressed secp256k1 point), computed as P_ops + P_user. Bound into the nonce HMAC.
+   */
+  @SerialName("verifyingKey")
+  public val verifyingKey: String,
+)
+
+@Serializable
+public data class V1SparkSigningLeafDerivation(
+  /**
+   * Unique identifier for the Spark signing leaf.
+   */
+  @SerialName("leafId")
+  public val leafId: String,
+)
+
+@Serializable
+public data class V1SparkStaticDepositDerivation(
+  /**
+   * Index used to derive the static deposit key.
+   */
+  @SerialName("index")
+  public val index: Long,
+)
+
+@Serializable
+public data class V1SparkTransferLeaf(
+  /**
+   * Client-produced direct-from-CPFP refund signature (hex-encoded). Passed through verbatim.
+   */
+  @SerialName("directFromCpfpRefundSignature")
+  public val directFromCpfpRefundSignature: String? = null,
+  /**
+   * Client-produced direct refund signature (hex-encoded). Passed through verbatim.
+   */
+  @SerialName("directRefundSignature")
+  public val directRefundSignature: String? = null,
+  /**
+   * Leaf identifier (UUID).
+   */
+  @SerialName("leafId")
+  public val leafId: String,
+  /**
+   * Derivation for the new (post-transfer) leaf key. Always a SigningLeaf derivation. The enclave ECIES-encrypts this private key to receiver_public_key as the per-leaf secret_cipher; HD-derived rather than random so the sender can re-derive on retry (Turnkey's enclave is stateless).
+   */
+  @SerialName("newLeafDerivation")
+  public val newLeafDerivation: V1SparkKeyDerivation,
+  /**
+   * Derivation for the existing (pre-transfer) leaf key. Always a SigningLeaf derivation.
+   */
+  @SerialName("oldLeafDerivation")
+  public val oldLeafDerivation: V1SparkKeyDerivation,
+  /**
+   * Client-produced CPFP refund signature (hex-encoded), passed through verbatim into the per-operator SendLeafKeyTweak. Empty omits the field from the operator package.
+   */
+  @SerialName("refundSignature")
+  public val refundSignature: String? = null,
+)
+
+@Serializable
+public data class V1SparkTransferPackage(
+  /**
+   * Leaves being transferred.
+   */
+  @SerialName("leaves")
+  public val leaves: List<V1SparkTransferLeaf>,
+  /**
+   * Operators that will receive Feldman shares of the per-leaf tweak. Order must match the operators' numeric IDs in the Spark operator config - share index is the 1-based position in this list.
+   */
+  @SerialName("operatorRecipients")
+  public val operatorRecipients: List<V1SparkOperatorRecipient>,
+  /**
+   * Recipient's identity pubkey (hex-encoded compressed secp256k1 point). Each leaf's new_priv is ECIES-encrypted to this key and embedded in the per-operator package for claim-time delivery.
+   */
+  @SerialName("receiverPublicKey")
+  public val receiverPublicKey: String,
+  /**
+   * Feldman VSS threshold for reconstructing the per-leaf tweak scalar.
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+  /**
+   * Spark transfer identifier (UUID).
+   */
+  @SerialName("transferId")
+  public val transferId: String,
+)
+
+@Serializable
 public data class V1StampLoginIntent(
   /**
    * Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used.
@@ -8404,6 +9408,174 @@ public data class V1TokenUsage(
 )
 
 @Serializable
+public data class V1TvcApp(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Whether or not this TVC App has network egress enabled.
+   */
+  @SerialName("enableEgress")
+  public val enableEgress: Boolean,
+  /**
+   * Unique Identifier for this TVC App.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * The deployment currently designated to receive traffic. Null if no deployment for this app is deployed.
+   */
+  @SerialName("liveDeploymentId")
+  public val liveDeploymentId: String? = null,
+  /**
+   * Manifest Set (people who can approve manifests)
+   */
+  @SerialName("manifestSet")
+  public val manifestSet: V1TvcOperatorSet,
+  /**
+   * Name for this TVC App.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Unique Identifier of the Organization for this TVC App
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud").
+   */
+  @SerialName("publicDomain")
+  public val publicDomain: String,
+  /**
+   * Public key for the Quorum Key associated with this TVC App
+   */
+  @SerialName("quorumPublicKey")
+  public val quorumPublicKey: String,
+  /**
+   * Share Set (people who have a share of the Quorum Key)
+   */
+  @SerialName("shareSet")
+  public val shareSet: V1TvcOperatorSet,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcContainerSpec(
+  /**
+   * The arguments to pass to the executable.
+   */
+  @SerialName("args")
+  public val args: List<String>,
+  /**
+   * The URL for this container image.
+   */
+  @SerialName("containerUrl")
+  public val containerUrl: String,
+  /**
+   * Whether or not this container requires a pull secret to access.
+   */
+  @SerialName("hasPullSecret")
+  public val hasPullSecret: Boolean,
+  /**
+   * The port to use for health checks against this executable.
+   */
+  @SerialName("healthCheckPort")
+  public val healthCheckPort: Long,
+  /**
+   * The type of health check to perform against this executable.
+   */
+  @SerialName("healthCheckType")
+  public val healthCheckType: V1TvcHealthCheckType,
+  /**
+   * The path (in-container) to the executable binary.
+   */
+  @SerialName("path")
+  public val path: String,
+  /**
+   * The port to use for public ingress to this executable.
+   */
+  @SerialName("publicIngressPort")
+  public val publicIngressPort: Long,
+)
+
+@Serializable
+public data class V1TvcDeployment(
+  /**
+   * Unique Identifier of the TVC App for this deployment
+   */
+  @SerialName("appId")
+  public val appId: String,
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Whether or not the user wants this deployment deleted from the cluster.
+   */
+  @SerialName("delete")
+  public val delete: Boolean,
+  /**
+   * Unique Identifier for this TVC Deployment.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * The manifest used for this deployment
+   */
+  @SerialName("manifest")
+  public val manifest: V1TvcManifest,
+  /**
+   * List of operator approvals for this manifest
+   */
+  @SerialName("manifestApprovals")
+  public val manifestApprovals: List<V1TvcOperatorApproval>,
+  /**
+   * Set of TVC operators who can approve this deployment
+   */
+  @SerialName("manifestSet")
+  public val manifestSet: V1TvcOperatorSet,
+  /**
+   * Unique Identifier of the Organization for this TVC Deployment
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * The pivot container spec for this deployment
+   */
+  @SerialName("pivotContainer")
+  public val pivotContainer: V1TvcContainerSpec,
+  /**
+   * QOS Version used for this deployment
+   */
+  @SerialName("qosVersion")
+  public val qosVersion: String,
+  /**
+   * Set of TVC operators who have a share of the Quorum Key
+   */
+  @SerialName("shareSet")
+  public val shareSet: V1TvcOperatorSet,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcManifest(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Manifest.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * The manifest content (raw UTF-8 JSON bytes)
+   */
+  @SerialName("manifest")
+  public val manifest: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
 public data class V1TvcManifestApproval(
   /**
    * Unique identifier of the operator providing this approval
@@ -8418,6 +9590,57 @@ public data class V1TvcManifestApproval(
 )
 
 @Serializable
+public data class V1TvcOperator(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Operator.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Name of this TVC Operator.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Public key for this TVC Operator.
+   */
+  @SerialName("publicKey")
+  public val publicKey: String,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
+public data class V1TvcOperatorApproval(
+  /**
+   * Signature of the operator over the deployment manifest
+   */
+  @SerialName("approval")
+  public val approval: String,
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique ID for this approval
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Unique Identifier of the TVC Manifest being approved
+   */
+  @SerialName("manifestId")
+  public val manifestId: String,
+  /**
+   * The TVC Operator who made this approval
+   */
+  @SerialName("operator")
+  public val `operator`: V1TvcOperator,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+)
+
+@Serializable
 public data class V1TvcOperatorParams(
   /**
    * The name for this new operator
@@ -8429,6 +9652,39 @@ public data class V1TvcOperatorParams(
    */
   @SerialName("publicKey")
   public val publicKey: String,
+)
+
+@Serializable
+public data class V1TvcOperatorSet(
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Unique Identifier for this TVC Operator Set.
+   */
+  @SerialName("id")
+  public val id: String,
+  /**
+   * Name of this TVC Operator Set.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * List of TVC Operators in this set
+   */
+  @SerialName("operators")
+  public val operators: List<V1TvcOperator>,
+  /**
+   * Unique Identifier of the Organization for this TVC Operator Set
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Threshold number of operators required for quorum.
+   */
+  @SerialName("threshold")
+  public val threshold: Long,
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -8727,6 +9983,8 @@ public data class V1UpdateOrganizationNameIntent(
 
 @Serializable
 public data class V1UpdateOrganizationNameRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
   /**
    * Unique identifier for a given Organization.
    */
@@ -8941,6 +10199,35 @@ public data class V1UpdateRootQuorumRequest(
   public val organizationId: String,
   @SerialName("parameters")
   public val parameters: V1UpdateRootQuorumIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
+public data class V1UpdateTvcAppLiveDeploymentIntent(
+  /**
+   * The unique identifier of the TVC deployment to set as live for the app.
+   */
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public data class V1UpdateTvcAppLiveDeploymentRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1UpdateTvcAppLiveDeploymentIntent,
   /**
    * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
    */
@@ -9324,7 +10611,7 @@ public data class V1UpsertGasUsageConfigIntent(
   @SerialName("subOrgWindowLimitUsd")
   public val subOrgWindowLimitUsd: String,
   /**
-   * Rolling sponsorship window duration, expressed in minutes.
+   * Rolling sponsorship window duration, expressed in minutes. This value can't exceed 30 days (43200 minutes).
    */
   @SerialName("windowDurationMinutes")
   public val windowDurationMinutes: String,
@@ -9526,6 +10813,31 @@ public data class V1UserParamsV4(
    */
   @SerialName("userTags")
   public val userTags: List<String>,
+)
+
+@Serializable
+public data class V1ValidateTvcImageRequest(
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * HPKE-encrypted pull secret for private images.
+   */
+  @SerialName("pivotContainerEncryptedPullSecret")
+  public val pivotContainerEncryptedPullSecret: String? = null,
+  /**
+   * URL of the container image.
+   */
+  @SerialName("pivotContainerImageUrl")
+  public val pivotContainerImageUrl: String,
+)
+
+@Serializable
+public data class V1ValidateTvcImageResponse(
+  @SerialName("resolvedImageDigest")
+  public val resolvedImageDigest: String? = null,
 )
 
 @Serializable
@@ -9868,7 +11180,7 @@ public data class V1WebhookEndpointData(
 @Serializable
 public data class V1WebhookSubscriptionParams(
   /**
-   * The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES).
+   * The event type to subscribe to (for example, ACTIVITY_UPDATES, BALANCE_CONFIRMED_UPDATES, or BALANCE_FINALIZED_UPDATES).
    */
   @SerialName("eventType")
   public val eventType: String,
@@ -9964,6 +11276,11 @@ public data class V1InitOtpV2Request(
   @SerialName("contact")
   public val contact: String,
   /**
+   * Optional parameters for customizing emails. If not provided, the default email will be used.
+   */
+  @SerialName("emailCustomization")
+  public val emailCustomization: V1ProxyEmailCustomizationParams? = null,
+  /**
    * Enum to specify whether to send OTP code via SMS or email
    */
   @SerialName("otpType")
@@ -10002,10 +11319,10 @@ public data class V1OAuth2AuthenticateRequest(
   @SerialName("codeVerifier")
   public val codeVerifier: String,
   /**
-   * An optional nonce used by the client to prevent replay/substitution of an ID token
+   * A nonce value set to sha256(publicKey), used to bind the OIDC token to a specific public key
    */
   @SerialName("nonce")
-  public val nonce: String? = null,
+  public val nonce: String,
   /**
    * The OAuth 2.0 provider to authenticate with
    */
@@ -10105,6 +11422,15 @@ public data class V1OtpLoginV2Response(
    */
   @SerialName("session")
   public val session: String,
+)
+
+@Serializable
+public data class V1ProxyEmailCustomizationParams(
+  /**
+   * Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template.
+   */
+  @SerialName("templateId")
+  public val templateId: String? = null,
 )
 
 @Serializable
@@ -10276,10 +11602,28 @@ public class V1DisableAuthProxyResult()
 public class V1EnableAuthProxyIntent()
 
 @Serializable
+public class V1RemoveIpAllowlistResult()
+
+@Serializable
+public class V1SetIpAllowlistResult()
+
+@Serializable
+public class V1SparkDepositDerivation()
+
+@Serializable
+public class V1SparkHtlcPreimageDerivation()
+
+@Serializable
+public class V1SparkIdentityDerivation()
+
+@Serializable
 public class V1UpdateAllowedOriginsResult()
 
 @Serializable
 public class V1UpdateRootQuorumResult()
+
+@Serializable
+public class V1UpdateTvcAppLiveDeploymentResult()
 
 @Serializable
 public class V1GetWalletKitConfigRequest()
@@ -10484,6 +11828,26 @@ public class TGetGasUsageBody(
 public class TGetGasUsageInput(
   @SerialName("body")
   public val body: TGetGasUsageBody,
+)
+
+@Serializable
+public data class TGetIpAllowlistResponse(
+  @SerialName("allowlist")
+  public val allowlist: V1IpAllowlist,
+)
+
+@Serializable
+public class TGetIpAllowlistBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+)
+
+@Serializable
+public class TGetIpAllowlistInput(
+  @SerialName("body")
+  public val body: TGetIpAllowlistBody,
 )
 
 @Serializable
@@ -10759,6 +12123,52 @@ public class TGetSmartContractInterfaceBody(
 public class TGetSmartContractInterfaceInput(
   @SerialName("body")
   public val body: TGetSmartContractInterfaceBody,
+)
+
+@Serializable
+public data class TGetTvcAppResponse(
+  /**
+   * Details about a single TVC App
+   */
+  @SerialName("tvcApp")
+  public val tvcApp: V1TvcApp,
+)
+
+@Serializable
+public class TGetTvcAppBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("tvcAppId")
+  public val tvcAppId: String,
+)
+
+@Serializable
+public class TGetTvcAppInput(
+  @SerialName("body")
+  public val body: TGetTvcAppBody,
+)
+
+@Serializable
+public data class TGetTvcDeploymentResponse(
+  /**
+   * Details about a single TVC Deployment
+   */
+  @SerialName("tvcDeployment")
+  public val tvcDeployment: V1TvcDeployment,
+)
+
+@Serializable
+public class TGetTvcDeploymentBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TGetTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TGetTvcDeploymentBody,
 )
 
 @Serializable
@@ -11077,6 +12487,50 @@ public class TListSupportedAssetsInput(
 )
 
 @Serializable
+public data class TGetTvcAppDeploymentsResponse(
+  /**
+   * List of deployments for this TVC App
+   */
+  @SerialName("tvcDeployments")
+  public val tvcDeployments: List<V1TvcDeployment>,
+)
+
+@Serializable
+public class TGetTvcAppDeploymentsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public class TGetTvcAppDeploymentsInput(
+  @SerialName("body")
+  public val body: TGetTvcAppDeploymentsBody,
+)
+
+@Serializable
+public data class TGetTvcAppsResponse(
+  /**
+   * A list of TVC Apps.
+   */
+  @SerialName("tvcApps")
+  public val tvcApps: List<V1TvcApp>,
+)
+
+@Serializable
+public class TGetTvcAppsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+)
+
+@Serializable
+public class TGetTvcAppsInput(
+  @SerialName("body")
+  public val body: TGetTvcAppsBody,
+)
+
+@Serializable
 public data class TListUserTagsResponse(
   /**
    * A list of user tags.
@@ -11209,6 +12663,26 @@ public class TListWebhookEndpointsBody(
 public class TListWebhookEndpointsInput(
   @SerialName("body")
   public val body: TListWebhookEndpointsBody,
+)
+
+@Serializable
+public class TValidateTvcImageResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+)
+
+@Serializable
+public class TValidateTvcImageBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+)
+
+@Serializable
+public class TValidateTvcImageInput(
+  @SerialName("body")
+  public val body: TValidateTvcImageBody,
 )
 
 @Serializable
@@ -11668,6 +13142,114 @@ public class TCreateSubOrganizationInput(
 )
 
 @Serializable
+public class TCreateTvcAppResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcAppResult,
+)
+
+@Serializable
+public class TCreateTvcAppBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("name")
+  public val name: String,
+  @SerialName("quorumPublicKey")
+  public val quorumPublicKey: String,
+  @SerialName("manifestSetId")
+  public val manifestSetId: String? = null,
+  @SerialName("manifestSetParams")
+  public val manifestSetParams: V1TvcOperatorSetParams? = null,
+  @SerialName("shareSetId")
+  public val shareSetId: String? = null,
+  @SerialName("shareSetParams")
+  public val shareSetParams: V1TvcOperatorSetParams? = null,
+  @SerialName("enableEgress")
+  public val enableEgress: Boolean? = null,
+)
+
+@Serializable
+public class TCreateTvcAppInput(
+  @SerialName("body")
+  public val body: TCreateTvcAppBody,
+)
+
+@Serializable
+public class TCreateTvcDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcDeploymentResult,
+)
+
+@Serializable
+public class TCreateTvcDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("appId")
+  public val appId: String,
+  @SerialName("qosVersion")
+  public val qosVersion: String,
+  @SerialName("pivotContainerImageUrl")
+  public val pivotContainerImageUrl: String,
+  @SerialName("pivotPath")
+  public val pivotPath: String,
+  @SerialName("pivotArgs")
+  public val pivotArgs: List<String>,
+  @SerialName("expectedPivotDigest")
+  public val expectedPivotDigest: String,
+  @SerialName("nonce")
+  public val nonce: Long? = null,
+  @SerialName("pivotContainerEncryptedPullSecret")
+  public val pivotContainerEncryptedPullSecret: String? = null,
+  @SerialName("debugMode")
+  public val debugMode: Boolean? = null,
+  @SerialName("healthCheckType")
+  public val healthCheckType: V1TvcHealthCheckType,
+  @SerialName("healthCheckPort")
+  public val healthCheckPort: Long,
+  @SerialName("publicIngressPort")
+  public val publicIngressPort: Long,
+)
+
+@Serializable
+public class TCreateTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TCreateTvcDeploymentBody,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateTvcManifestApprovalsResult,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("manifestId")
+  public val manifestId: String,
+  @SerialName("approvals")
+  public val approvals: List<V1TvcManifestApproval>,
+)
+
+@Serializable
+public class TCreateTvcManifestApprovalsInput(
+  @SerialName("body")
+  public val body: TCreateTvcManifestApprovalsBody,
+)
+
+@Serializable
 public class TCreateUserTagResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -12098,6 +13680,54 @@ public class TDeleteSubOrganizationInput(
 )
 
 @Serializable
+public class TDeleteTvcAppAndDeploymentsResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteTvcAppAndDeploymentsResult,
+)
+
+@Serializable
+public class TDeleteTvcAppAndDeploymentsBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("appId")
+  public val appId: String,
+)
+
+@Serializable
+public class TDeleteTvcAppAndDeploymentsInput(
+  @SerialName("body")
+  public val body: TDeleteTvcAppAndDeploymentsBody,
+)
+
+@Serializable
+public class TDeleteTvcDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteTvcDeploymentResult,
+)
+
+@Serializable
+public class TDeleteTvcDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TDeleteTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TDeleteTvcDeploymentBody,
+)
+
+@Serializable
 public class TDeleteUserTagsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -12295,6 +13925,8 @@ public class TEthSendTransactionBody(
   public val maxFeePerGas: String? = null,
   @SerialName("maxPriorityFeePerGas")
   public val maxPriorityFeePerGas: String? = null,
+  @SerialName("deadline")
+  public val deadline: String? = null,
   @SerialName("gasStationNonce")
   public val gasStationNonce: String? = null,
 )
@@ -12722,7 +14354,7 @@ public class TOauth2AuthenticateBody(
   @SerialName("codeVerifier")
   public val codeVerifier: String,
   @SerialName("nonce")
-  public val nonce: String? = null,
+  public val nonce: String,
   @SerialName("bearerTokenTargetPublicKey")
   public val bearerTokenTargetPublicKey: String? = null,
 )
@@ -12878,6 +14510,30 @@ public class TRejectActivityInput(
 )
 
 @Serializable
+public class TRemoveIpAllowlistResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1RemoveIpAllowlistResult,
+)
+
+@Serializable
+public class TRemoveIpAllowlistBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+)
+
+@Serializable
+public class TRemoveIpAllowlistInput(
+  @SerialName("body")
+  public val body: TRemoveIpAllowlistBody,
+)
+
+@Serializable
 public class TRemoveOrganizationFeatureResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -12899,6 +14555,60 @@ public class TRemoveOrganizationFeatureBody(
 public class TRemoveOrganizationFeatureInput(
   @SerialName("body")
   public val body: TRemoveOrganizationFeatureBody,
+)
+
+@Serializable
+public class TRestoreTvcDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1RestoreTvcDeploymentResult,
+)
+
+@Serializable
+public class TRestoreTvcDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TRestoreTvcDeploymentInput(
+  @SerialName("body")
+  public val body: TRestoreTvcDeploymentBody,
+)
+
+@Serializable
+public class TSetIpAllowlistResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SetIpAllowlistResult,
+)
+
+@Serializable
+public class TSetIpAllowlistBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("publicKey")
+  public val publicKey: String? = null,
+  @SerialName("enabled")
+  public val enabled: Boolean? = null,
+  @SerialName("rules")
+  public val rules: List<V1IpAllowlistIntentRule>? = null,
+  @SerialName("onEvaluationError")
+  public val onEvaluationError: String? = null,
+)
+
+@Serializable
+public class TSetIpAllowlistInput(
+  @SerialName("body")
+  public val body: TSetIpAllowlistBody,
 )
 
 @Serializable
@@ -12925,6 +14635,30 @@ public class TSetOrganizationFeatureBody(
 public class TSetOrganizationFeatureInput(
   @SerialName("body")
   public val body: TSetOrganizationFeatureBody,
+)
+
+@Serializable
+public class TUpdateTvcAppLiveDeploymentResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1UpdateTvcAppLiveDeploymentResult,
+)
+
+@Serializable
+public class TUpdateTvcAppLiveDeploymentBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("deploymentId")
+  public val deploymentId: String,
+)
+
+@Serializable
+public class TUpdateTvcAppLiveDeploymentInput(
+  @SerialName("body")
+  public val body: TUpdateTvcAppLiveDeploymentBody,
 )
 
 @Serializable
@@ -13045,6 +14779,110 @@ public class TSolSendTransactionBody(
 public class TSolSendTransactionInput(
   @SerialName("body")
   public val body: TSolSendTransactionBody,
+)
+
+@Serializable
+public class TSparkClaimTransferResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SparkClaimTransferResult,
+)
+
+@Serializable
+public class TSparkClaimTransferBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("signWith")
+  public val signWith: String,
+  @SerialName("claim")
+  public val claim: V1SparkClaimPackage,
+)
+
+@Serializable
+public class TSparkClaimTransferInput(
+  @SerialName("body")
+  public val body: TSparkClaimTransferBody,
+)
+
+@Serializable
+public class TSparkPrepareLightningReceiveResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SparkPrepareLightningReceiveResult,
+)
+
+@Serializable
+public class TSparkPrepareLightningReceiveBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("signWith")
+  public val signWith: String,
+  @SerialName("lightningReceive")
+  public val lightningReceive: V1SparkLightningReceivePackage,
+)
+
+@Serializable
+public class TSparkPrepareLightningReceiveInput(
+  @SerialName("body")
+  public val body: TSparkPrepareLightningReceiveBody,
+)
+
+@Serializable
+public class TSparkPrepareTransferResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SparkPrepareTransferResult,
+)
+
+@Serializable
+public class TSparkPrepareTransferBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("signWith")
+  public val signWith: String,
+  @SerialName("transfer")
+  public val transfer: V1SparkTransferPackage,
+)
+
+@Serializable
+public class TSparkPrepareTransferInput(
+  @SerialName("body")
+  public val body: TSparkPrepareTransferBody,
+)
+
+@Serializable
+public class TSparkSignFrostResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1SparkSignFrostResult,
+)
+
+@Serializable
+public class TSparkSignFrostBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("signWith")
+  public val signWith: String,
+  @SerialName("signatures")
+  public val signatures: List<V1SparkSignatureRequest>,
+)
+
+@Serializable
+public class TSparkSignFrostInput(
+  @SerialName("body")
+  public val body: TSparkSignFrostBody,
 )
 
 @Serializable
@@ -13542,7 +15380,7 @@ public class ProxyTOAuth2AuthenticateBody(
   @SerialName("codeVerifier")
   public val codeVerifier: String,
   @SerialName("nonce")
-  public val nonce: String? = null,
+  public val nonce: String,
   @SerialName("clientId")
   public val clientId: String,
 )
@@ -13595,6 +15433,8 @@ public class ProxyTInitOtpBody(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
+  @SerialName("emailCustomization")
+  public val emailCustomization: V1ProxyEmailCustomizationParams? = null,
 )
 
 @Serializable
@@ -13623,6 +15463,8 @@ public class ProxyTInitOtpV2Body(
   public val otpType: String,
   @SerialName("contact")
   public val contact: String,
+  @SerialName("emailCustomization")
+  public val emailCustomization: V1ProxyEmailCustomizationParams? = null,
 )
 
 @Serializable

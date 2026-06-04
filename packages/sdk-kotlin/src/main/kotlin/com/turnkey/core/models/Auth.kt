@@ -89,3 +89,10 @@ data class ChallengePair(
     val verifier: String,
     val codeChallenge: String
 )
+
+/** Minimal OIDC token payload used to derive secondary OAuth provider claims. */
+@Serializable
+data class OidcPayload(
+    val iss: String,
+    val sub: String,
+)

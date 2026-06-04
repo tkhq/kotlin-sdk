@@ -1,0 +1,10 @@
+packages:
+  sdk-kotlin: major
+changelog: |-
+  ### OAuth config & secondary client IDs
+
+  **What changed:** The flat `OAuthConfig` client-ID fields have been replaced with per-provider params, and every OAuth handler now accepts secondary client IDs.
+
+  * `OAuthConfig` no longer exposes `googleClientId` / `appleClientId` / `facebookClientId` / `xClientId` / `discordClientId`. Instead each provider is configured via an `OAuthProviderParams` (aliased as `GoogleOAuthProviderParams`, `AppleOAuthProviderParams`, `FacebookOAuthProviderParams`, `XOAuthProviderParams`, `DiscordOAuthProviderParams`) holding `primaryClientId`, `secondaryClientIds`, and a per-provider `redirectUri`. A top-level `oauthRedirectUri` remains as a shared fallback.
+  * `handleGoogleOAuth`, `handleAppleOAuth`, `handleXOAuth`, and `handleDiscordOAuth` accept a new `secondaryClientIds: List<String>?` parameter (falling back to the configured provider value). During sub-organization creation these are registered as additional OAuth providers (via `oidcClaims` derived from the OIDC token), so a user can sign into the same sub-organization from clients that use a different client ID instead of getting a brand new sub-organization per client ID.
+  * Redirect resolution now follows: provider `redirectUri` → `OAuthConfig.oauthRedirectUri` → auth proxy redirect → value derived from `appScheme`.

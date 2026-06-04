@@ -41,6 +41,9 @@ class AuthStepFragment : Fragment(R.layout.component_auth_card) {
                 try {
                     TurnkeyContext.handleGoogleOAuth(
                         activity = requireActivity(),
+                        // secondaryClientIds can also be passed per-call to override the
+                        // value configured in OAuthConfig, e.g.:
+                        // secondaryClientIds = listOf("<other-client-id>"),
                     )
                     withContext(Dispatchers.Main) { dismissSheetSafely() }
                 } catch (t: Throwable) {

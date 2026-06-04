@@ -45,6 +45,7 @@ import com.turnkey.core.models.LoginWithOtpResult
 import com.turnkey.core.models.LoginWithPasskeyResult
 import com.turnkey.core.models.OAuth
 import com.turnkey.core.models.OAuthConfig
+import com.turnkey.core.models.OAuthProviderParams
 import com.turnkey.core.models.OAuthOverrideParams
 import com.turnkey.core.models.OtpOverrireParams
 import com.turnkey.core.models.OtpType
@@ -70,6 +71,7 @@ import com.turnkey.passkey.PasskeyUser
 import com.turnkey.passkey.createPasskey
 import com.turnkey.stamper.utils.SignatureFormat
 import com.turnkey.stamper.Stamper
+import com.turnkey.types.V1OauthProviderParamsV2
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetWalletKitConfigBody
 import com.turnkey.types.ProxyTGetWalletKitConfigResponse
@@ -306,15 +308,25 @@ object TurnkeyContext {
             return authProxyConfig?.oauthRedirectUrl
         }
 
-        // ---- resolved OAuth (strings) ----
+        // Resolves a single provider's params, layering the auth proxy's client ID over
+        // the locally configured primary client ID. The provider-level redirect URI is
+        // left as-is so it can fall back to the top-level redirect at call time.
+        fun resolveProvider(local: OAuthProviderParams?, key: String): OAuthProviderParams =
+            OAuthProviderParams(
+                primaryClientId = resolveClientId(local?.primaryClientId, key),
+                secondaryClientIds = local?.secondaryClientIds,
+                redirectUri = local?.redirectUri,
+            )
+
+        // ---- resolved OAuth (per provider) ----
         val baseOAuth = this.authConfig?.oAuthConfig
         val resolvedOAuth = OAuthConfig(
             oauthRedirectUri = resolveRedirect(baseOAuth?.oauthRedirectUri),
-            googleClientId = resolveClientId(baseOAuth?.googleClientId, "google"),
-            appleClientId = resolveClientId(baseOAuth?.appleClientId, "apple"),
-            facebookClientId = resolveClientId(baseOAuth?.facebookClientId, "facebook"),
-            xClientId = resolveClientId(baseOAuth?.xClientId, "x"),
-            discordClientId = resolveClientId(baseOAuth?.discordClientId, "discord"),
+            google = resolveProvider(baseOAuth?.google, "google"),
+            apple = resolveProvider(baseOAuth?.apple, "apple"),
+            facebook = resolveProvider(baseOAuth?.facebook, "facebook"),
+            x = resolveProvider(baseOAuth?.x, "x"),
+            discord = resolveProvider(baseOAuth?.discord, "discord"),
         )
 
         // ---- proxy-only values ----
@@ -1659,6 +1671,24 @@ object TurnkeyContext {
     }
 
     /**
+     * Merges secondary OAuth provider entries into the given sub-org creation params.
+     *
+     * Returns [createSubOrgParams] unchanged when there are no secondary providers,
+     * otherwise appends them to any existing `oauthProviders` so the primary provider
+     * (added later during sign-up) is preserved alongside the secondaries.
+     */
+    private fun mergeSecondaryOauthProviders(
+        createSubOrgParams: CreateSubOrgParams?,
+        secondaryProviders: List<V1OauthProviderParamsV2>
+    ): CreateSubOrgParams? {
+        if (secondaryProviders.isEmpty()) return createSubOrgParams
+        val base = createSubOrgParams ?: CreateSubOrgParams()
+        return base.copy(
+            oauthProviders = (base.oauthProviders ?: emptyList()) + secondaryProviders
+        )
+    }
+
+    /**
      * Handles the complete Google OAuth flow including redirect and authentication.
      *
      * This high-level method orchestrates the entire Google OAuth flow:
@@ -1670,6 +1700,7 @@ object TurnkeyContext {
      *
      * @param activity the current Android activity for displaying the OAuth UI
      * @param clientId optional Google Client ID; if null, uses the configured value
+     * @param secondaryClientIds optional additional client IDs to register as secondary OAuth providers during sub-organization creation; if null, uses the configured value
      * @param originUri optional OAuth origin URL (defaults to Turnkey's OAuth endpoint)
      * @param redirectUri optional redirect URI; if null, uses the configured value
      * @param sessionKey optional key under which to store the session (when using default behavior)
@@ -1685,6 +1716,7 @@ object TurnkeyContext {
     suspend fun handleGoogleOAuth(
         activity: Activity,
         clientId: String? = null,
+        secondaryClientIds: List<String>? = null,
         originUri: String = Turnkey.OAUTH_ORIGIN_URL,
         redirectUri: String? = null,
         sessionKey: String? = null,
@@ -1699,12 +1731,18 @@ object TurnkeyContext {
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
-        val googleClientId = clientId ?: runtimeConfig.authConfig?.oAuthConfig?.googleClientId
+        val googleProvider = runtimeConfig.authConfig?.oAuthConfig?.google
+        val googleClientId = clientId ?: googleProvider?.primaryClientId
         ?: throw TurnkeyKotlinError.MissingConfigParam("Google Client ID not configured")
 
         val resolvedRedirect =
-            redirectUri ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
-            ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
+            redirectUri
+                ?: googleProvider?.redirectUri
+                ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+                ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
+
+        val resolvedSecondaryClientIds =
+            secondaryClientIds ?: googleProvider?.secondaryClientIds ?: emptyList()
 
         val oauthUrl = buildString {
             append(originUri)
@@ -1729,13 +1767,17 @@ object TurnkeyContext {
                     onSuccess(idToken, targetPublicKey, "google")
                 } else {
                     // default behavior
+                    val mergedCreateSubOrgParams = mergeSecondaryOauthProviders(
+                        createSubOrgParams,
+                        Helpers.buildSecondaryOauthProviders(idToken, "google", resolvedSecondaryClientIds)
+                    )
                     loginOrSignUpWithOAuth(
                         oidcToken = idToken,
                         publicKey = targetPublicKey,
                         providerName = "google",
                         sessionKey = sessionKey,
                         invalidateExisting = invalidateExisting,
-                        createSubOrgParams = createSubOrgParams
+                        createSubOrgParams = mergedCreateSubOrgParams
                     )
                 }
             }
@@ -1758,6 +1800,7 @@ object TurnkeyContext {
      *
      * @param activity the current Android activity for displaying the OAuth UI
      * @param clientId optional Apple Client ID; if null, uses the configured value
+     * @param secondaryClientIds optional additional client IDs to register as secondary OAuth providers during sub-organization creation; if null, uses the configured value
      * @param originUri optional OAuth origin URL (defaults to Apple's auth endpoint)
      * @param redirectUri optional redirect URI; if null, uses the configured value
      * @param sessionKey optional key under which to store the session (when using default behavior)
@@ -1773,6 +1816,7 @@ object TurnkeyContext {
     suspend fun handleAppleOAuth(
         activity: Activity,
         clientId: String? = null,
+        secondaryClientIds: List<String>? = null,
         originUri: String = OAuth.APPLE_AUTH_URL,
         redirectUri: String? = null,
         sessionKey: String? = null,
@@ -1787,12 +1831,18 @@ object TurnkeyContext {
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
-        val appleClientId = clientId ?: runtimeConfig.authConfig?.oAuthConfig?.appleClientId
+        val appleProvider = runtimeConfig.authConfig?.oAuthConfig?.apple
+        val appleClientId = clientId ?: appleProvider?.primaryClientId
         ?: throw TurnkeyKotlinError.MissingConfigParam("Apple Client ID not configured")
 
         val resolvedRedirect =
-            redirectUri ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
-            ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
+            redirectUri
+                ?: appleProvider?.redirectUri
+                ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+                ?: "${Turnkey.OAUTH_REDIRECT_URL}?scheme=${Uri.encode(scheme)}"
+
+        val resolvedSecondaryClientIds =
+            secondaryClientIds ?: appleProvider?.secondaryClientIds ?: emptyList()
 
         val oauthUrl = buildString {
             append(originUri)
@@ -1817,12 +1867,16 @@ object TurnkeyContext {
                     onSuccess(idToken, targetPublicKey, "apple")
                 } else {
                     // default behavior
+                    val mergedCreateSubOrgParams = mergeSecondaryOauthProviders(
+                        createSubOrgParams,
+                        Helpers.buildSecondaryOauthProviders(idToken, "apple", resolvedSecondaryClientIds)
+                    )
                     loginOrSignUpWithOAuth(
                         oidcToken = idToken,
                         publicKey = targetPublicKey,
                         providerName = "apple",
                         sessionKey = sessionKey,
-                        createSubOrgParams = createSubOrgParams,
+                        createSubOrgParams = mergedCreateSubOrgParams,
                         invalidateExisting = invalidateExisting
                     )
                 }
@@ -1851,6 +1905,7 @@ object TurnkeyContext {
      *
      * @param activity the current Android activity for displaying the OAuth UI
      * @param clientId optional X Client ID; if null, uses the configured value
+     * @param secondaryClientIds optional additional client IDs to register as secondary OAuth providers during sub-organization creation; if null, uses the configured value
      * @param originUri optional OAuth origin URL (defaults to X's auth endpoint)
      * @param redirectUri optional redirect URI; if null, uses the configured value
      * @param sessionKey optional key under which to store the session (when using default behavior)
@@ -1867,6 +1922,7 @@ object TurnkeyContext {
     suspend fun handleXOAuth(
         activity: Activity,
         clientId: String? = null,
+        secondaryClientIds: List<String>? = null,
         originUri: String = OAuth.X_AUTH_URL,
         redirectUri: String? = null,
         sessionKey: String? = null,
@@ -1881,11 +1937,18 @@ object TurnkeyContext {
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
-        val xClientId = clientId ?: runtimeConfig.authConfig?.oAuthConfig?.xClientId
+        val xProvider = runtimeConfig.authConfig?.oAuthConfig?.x
+        val xClientId = clientId ?: xProvider?.primaryClientId
         ?: throw TurnkeyKotlinError.MissingConfigParam("X Client ID not configured")
 
         val resolvedRedirect =
-            redirectUri ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri ?: "$scheme://"
+            redirectUri
+                ?: xProvider?.redirectUri
+                ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+                ?: "$scheme://"
+
+        val resolvedSecondaryClientIds =
+            secondaryClientIds ?: xProvider?.secondaryClientIds ?: emptyList()
 
         val challengePair = Helpers.generateChallengePair()
 
@@ -1934,13 +1997,17 @@ object TurnkeyContext {
                     onSuccess(oidcToken, targetPublicKey, "x")
                 } else {
                     // default behavior
+                    val mergedCreateSubOrgParams = mergeSecondaryOauthProviders(
+                        createSubOrgParams,
+                        Helpers.buildSecondaryOauthProviders(oidcToken, "x", resolvedSecondaryClientIds)
+                    )
                     loginOrSignUpWithOAuth(
                         oidcToken = oidcToken,
                         publicKey = targetPublicKey,
                         providerName = "x",
                         sessionKey = sessionKey,
                         invalidateExisting = invalidateExisting,
-                        createSubOrgParams = createSubOrgParams
+                        createSubOrgParams = mergedCreateSubOrgParams
                     )
                 }
             }
@@ -1965,6 +2032,7 @@ object TurnkeyContext {
      *
      * @param activity the current Android activity for displaying the OAuth UI
      * @param clientId optional Discord Client ID; if null, uses the configured value
+     * @param secondaryClientIds optional additional client IDs to register as secondary OAuth providers during sub-organization creation; if null, uses the configured value
      * @param originUri optional OAuth origin URL (defaults to Discord's auth endpoint)
      * @param redirectUri optional redirect URI; if null, uses the configured value
      * @param sessionKey optional key under which to store the session (when using default behavior)
@@ -1981,6 +2049,7 @@ object TurnkeyContext {
     suspend fun handleDiscordOAuth(
         activity: Activity,
         clientId: String? = null,
+        secondaryClientIds: List<String>? = null,
         originUri: String = OAuth.DISCORD_AUTH_URL,
         redirectUri: String? = null,
         sessionKey: String? = null,
@@ -1995,11 +2064,18 @@ object TurnkeyContext {
         val targetPublicKey = createKeyPair() // returns public key string (p-256)
         val nonce = Helpers.sha256Hex(targetPublicKey)
 
-        val discordClientId = clientId ?: runtimeConfig.authConfig?.oAuthConfig?.discordClientId
+        val discordProvider = runtimeConfig.authConfig?.oAuthConfig?.discord
+        val discordClientId = clientId ?: discordProvider?.primaryClientId
         ?: throw TurnkeyKotlinError.MissingConfigParam("Discord Client ID not configured")
 
         val resolvedRedirect =
-            redirectUri ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri ?: "$scheme://"
+            redirectUri
+                ?: discordProvider?.redirectUri
+                ?: runtimeConfig.authConfig?.oAuthConfig?.oauthRedirectUri
+                ?: "$scheme://"
+
+        val resolvedSecondaryClientIds =
+            secondaryClientIds ?: discordProvider?.secondaryClientIds ?: emptyList()
 
         val challengePair = Helpers.generateChallengePair()
 
@@ -2048,13 +2124,17 @@ object TurnkeyContext {
                     onSuccess(oidcToken, targetPublicKey, "discord")
                 } else {
                     // default behavior
+                    val mergedCreateSubOrgParams = mergeSecondaryOauthProviders(
+                        createSubOrgParams,
+                        Helpers.buildSecondaryOauthProviders(oidcToken, "discord", resolvedSecondaryClientIds)
+                    )
                     loginOrSignUpWithOAuth(
                         oidcToken = oidcToken,
                         publicKey = targetPublicKey,
                         providerName = "discord",
                         sessionKey = sessionKey,
                         invalidateExisting = invalidateExisting,
-                        createSubOrgParams = createSubOrgParams
+                        createSubOrgParams = mergedCreateSubOrgParams
                     )
                 }
             }
