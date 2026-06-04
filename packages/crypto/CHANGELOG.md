@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-06-04
+### Patch Changes
+- - Export `PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY` constant
+- Add `encryptOtpCodeToBundle()` helper that encrypts an OTP code and client public key to the enclave's target key using HPKE
+
 ## 1.0.0 — 2026-01-21
 ### Major Changes
 - # v1.0.0 - Initial Stable Release 🎉

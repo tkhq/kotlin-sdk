@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.0.0 — 2026-06-04
+### Major Changes
+- ### OAuth config & secondary client IDs
+
+**What changed:** The flat `OAuthConfig` client-ID fields have been replaced with per-provider params, and every OAuth handler now accepts secondary client IDs.
+
+* `OAuthConfig` no longer exposes `googleClientId` / `appleClientId` / `facebookClientId` / `xClientId` / `discordClientId`. Instead each provider is configured via an `OAuthProviderParams` (aliased as `GoogleOAuthProviderParams`, `AppleOAuthProviderParams`, `FacebookOAuthProviderParams`, `XOAuthProviderParams`, `DiscordOAuthProviderParams`) holding `primaryClientId`, `secondaryClientIds`, and a per-provider `redirectUri`. A top-level `oauthRedirectUri` remains as a shared fallback.
+* `handleGoogleOAuth`, `handleAppleOAuth`, `handleXOAuth`, and `handleDiscordOAuth` accept a new `secondaryClientIds: List<String>?` parameter (falling back to the configured provider value). During sub-organization creation these are registered as additional OAuth providers (via `oidcClaims` derived from the OIDC token), so a user can sign into the same sub-organization from clients that use a different client ID instead of getting a brand new sub-organization per client ID.
+* Redirect resolution now follows: provider `redirectUri` → `OAuthConfig.oauthRedirectUri` → auth proxy redirect → value derived from `appScheme`.
+- ### `initOtp`
+**What changed:** Now returns an `otpEncryptionTargetBundle` along with the `otpId` in `InitOtpResult`.
+
+### `verifyOtp`
+**What changed:** Added a required `otpEncryptionTargetBundle`. Returns `verificationToken` along with the `publicKey` now.
+
+### `loginWithOtp`
+**What changed:** Removed `publicKey` param. The key bound during `verifyOtp` is now automatically reused as the session public key and used to produce the required `clientSignature`.
+
+### `signUpWithOtp`
+**What changed:** Removed `publicKey` param. The key bound during `verifyOtp` is now automatically reused as the session public key and used to produce the required `clientSignature`.
+
 ## 1.0.2 — 2026-02-20
 ### Patch Changes
 - Dependency bump
