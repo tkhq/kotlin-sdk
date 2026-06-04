@@ -15,8 +15,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_24
-        targetCompatibility = JavaVersion.VERSION_24
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     sourceSets["main"].java.srcDir("${layout.buildDirectory}/src/main/kotlin")
@@ -64,5 +64,5 @@ tasks.register("regenerateHttpClient") {
 }
 
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(11)
 }
