@@ -79,19 +79,51 @@ data class MethodCreateSubOrgParams(
     val oAuth: CreateSubOrgParams? = null,
 )
 
+/**
+ * Per-provider OAuth configuration.
+ *
+ * Holds everything needed to drive an OAuth flow for a single provider:
+ * its primary client ID, any secondary client IDs, and an optional redirect URI.
+ */
+data class OAuthProviderParams(
+    /** Primary client ID registered with the OAuth provider. */
+    val primaryClientId: String? = null,
+    /**
+     * Additional client IDs to register as secondary OAuth providers during
+     * sub-organization creation. This lets users sign into the same sub-organization
+     * from clients that use a different client ID (e.g. web vs. mobile) instead of
+     * getting a brand new sub-organization for each distinct client ID.
+     */
+    val secondaryClientIds: List<String>? = null,
+    /**
+     * Redirect URI used for the OAuth callback. If null, falls back to the top-level
+     * [OAuthConfig.oauthRedirectUri] and ultimately to a value derived from `appScheme`.
+     */
+    val redirectUri: String? = null,
+)
+
+typealias GoogleOAuthProviderParams = OAuthProviderParams
+typealias AppleOAuthProviderParams = OAuthProviderParams
+typealias FacebookOAuthProviderParams = OAuthProviderParams
+typealias XOAuthProviderParams = OAuthProviderParams
+typealias DiscordOAuthProviderParams = OAuthProviderParams
+
 data class OAuthConfig(
-    /** Redirect URI for OAuth. */
+    /**
+     * Default redirect URI for OAuth, used when a provider does not specify its own
+     * [OAuthProviderParams.redirectUri].
+     */
     val oauthRedirectUri: String? = null,
-    /** Client ID for Google OAuth. */
-    val googleClientId: String? = null,
-    /** Client ID for Apple OAuth. */
-    val appleClientId: String? = null,
-    /** Client ID for Facebook OAuth. */
-    val facebookClientId: String? = null,
-    /** Client ID for X (formerly Twitter) OAuth. */
-    val xClientId: String? = null,
-    /** Client ID for Discord OAuth. */
-    val discordClientId: String? = null,
+    /** Google OAuth provider configuration. */
+    val google: GoogleOAuthProviderParams? = null,
+    /** Apple OAuth provider configuration. */
+    val apple: AppleOAuthProviderParams? = null,
+    /** Facebook OAuth provider configuration. */
+    val facebook: FacebookOAuthProviderParams? = null,
+    /** X (formerly Twitter) OAuth provider configuration. */
+    val x: XOAuthProviderParams? = null,
+    /** Discord OAuth provider configuration. */
+    val discord: DiscordOAuthProviderParams? = null,
 )
 
 data class Defaults(

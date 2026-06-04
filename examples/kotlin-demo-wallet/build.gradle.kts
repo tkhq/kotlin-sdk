@@ -37,6 +37,15 @@ android {
         buildConfigField("String", "APP_SHEME", "\"$appScheme\"")
         val rpId = props.getProperty("RP_ID") ?: ""
         buildConfigField("String", "RP_ID", "\"$rpId\"")
+
+        // Optional Google OAuth client IDs. When blank, the SDK falls back to the
+        // auth proxy's configured client ID. GOOGLE_SECONDARY_CLIENT_IDS is a
+        // comma-separated list of additional client IDs (e.g. web + mobile) that
+        // should resolve to the same sub-organization.
+        val googleClientId = props.getProperty("GOOGLE_CLIENT_ID") ?: ""
+        buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
+        val googleSecondaryClientIds = props.getProperty("GOOGLE_SECONDARY_CLIENT_IDS") ?: ""
+        buildConfigField("String", "GOOGLE_SECONDARY_CLIENT_IDS", "\"$googleSecondaryClientIds\"")
     }
 
     buildTypes {

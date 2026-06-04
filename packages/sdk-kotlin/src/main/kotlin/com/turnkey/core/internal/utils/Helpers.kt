@@ -9,6 +9,7 @@ import com.turnkey.core.models.CreateSubOrgAuthenticator
 import com.turnkey.core.models.CreateSubOrgParams
 import com.turnkey.core.models.Defaults
 import com.turnkey.core.models.OAuthOverrideParams
+import com.turnkey.core.models.OidcPayload
 import com.turnkey.core.models.OtpOverrireParams
 import com.turnkey.core.models.OtpType
 import com.turnkey.core.models.OverrideParams
@@ -26,6 +27,7 @@ import com.turnkey.types.V1ApiKeyParamsV2
 import com.turnkey.types.V1AuthenticatorParamsV2
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1OauthProviderParams
+import com.turnkey.types.V1OidcClaims
 import com.turnkey.types.V1Pagination
 import com.turnkey.types.V1PayloadEncoding
 import com.turnkey.types.V1Wallet
@@ -191,13 +193,14 @@ object Helpers {
                 val base = createSubOrgParams
                     ?: cfgCreate?.oAuth
                     ?: CreateSubOrgParams()
+                // We append the primary provider to any existing providers (e.g. secondary
+                // client IDs already merged in by the handler) rather than overwriting them.
                 base.copy(
-                    oauthProviders = listOf(
+                    oauthProviders = (base.oauthProviders ?: emptyList()) +
                         V1OauthProviderParamsV2(
                             providerName = overrideParams.providerName,
                             oidcToken = overrideParams.oidcToken,
                         )
-                    )
                 )
             }
 
@@ -325,6 +328,8 @@ object Helpers {
         V1AddressFormat.ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR,
         V1AddressFormat.ADDRESS_FORMAT_DOGE_MAINNET,
         V1AddressFormat.ADDRESS_FORMAT_DOGE_TESTNET,
+        V1AddressFormat.ADDRESS_FORMAT_SPARK_MAINNET,
+        V1AddressFormat.ADDRESS_FORMAT_SPARK_REGTEST,
         V1AddressFormat.ADDRESS_FORMAT_XRP ->
             Defaults(
                 encoding = V1PayloadEncoding.PAYLOAD_ENCODING_HEXADECIMAL,
@@ -354,5 +359,40 @@ object Helpers {
 
     fun decodeVerificationToken(verificationToken: String): VerificationToken {
         return JwtDecoder.decode<VerificationToken>(verificationToken)
+    }
+
+    /**
+     * Builds secondary OAuth provider entries for sub-organization creation.
+     *
+     * Decodes the OIDC token to extract its `iss` and `sub` claims, then creates a
+     * [V1OauthProviderParamsV2] entry for each secondary client ID using `oidcClaims`
+     * with that client ID as the `aud`. This lets a user sign into the same
+     * sub-organization from clients that use a different client ID.
+     *
+     * @param oidcToken the OIDC token from the primary authentication
+     * @param providerName the base provider name (e.g. "google")
+     * @param secondaryClientIds additional client IDs to register as providers
+     * @return one [V1OauthProviderParamsV2] per secondary client ID, or empty if the
+     *         list is empty or the token cannot be decoded
+     */
+    fun buildSecondaryOauthProviders(
+        oidcToken: String,
+        providerName: String,
+        secondaryClientIds: List<String>
+    ): List<V1OauthProviderParamsV2> {
+        if (secondaryClientIds.isEmpty()) return emptyList()
+
+        val payload = try {
+            JwtDecoder.decode<OidcPayload>(oidcToken)
+        } catch (_: Throwable) {
+            return emptyList()
+        }
+
+        return secondaryClientIds.map { clientId ->
+            V1OauthProviderParamsV2(
+                providerName = providerName,
+                oidcClaims = V1OidcClaims(aud = clientId, iss = payload.iss, sub = payload.sub)
+            )
+        }
     }
 }

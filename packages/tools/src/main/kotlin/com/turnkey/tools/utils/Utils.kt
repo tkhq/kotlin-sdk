@@ -113,6 +113,12 @@ fun classifyOperation(
         return OperationKind.Noop
     }
 
+    // Queries – endpoints under /query/ are always queries, regardless of method name
+    // (e.g. validateTvcImage returns a plain response, not an activity result)
+    if (path?.contains("/query/", ignoreCase = true) == true) {
+        return OperationKind.Query
+    }
+
     // Queries – GETs or method-name prefixes: get*/list*/test*
     if (methodName.startsWith("get") || methodName.startsWith("tget", ignoreCase = true) ||
         lower.startsWith("get") || lower.startsWith("tget") ||
