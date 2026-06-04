@@ -1,5 +1,0 @@
-packages:
-  passkey: patch
-  stamper: patch
-changelog: |-
-  Dependency bump
