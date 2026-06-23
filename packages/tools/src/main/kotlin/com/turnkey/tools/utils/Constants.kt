@@ -21,7 +21,8 @@ object VersionedActivityTypes {
         "ACTIVITY_TYPE_INIT_OTP" to Triple("ACTIVITY_TYPE_INIT_OTP_V3", "v1InitOtpIntentV3", "v1InitOtpResultV2"),
         "ACTIVITY_TYPE_VERIFY_OTP" to Triple("ACTIVITY_TYPE_VERIFY_OTP_V2", "v1VerifyOtpIntentV2", "v1VerifyOtpResult"),
         "ACTIVITY_TYPE_OTP_LOGIN" to Triple("ACTIVITY_TYPE_OTP_LOGIN_V2", "v1OtpLoginIntentV2", "v1OtpLoginResult"),
-        "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS" to Triple("ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2", "v1CreateOauthProvidersIntentV2", "v1CreateOauthProvidersResultV2")
+        "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS" to Triple("ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2", "v1CreateOauthProvidersIntentV2", "v1CreateOauthProvidersResultV2"),
+        "ACTIVITY_TYPE_ETH_SEND_TRANSACTION" to Triple("ACTIVITY_TYPE_ETH_SEND_TRANSACTION", "v1EthSendTransactionIntent", "v1EthSendTransactionResult")
     )
 
     /** Fallbacks to the input if there's no versioned entry. */
