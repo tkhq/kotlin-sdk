@@ -12,6 +12,7 @@ package com.turnkey.http
 
 import com.turnkey.http.utils.ActivityPollerConfig
 import com.turnkey.http.utils.TurnkeyHttpError
+import com.turnkey.http.utils.withSameOriginRedirects
 import com.turnkey.stamper.Stamper
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetAccountResponse
@@ -354,7 +355,7 @@ public class TurnkeyClient(
 ) {
   private val apiBaseUrl: String = apiBaseUrl ?: "https://api.turnkey.com"
 
-  private val http: OkHttpClient = http ?: OkHttpClient()
+  private val http: OkHttpClient = (http ?: OkHttpClient()).withSameOriginRedirects()
 
   private val authProxyUrl: String = authProxyUrl ?: "https://authproxy.turnkey.com"
 

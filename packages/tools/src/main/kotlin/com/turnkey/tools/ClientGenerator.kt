@@ -150,7 +150,12 @@ fun generateClientFile(
         )
         .addProperty(
             PropertySpec.builder("http", okHttpClient, KModifier.PRIVATE)
-                .initializer("%N ?: %T()", "http", okHttpClient)
+                .initializer(
+                    "(%N ?: %T()).%M()",
+                    "http",
+                    okHttpClient,
+                    MemberName("com.turnkey.http.utils", "withSameOriginRedirects", isExtension = true)
+                )
                 .build()
         )
         .addProperty(
