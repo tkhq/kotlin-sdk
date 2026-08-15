@@ -91,7 +91,7 @@ class RedirectPolicyTest {
 
     @Test
     fun nonPreservingRedirectStatusesAreRefused() {
-        for (code in listOf(301, 302, 303)) {
+        for (code in listOf(300, 301, 302, 303, 304, 305, 306, 309, 399)) {
             runServer { server ->
                 server.enqueue(redirectResponse(code, "/next"))
                 val error = assertFailsWith<TurnkeyHttpError.RedirectRefused> {
@@ -121,6 +121,9 @@ class RedirectPolicyTest {
     @Test
     fun wrappingIsIdempotent() {
         val wrapped = OkHttpClient().withSameOriginRedirects()
-        assertEquals(wrapped.interceptors, wrapped.withSameOriginRedirects().interceptors)
+        val redirectsReenabled = wrapped.newBuilder().followRedirects(true).build()
+        val protected = redirectsReenabled.withSameOriginRedirects()
+        assertEquals(false, protected.followRedirects)
+        assertEquals(wrapped.interceptors, protected.interceptors)
     }
 }

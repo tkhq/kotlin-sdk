@@ -7,11 +7,15 @@ import okhttp3.Response
 
 private const val MAX_FOLLOW_UPS = 10
 
-internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient =
-    if (SameOriginRedirectInterceptor in interceptors) this else newBuilder()
+internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient {
+    if (SameOriginRedirectInterceptor in interceptors) {
+        return if (!followRedirects) this else newBuilder().followRedirects(false).build()
+    }
+    return newBuilder()
         .addInterceptor(SameOriginRedirectInterceptor)
         .followRedirects(false)
         .build()
+}
 
 private object SameOriginRedirectInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -30,7 +34,7 @@ private object SameOriginRedirectInterceptor : Interceptor {
     private fun followUpTarget(response: Response, origin: HttpUrl): HttpUrl? {
         when (response.code) {
             307, 308 -> Unit
-            300, 301, 302, 303 -> refuse(response)
+            in 300..399 -> refuse(response)
             else -> return null
         }
         val location = response.header("Location") ?: refuse(response)
