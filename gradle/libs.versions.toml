@@ -45,6 +45,7 @@ junit-launcher = { group = "org.junit.platform", name = "junit-platform-launcher
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "lib_androidx" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref ="lib_androidx" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 squareup-kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet-version" }
 swagger-parser = { module = "io.swagger.parser.v3:swagger-parser", version.ref = "swagger-parser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
