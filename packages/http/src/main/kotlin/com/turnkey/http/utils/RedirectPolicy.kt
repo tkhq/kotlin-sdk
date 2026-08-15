@@ -7,6 +7,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 
+private const val MAX_FOLLOW_UPS = 20
+
 internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient =
     if (interceptors.any { it is SameOriginRedirectInterceptor }) {
         this
@@ -14,7 +16,6 @@ internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient =
         newBuilder()
             .addInterceptor(SameOriginRedirectInterceptor(followRedirects))
             .followRedirects(false)
-            .followSslRedirects(false)
             .build()
     }
 
@@ -25,8 +26,9 @@ internal class SameOriginRedirectInterceptor(
     private val followRedirects: Boolean,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val origin = chain.request().url
-        var response = chain.proceed(chain.request())
+        val request = chain.request()
+        val origin = request.url
+        var response = chain.proceed(request)
         var followUpCount = 0
         while (followRedirects) {
             val followUp = followUpRequest(response, origin) ?: break
@@ -58,9 +60,5 @@ internal class SameOriginRedirectInterceptor(
             builder.removeHeader("Content-Type")
         }
         return builder.build()
-    }
-
-    private companion object {
-        const val MAX_FOLLOW_UPS = 20
     }
 }
