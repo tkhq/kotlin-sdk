@@ -10,27 +10,18 @@ import okhttp3.Response
 private const val MAX_FOLLOW_UPS = 20
 
 internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient =
-    if (interceptors.any { it is SameOriginRedirectInterceptor }) {
-        this
-    } else {
-        newBuilder()
-            .addInterceptor(SameOriginRedirectInterceptor(followRedirects))
-            .followRedirects(false)
-            .build()
-    }
+    if (!followRedirects) this else newBuilder()
+        .addInterceptor(SameOriginRedirectInterceptor)
+        .followRedirects(false)
+        .build()
 
-internal fun isSameOrigin(a: HttpUrl, b: HttpUrl): Boolean =
-    a.scheme == b.scheme && a.host == b.host && a.port == b.port
-
-internal class SameOriginRedirectInterceptor(
-    private val followRedirects: Boolean,
-) : Interceptor {
+private object SameOriginRedirectInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val origin = request.url
         var response = chain.proceed(request)
         var followUpCount = 0
-        while (followRedirects) {
+        while (true) {
             val followUp = followUpRequest(response, origin) ?: break
             if (++followUpCount > MAX_FOLLOW_UPS) {
                 throw ProtocolException("Too many follow-up requests: $followUpCount")
@@ -51,7 +42,9 @@ internal class SameOriginRedirectInterceptor(
         }
         val location = response.header("Location") ?: return null
         val target = request.url.resolve(location) ?: return null
-        if (!isSameOrigin(origin, target)) return null
+        if (origin.scheme != target.scheme || origin.host != target.host || origin.port != target.port) {
+            return null
+        }
         val builder = request.newBuilder().url(target)
         if (!isGetOrHead) {
             builder.method("GET", null)
