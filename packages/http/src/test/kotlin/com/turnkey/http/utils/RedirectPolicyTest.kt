@@ -5,7 +5,6 @@ import com.turnkey.types.ProxyTGetAccountBody
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -26,6 +25,13 @@ class RedirectPolicyTest {
     private fun redirectResponse(code: Int, location: String): MockResponse =
         MockResponse().setResponseCode(code).setHeader("Location", location)
 
+    private fun runServer(block: (MockWebServer) -> Unit) {
+        MockWebServer().use { server ->
+            server.start()
+            block(server)
+        }
+    }
+
     private fun runServers(block: (MockWebServer, MockWebServer) -> Unit) {
         MockWebServer().use { first ->
             MockWebServer().use { other ->
@@ -37,9 +43,32 @@ class RedirectPolicyTest {
     }
 
     @Test
-    fun injectedClientDoesNotFollowRedirectToAnotherOrigin() {
+    fun sameOriginPost307And308PreserveMethodBodyAndHeaders() {
+        for (code in listOf(307, 308)) {
+            runServer { server ->
+                server.enqueue(redirectResponse(code, "/next"))
+                server.enqueue(MockResponse().setBody("{}"))
+                OkHttpClient().withSameOriginRedirects()
+                    .newCall(postRequest(server.url("/start")))
+                    .execute()
+                    .use { response -> assertEquals(200, response.code) }
+                assertEquals(2, server.requestCount)
+                server.takeRequest()
+                val followUp = server.takeRequest()
+                assertEquals("POST", followUp.method)
+                assertEquals("/next", followUp.path)
+                assertEquals("""{"key":"value"}""", followUp.body.readUtf8())
+                assertEquals("stamp-header-value", followUp.getHeader("X-Stamp"))
+                assertEquals("application/json; charset=utf-8", followUp.getHeader("Content-Type"))
+            }
+        }
+    }
+
+    @Test
+    fun crossOriginRedirectIsRefusedThroughGeneratedClient() {
         runServers { first, other ->
-            first.enqueue(redirectResponse(302, other.url("/next").toString()))
+            val location = other.url("/next").toString()
+            first.enqueue(redirectResponse(307, location))
             other.enqueue(MockResponse().setBody("{}"))
             val turnkey = TurnkeyClient(
                 stamper = null,
@@ -48,46 +77,50 @@ class RedirectPolicyTest {
                 authProxyConfigId = "config-id",
                 organizationId = "org-id",
             )
-            val error = assertFailsWith<RuntimeException> {
+            val error = assertFailsWith<TurnkeyHttpError.RedirectRefused> {
                 runBlocking {
                     turnkey.proxyGetAccount(ProxyTGetAccountBody(filterType = "EMAIL", filterValue = "a@b.co"))
                 }
             }
-            assertTrue(error.message.orEmpty().contains("302"))
+            assertEquals(307, error.code)
+            assertEquals(location, error.location)
             assertEquals(1, first.requestCount)
             assertEquals(0, other.requestCount)
         }
     }
 
     @Test
-    fun requestBodyIsNotSentAcross307Or308() {
-        for (code in listOf(307, 308)) {
-            runServers { first, other ->
-                first.enqueue(redirectResponse(code, other.url("/next").toString()))
-                other.enqueue(MockResponse().setBody("{}"))
-                OkHttpClient().withSameOriginRedirects()
-                    .newCall(postRequest(first.url("/start")))
-                    .execute()
-                    .use { response -> assertEquals(code, response.code) }
-                assertEquals(1, first.requestCount)
-                assertEquals(0, other.requestCount)
+    fun nonPreservingRedirectStatusesAreRefused() {
+        for (code in listOf(301, 302, 303)) {
+            runServer { server ->
+                server.enqueue(redirectResponse(code, "/next"))
+                val error = assertFailsWith<TurnkeyHttpError.RedirectRefused> {
+                    OkHttpClient().withSameOriginRedirects()
+                        .newCall(postRequest(server.url("/start")))
+                        .execute()
+                }
+                assertEquals(code, error.code)
+                assertEquals(1, server.requestCount)
             }
         }
     }
 
     @Test
-    fun redirectChainCannotChangeOrigin() {
-        runServers { first, other ->
-            first.enqueue(redirectResponse(302, "/next"))
-            first.enqueue(redirectResponse(307, other.url("/elsewhere").toString()))
-            other.enqueue(MockResponse().setBody("{}"))
-            OkHttpClient().withSameOriginRedirects()
-                .newCall(postRequest(first.url("/start")))
-                .execute()
-                .use { response -> assertEquals(307, response.code) }
-            assertEquals("POST", first.takeRequest().method)
-            assertEquals("GET", first.takeRequest().method)
-            assertEquals(0, other.requestCount)
+    fun followUpsAreBoundedToTen() {
+        runServer { server ->
+            repeat(12) { server.enqueue(redirectResponse(307, "/next")) }
+            assertFailsWith<TurnkeyHttpError.RedirectRefused> {
+                OkHttpClient().withSameOriginRedirects()
+                    .newCall(postRequest(server.url("/start")))
+                    .execute()
+            }
+            assertEquals(11, server.requestCount)
         }
+    }
+
+    @Test
+    fun wrappingIsIdempotent() {
+        val wrapped = OkHttpClient().withSameOriginRedirects()
+        assertEquals(wrapped.interceptors, wrapped.withSameOriginRedirects().interceptors)
     }
 }

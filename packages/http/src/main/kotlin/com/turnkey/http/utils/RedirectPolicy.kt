@@ -1,57 +1,49 @@
 package com.turnkey.http.utils
 
-import java.net.ProtocolException
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.Response
 
-private const val MAX_FOLLOW_UPS = 20
+private const val MAX_FOLLOW_UPS = 10
 
 internal fun OkHttpClient.withSameOriginRedirects(): OkHttpClient =
-    if (!followRedirects) this else newBuilder()
+    if (SameOriginRedirectInterceptor in interceptors) this else newBuilder()
         .addInterceptor(SameOriginRedirectInterceptor)
         .followRedirects(false)
         .build()
 
 private object SameOriginRedirectInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request()
-        val origin = request.url
-        var response = chain.proceed(request)
+        val origin = chain.request().url
+        var response = chain.proceed(chain.request())
         var followUpCount = 0
         while (true) {
-            val followUp = followUpRequest(response, origin) ?: break
-            if (++followUpCount > MAX_FOLLOW_UPS) {
-                throw ProtocolException("Too many follow-up requests: $followUpCount")
-            }
+            val target = followUpTarget(response, origin) ?: return response
+            if (++followUpCount > MAX_FOLLOW_UPS) refuse(response)
+            val followUp = response.request.newBuilder().url(target).build()
             response.close()
             response = chain.proceed(followUp)
         }
-        return response
     }
 
-    private fun followUpRequest(response: Response, origin: HttpUrl): Request? {
-        val request = response.request
-        val isGetOrHead = request.method == "GET" || request.method == "HEAD"
+    private fun followUpTarget(response: Response, origin: HttpUrl): HttpUrl? {
         when (response.code) {
-            307, 308 -> if (!isGetOrHead) return null
-            300, 301, 302, 303 -> Unit
+            307, 308 -> Unit
+            300, 301, 302, 303 -> refuse(response)
             else -> return null
         }
-        val location = response.header("Location") ?: return null
-        val target = request.url.resolve(location) ?: return null
+        val location = response.header("Location") ?: refuse(response)
+        val target = response.request.url.resolve(location) ?: refuse(response)
         if (origin.scheme != target.scheme || origin.host != target.host || origin.port != target.port) {
-            return null
+            refuse(response)
         }
-        val builder = request.newBuilder().url(target)
-        if (!isGetOrHead) {
-            builder.method("GET", null)
-            builder.removeHeader("Transfer-Encoding")
-            builder.removeHeader("Content-Length")
-            builder.removeHeader("Content-Type")
-        }
-        return builder.build()
+        return target
+    }
+
+    private fun refuse(response: Response): Nothing {
+        val error = TurnkeyHttpError.RedirectRefused(response.code, response.header("Location"))
+        response.close()
+        throw error
     }
 }

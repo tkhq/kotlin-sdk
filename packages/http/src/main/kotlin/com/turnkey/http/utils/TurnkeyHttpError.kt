@@ -1,6 +1,6 @@
 package com.turnkey.http.utils
 
-sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): Exception(
+sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): java.io.IOException(
     if (cause != null) "$message - error: ${cause.message}" else message,
     cause
 ){
@@ -8,6 +8,7 @@ sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): Excep
     data class StamperNotInitialized (override val cause: Throwable? = null): TurnkeyHttpError("No stampers found, please initialized a stamper and pass it into the client.", cause)
     data class EmptyResponseBody(val url: String, override val cause: Throwable? = null): TurnkeyHttpError("Empty response body from $url", cause)
     data class OperationFailed(override val message: String, override val cause: Throwable): TurnkeyHttpError(message, cause)
+    data class RedirectRefused(val code: Int, val location: String?): TurnkeyHttpError("Refused to follow redirect with status $code to ${location ?: "<missing location>"}")
 
     companion object {
         fun wrap (s: String, t: Throwable): TurnkeyHttpError {
