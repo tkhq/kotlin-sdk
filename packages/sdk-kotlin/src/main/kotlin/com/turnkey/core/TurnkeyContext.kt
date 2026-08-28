@@ -11,7 +11,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.turnkey.crypto.decryptExportBundle
 import com.turnkey.http.TurnkeyClient
 import com.turnkey.core.internal.utils.Helpers
-import com.turnkey.core.internal.utils.JwtDecoder
+import com.turnkey.core.internal.utils.sessionFromJwt
 import com.turnkey.core.internal.storage.keys.PendingKeysStore
 import com.turnkey.core.internal.storage.sessions.AutoRefreshStore
 import com.turnkey.core.internal.storage.sessions.JwtSessionStore
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import com.turnkey.crypto.generateP256KeyPair
 import com.turnkey.core.internal.utils.ClientSignature
@@ -52,7 +51,6 @@ import com.turnkey.core.models.OtpType
 import com.turnkey.core.models.PasskeyOverrideParams
 import com.turnkey.core.models.RuntimeAuthConfig
 import com.turnkey.core.models.Session
-import com.turnkey.core.models.SessionJwt
 import com.turnkey.core.models.SessionStorage
 import com.turnkey.core.models.SignUpWithOAuthResult
 import com.turnkey.core.models.SignUpWithOtpResult
@@ -622,8 +620,8 @@ object TurnkeyContext {
      * configuration. It's used internally during session refresh to swap out expired tokens.
      *
      * The method validates that a session exists under the given key before proceeding.
-     * It purges the old session data (while keeping auto-refresh settings), decodes the new JWT,
-     * and persists the updated session.
+     * It decodes the new JWT first, then purges the old session data (while keeping auto-refresh
+     * settings) and persists the updated session, so a malformed JWT cannot destroy a valid session.
      *
      * @param context Android context for accessing secure storage
      * @param jwt new JWT string to replace the current session token
@@ -640,11 +638,16 @@ object TurnkeyContext {
             val exists = JwtSessionStore.load(context, sessionKey) != null
             if (!exists) throw TurnkeyStorageError.KeyNotFound()
 
-            // Remove old artifacts but keep auto-refresh
-            purgeStoredSession(context, sessionKey, keepAutoRefresh = true)
-
-            val dto = JwtDecoder.decode(jwt, Session::class as Json) as Session
+            // Decode the replacement before deleting the existing valid session.
+            val dto = sessionFromJwt(jwt)
             val nextDuration = AutoRefreshStore.durationSeconds(context, sessionKey)
+
+            purgeStoredSession(
+                context,
+                sessionKey,
+                keepAutoRefresh = true
+            )
+
             persistSession(dto, sessionKey, nextDuration)
         } catch (t: Throwable) {
             throw TurnkeyKotlinError.FailedToUpdateSession(t)
@@ -869,17 +872,7 @@ object TurnkeyContext {
                 throw TurnkeyKotlinError.KeyAlreadyExists(sessionKey)
             }
 
-            val dto = JwtDecoder.decode<SessionJwt>(jwt)
-            val expirySeconds = ((dto.expiry * 1000.0 - System.currentTimeMillis()) / 1000).toLong()
-            val s = Session(
-                organizationId = dto.organizationId,
-                userId = dto.userId,
-                expiry = dto.expiry,
-                publicKey = dto.publicKey,
-                sessionType = dto.sessionType,
-                expirationSeconds = expirySeconds.toString(),
-                token = jwt
-            )
+            val s = sessionFromJwt(jwt)
 
             persistSession(
                 dto = s,
