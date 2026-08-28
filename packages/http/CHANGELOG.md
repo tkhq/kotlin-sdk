@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 — 2026-08-28
+### Minor Changes
+- Sync generated HTTP client to `v2026.8.3`
+
 ## 2.0.0 — 2026-06-04
 ### Major Changes
 - ### `INIT_OTP`

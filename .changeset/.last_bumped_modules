@@ -1,6 +1,3 @@
-crypto
-passkey
-stamper
-sdk-kotlin
 http
 types
+sdk-kotlin

@@ -1,4 +1,0 @@
-packages:
-  sdk-kotlin: patch
-changelog: |-
-  Fix session refresh failures that caused persisted sessions to be deleted and users to be logged out.
