@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 — 2026-08-28
+### Patch Changes
+- Fix session refresh failures that caused persisted sessions to be deleted and users to be logged out.
+
 ## 2.0.0 — 2026-06-04
 ### Major Changes
 - ### OAuth config & secondary client IDs

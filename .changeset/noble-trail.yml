@@ -1,4 +1,0 @@
-packages:
-  types: minor
-changelog: |-
-  Sync generated types to `v2026.8.3`
