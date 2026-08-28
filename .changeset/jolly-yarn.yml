@@ -1,0 +1,4 @@
+packages:
+  http: minor
+changelog: |-
+  Sync generated HTTP client to `v2026.8.3`
