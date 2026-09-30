@@ -7,6 +7,15 @@ dependencies {
     implementation(libs.swagger.parser)                  // reads Swagger 2.0 & OAS3
     implementation(libs.squareup.kotlinpoet)             // generates Kotlin source
     implementation(libs.kotlinx.serialization.json)
+    // tests
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.launcher)
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 application {

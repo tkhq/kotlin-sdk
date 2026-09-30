@@ -19,6 +19,7 @@ import com.turnkey.tools.utils.SpecCfg
 import com.turnkey.tools.utils.VersionedActivityTypes
 import com.turnkey.tools.utils.capitalizeLeading
 import com.turnkey.tools.utils.classifyOperation
+import com.turnkey.tools.utils.declaredActivityType
 import com.turnkey.tools.utils.definitions
 import com.turnkey.tools.utils.extractLatestVersions
 import com.turnkey.tools.utils.findProjectRoot
@@ -355,6 +356,13 @@ fun generateClientFile(
                     ?.content?.get("application/json")
                     ?.schema?.`$ref`
 
+                // Activity type declared by the request schema's `type` enum (e.g. ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2).
+                // TypesGenerator builds the intent body from the same schema, so the posted type must follow it unless
+                // VersionedActivityTypes pins a version. The ref is OAS3-shaped ("#/components/schemas/<name>").
+                val declaredActivityType: String? = declaredActivityType(reqSchemaRef?.let { defs[it.substringAfterLast('/')] })
+                val activityTypeFallback = "ACTIVITY_TYPE_" + opId.toScreamingSnake()
+                val activityTypeKey = VersionedActivityTypes.keyFor(declaredActivityType ?: activityTypeFallback)
+
                 // Body DTO type (if present)
                 val bodyDto: ClassName? = reqSchemaRef?.let { ref ->
                     val schemaName = opId.substringAfter("_")
@@ -441,9 +449,8 @@ fun generateClientFile(
                                 val activityResultType = respSchemaRef?.let { ref ->
                                     val schemaName = opId.substringAfter("_")
 
-                                    val snake = schemaName.toScreamingSnake()
                                     val versioned =
-                                        VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]
+                                        VersionedActivityTypes.map[activityTypeKey]
 
                                     // search for intents matching the above version
                                     val candidate = versioned?.let { v ->
@@ -459,8 +466,7 @@ fun generateClientFile(
                                             ?: latestVersions["${schemaName}Result"]?.formattedKeyName
                                     "${opPrefix.ifBlank { "" }}$resultName"
                                 }
-                                val snake = rawId.substringAfter("_").toScreamingSnake()
-                                val versioned = VersionedActivityTypes.resolve("ACTIVITY_TYPE_$snake")
+                                val versioned = VersionedActivityTypes.resolve(declaredActivityType, activityTypeFallback)
                                 addStatement("val activityType = %S", versioned)
                                 addStatement("val activityRes = activity<%T>(url, input, activityType)", bodyDto)
 
@@ -512,38 +518,6 @@ fun generateClientFile(
                             )
                             if (respType == UNIT) {
                                 addStatement("return Unit")
-                            } else if (kind == OperationKind.Activity && !isProxy) {
-                                val activityResultType = respSchemaRef?.let { ref ->
-                                    val schemaName = opId.substringAfter("_")
-
-                                    val snake = schemaName.toScreamingSnake()
-                                    val versioned =
-                                        VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]
-
-                                    // search for intents matching the above version
-                                    val candidate = versioned?.let { v ->
-                                        defs.keys.firstOrNull { k ->
-                                            k == v.third
-                                        }
-                                    }
-
-                                    val resultName =
-                                        candidate
-                                            ?.removePrefix("v1")
-                                            ?.replaceFirstChar { it.lowercase() }
-                                            ?: latestVersions["${schemaName}Result"]?.formattedKeyName
-                                    "${opPrefix.ifBlank { "" }}$resultName"
-                                }
-
-                                addStatement(
-                                    "val response = json.decodeFromString(%T.serializer(), text)",
-                                    activityResponseCls
-                                )
-                                addStatement("val result = response.activity.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\")")
-                                addStatement(
-                                    "return %T(activity = response.activity, result = result)",
-                                    respType
-                                )
                             } else {
                                 addStatement(
                                     "return json.decodeFromString(%T.serializer(), text)",
@@ -613,11 +587,8 @@ fun generateClientFile(
                                     jsonPrimitive
                                 )
 
-                                // type = ACTIVITY_TYPE_<OP_ID in SNAKE>
-                                val snake = rawId.substringAfter("_").toScreamingSnake()
-                                // Resolve to either capped activity type, latest, or the input
-                                val versioned =
-                                    VersionedActivityTypes.map["ACTIVITY_TYPE_$snake"]?.first ?: latestVersions["ACTIVITY_TYPE_$snake"]?.fullName ?: "ACTIVITY_TYPE_$snake"
+                                // Resolve to the pinned activity type, else the one declared by the request schema, else the op-id-derived name
+                                val versioned = VersionedActivityTypes.resolve(declaredActivityType, activityTypeFallback)
                                 addStatement("val activityType = %S", versioned)
 
                                 // compose final body

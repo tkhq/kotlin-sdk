@@ -80,4 +80,5 @@ jobs:
           ./gradlew --no-daemon \
             :packages:encoding:test \
             :packages:crypto:test \
-            :packages:types:test
+            :packages:types:test \
+            :packages:tools:test
