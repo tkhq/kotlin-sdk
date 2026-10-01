@@ -237,6 +237,17 @@ fun jsonEnum(schema: JsonObject?): JsonArray? =
 fun jsonProperties(schema: JsonObject?): JsonObject? =
     schema?.get("properties") as? JsonObject
 
+/**
+ * The single `type` enum value declared on an activity request schema
+ * (e.g. `v1SolSendTransactionRequest.type` -> "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"), or null if absent.
+ * Both generators must derive the activity type from this one place so `type` and `parameters` never drift.
+ */
+fun declaredActivityType(requestDef: JsonObject?): String? =
+    (jsonProperties(requestDef)?.get("type") as? JsonObject)
+        ?.let { jsonEnum(it) }
+        ?.firstOrNull()
+        ?.jsonPrimitive?.contentOrNull
+
 fun jsonRequired(schema: JsonObject?): Set<String> =
     (schema?.get("required") as? JsonArray)?.mapNotNull { it.jsonPrimitive.contentOrNull }?.toSet() ?: emptySet()
 

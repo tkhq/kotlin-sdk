@@ -620,13 +620,8 @@ fun generateApiTypes(
                             val sch = pm["schema"] as? JsonObject ?: continue
                             val rqRefName = schemaRefName(sch) ?: continue
                             val reqDef = defs[rqRefName] ?: continue
-                            val reqProps = jsonProperties(reqDef) ?: continue
-                            val typeEnum = reqProps["type"]?.jsonObject
-                                ?.get("enum") as? JsonArray ?: continue
-                            if (typeEnum.isEmpty()) continue
-
-                            val raw = typeEnum.first().jsonPrimitive.contentOrNull ?: ""
-                            val activityTypeKey = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+                            val raw = declaredActivityType(reqDef) ?: continue
+                            val activityTypeKey = VersionedActivityTypes.keyFor(raw)
 
                             val baseActivity = rqRefName
                                 .replace(Regex("^v\\d+"), "")
@@ -780,8 +775,8 @@ fun generateApiTypes(
                     val parametersRef = schemaRefName(reqProps?.get("parameters") as? JsonObject)
 
                     // get raw activity type & parse out the versioning
-                    val raw = reqProps?.get("type")?.jsonObject?.get("enum")?.jsonArray?.get(0)?.jsonPrimitive?.contentOrNull ?: ""
-                    val activityType = raw.replace(Regex("_V\\d+$", RegexOption.IGNORE_CASE), "")
+                    val raw = declaredActivityType(requestTypeDef) ?: ""
+                    val activityType = VersionedActivityTypes.keyFor(raw)
 
                     // strip the intent & versioning to get the base activity
                     val baseActivity = parametersRef

@@ -25,8 +25,22 @@ object VersionedActivityTypes {
         "ACTIVITY_TYPE_ETH_SEND_TRANSACTION" to Triple("ACTIVITY_TYPE_ETH_SEND_TRANSACTION", "v1EthSendTransactionIntent", "v1EthSendTransactionResult")
     )
 
-    /** Fallbacks to the input if there's no versioned entry. */
-    fun resolve(type: String): String = map[type]?.first ?: type
+    private val versionSuffix = Regex("_V\\d+$", RegexOption.IGNORE_CASE)
+
+    /** Strips a trailing `_V<n>` so every version of an activity type maps to the same [map] key. */
+    fun keyFor(type: String): String = type.replace(versionSuffix, "")
+
+    /**
+     * Resolves the activity type the generated client posts for an operation.
+     *
+     * Precedence:
+     * 1. a pinned entry in [map];
+     * 2. [declaredType], the `type` enum on the request schema. The types generator builds the
+     *    intent body from that same schema, so following it keeps `type` and `parameters` in sync;
+     * 3. [fallback], the name derived from the operation id.
+     */
+    fun resolve(declaredType: String?, fallback: String): String =
+        map[keyFor(declaredType ?: fallback)]?.first ?: declaredType ?: fallback
 }
 
 object OneOfFields {

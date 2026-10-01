@@ -3694,7 +3694,7 @@ public class TurnkeyClient(
 
   public suspend fun ethUndelegate7702(input: TEthUndelegate7702Body): TEthUndelegate7702Response {
     val url = "$apiBaseUrl/public/v1/submit/eth_undelegate_7702"
-    val activityType = "ACTIVITY_TYPE_ETH_UNDELEGATE7702"
+    val activityType = "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
     val activityRes = activity<TEthUndelegate7702Body>(url, input, activityType)
     return TEthUndelegate7702Response(activity = activityRes, result = activityRes.result.ethUndelegate7702Result ?: throw RuntimeException("No result found from /public/v1/submit/eth_undelegate_7702"))
   }
@@ -3708,7 +3708,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_ETH_UNDELEGATE7702"
+    val activityType = "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -3718,7 +3718,7 @@ public class TurnkeyClient(
 
   public suspend fun executeSwap(input: TExecuteSwapBody): TExecuteSwapResponse {
     val url = "$apiBaseUrl/public/v1/submit/execute_swap"
-    val activityType = "ACTIVITY_TYPE_EXECUTE_SWAP"
+    val activityType = "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
     val activityRes = activity<TExecuteSwapBody>(url, input, activityType)
     return TExecuteSwapResponse(activity = activityRes, result = activityRes.result.executeSwapResult ?: throw RuntimeException("No result found from /public/v1/submit/execute_swap"))
   }
@@ -3732,7 +3732,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_EXECUTE_SWAP"
+    val activityType = "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)
@@ -4438,7 +4438,7 @@ public class TurnkeyClient(
 
   public suspend fun solSendTransaction(input: TSolSendTransactionBody): TSolSendTransactionResponse {
     val url = "$apiBaseUrl/public/v1/submit/sol_send_transaction"
-    val activityType = "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+    val activityType = "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     val activityRes = activity<TSolSendTransactionBody>(url, input, activityType)
     return TSolSendTransactionResponse(activity = activityRes, result = activityRes.result.solSendTransactionResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/sol_send_transaction"))
   }
@@ -4452,7 +4452,7 @@ public class TurnkeyClient(
     val inputTimestamp = obj["timestampMs"]
     val params = kotlinx.serialization.json.buildJsonObject { obj.forEach { (k, v) -> if (k != "organizationId" && k != "timestampMs") put(k, v) } }
     val ts = inputTimestamp?.jsonPrimitive?.content ?: System.currentTimeMillis().toString()
-    val activityType = "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+    val activityType = "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     val bodyObj = kotlinx.serialization.json.buildJsonObject { put("parameters", params); inputOrgId?.let { put("organizationId", it) }; put("timestampMs", kotlinx.serialization.json.JsonPrimitive(ts)); put("type", kotlinx.serialization.json.JsonPrimitive(activityType)) }
     val bodyJson = json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), bodyObj)
     val (hName, hValue) = stamper.stamp(bodyJson)

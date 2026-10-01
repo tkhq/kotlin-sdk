@@ -28,6 +28,8 @@ jobs:
 
       - name: Set up Android SDK (cmdline)
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        with:
+          packages: platform-tools
 
       - name: Install Android platforms/build-tools
         run: |
@@ -80,4 +82,5 @@ jobs:
           ./gradlew --no-daemon \
             :packages:encoding:test \
             :packages:crypto:test \
-            :packages:types:test
+            :packages:types:test \
+            :packages:tools:test
