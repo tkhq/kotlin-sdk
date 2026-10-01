@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2 — 2026-10-01
+### Patch Changes
+- Bump `com.turnkey:http` dependency to pick up the fix for `solSendTransaction`, `executeSwap` and `ethUndelegate7702` posting an activity `type` that did not match the request body (#95).
+
 ## 2.0.1 — 2026-08-28
 ### Patch Changes
 - Fix session refresh failures that caused persisted sessions to be deleted and users to be logged out.
