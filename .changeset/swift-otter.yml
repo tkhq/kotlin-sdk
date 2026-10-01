@@ -1,4 +1,0 @@
-packages:
-  sdk-kotlin: patch
-changelog: |-
-  Bump `com.turnkey:http` dependency to pick up the fix for `solSendTransaction`, `executeSwap` and `ethUndelegate7702` posting an activity `type` that did not match the request body (#95).

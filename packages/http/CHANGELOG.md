@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 — 2026-10-01
+### Patch Changes
+- Fix `solSendTransaction`, `executeSwap` and `ethUndelegate7702` (and their `stamp*` variants) posting an activity `type` that did not match the generated request body, which the API rejected with HTTP 400 (#95). The client generator now takes the activity type from the request schema's declared `type` unless `VersionedActivityTypes` pins a version.
+
 ## 2.1.0 — 2026-08-28
 ### Minor Changes
 - Sync generated HTTP client to `v2026.8.3`
