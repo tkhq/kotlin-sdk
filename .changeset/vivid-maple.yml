@@ -1,0 +1,4 @@
+packages:
+  sdk-kotlin: minor
+changelog: |-
+  Add `TurnkeyConfig.activityPoller` so apps can set the activity polling budget (`ActivityPollerConfig(intervalMs, numRetries)`) for every `TurnkeyClient` created by `TurnkeyContext`, including the passkey login client. Previously the SDK was fixed at the defaults of 1 s and 3 retries (#95).
