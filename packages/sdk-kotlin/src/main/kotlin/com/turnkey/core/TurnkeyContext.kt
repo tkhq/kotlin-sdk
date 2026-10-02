@@ -96,6 +96,7 @@ import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1ImportWalletResult
 import com.turnkey.types.V1Oauth2Provider
 import com.turnkey.types.V1PayloadEncoding
+import com.turnkey.types.V1RootUserParamsV5
 import com.turnkey.types.V1SignRawPayloadResult
 import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
@@ -121,6 +122,8 @@ object TurnkeyContext {
     lateinit var appContext: Context
     private lateinit var config: TurnkeyConfig
     private lateinit var runtimeConfig: TurnkeyRuntimeConfig
+    @Volatile
+    private var authProxyOrganizationId: String? = null
 
     private val io = Dispatchers.IO
     private val bg = Dispatchers.Default
@@ -226,6 +229,12 @@ object TurnkeyContext {
         return checkNotNull(_client) { "Client not available after initialization." }
     }
 
+    private fun strictRuntimeConfigOrNull(): TurnkeyRuntimeConfig? =
+        if (this::runtimeConfig.isInitialized) runtimeConfig else null
+
+    internal fun normalizeOtpLoginOrganizationId(organizationId: String?): String? =
+        organizationId?.trim()?.takeIf { it.isNotEmpty() }
+
     /**
      * Suspending version of [init] that blocks until initialization is complete.
      *
@@ -285,6 +294,7 @@ object TurnkeyContext {
 
                 // Resolve final config (proxy wins; failure is non-fatal)
                 val proxyConfig = runCatching { proxyDeferred.await() }.getOrNull()
+                authProxyOrganizationId = proxyConfig?.organizationId?.takeIf { it.isNotBlank() }
                 runtimeConfig = config.resolveWithProxy(proxyConfig)
             }
         } catch (t: Throwable) {
@@ -341,7 +351,7 @@ object TurnkeyContext {
         )
 
         return TurnkeyRuntimeConfig(
-            organizationId = this.organizationId,
+            organizationId = authProxyConfig?.organizationId ?: this.organizationId,
             apiBaseUrl = this.apiBaseUrl,
             authProxyBaseUrl = this.authProxyBaseUrl,
             authProxyConfigId = this.authProxyConfigId,
@@ -1447,7 +1457,17 @@ object TurnkeyContext {
         sessionKey: String? = null,
     ): LoginWithOtpResult {
         try {
-            val (message, clientSignaturePublicKey) = ClientSignature.forLogin(verificationToken)
+            val targetOrganizationId = normalizeOtpLoginOrganizationId(organizationId)
+            val expirationSeconds = strictRuntimeConfigOrNull()
+                ?.authConfig
+                ?.sessionExpirationSeconds
+            val signaturePayload = ClientSignature.forLoginForRequest(
+                verificationToken = verificationToken,
+                organizationId = targetOrganizationId,
+                invalidateExisting = invalidateExisting,
+                expirationSeconds = expirationSeconds
+            )
+            val (message, clientSignaturePublicKey) = signaturePayload
 
             val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
             val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
@@ -1461,7 +1481,7 @@ object TurnkeyContext {
 
             val res = client.proxyOtpLoginV2(
                 ProxyTOtpLoginV2Body(
-                    organizationId = organizationId,
+                    organizationId = targetOrganizationId,
                     publicKey = clientSignaturePublicKey,
                     verificationToken = verificationToken,
                     invalidateExisting = invalidateExisting,
@@ -1513,20 +1533,53 @@ object TurnkeyContext {
             otpType = otpType, contact = contact, verificationToken = verificationToken
         )
 
-        val updatedCreateSubOrgParams =
-            Helpers.getCreateSubOrgParams(createSubOrgParams, runtimeConfig, overrideParams)
+        val strictRuntimeConfig = strictRuntimeConfigOrNull()
+        val updatedCreateSubOrgParams = Helpers.getCreateSubOrgParams(
+            createSubOrgParams,
+            strictRuntimeConfig ?: config,
+            overrideParams
+        )
 
         // build sign up body without client signature first
         var signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
-        val (message, clientSignaturePublicKey) = ClientSignature.forSignUp(
-            verificationToken = verificationToken,
-            email = signUpBody.userEmail,
-            phoneNumber = signUpBody.userPhoneNumber,
-            apiKeys = signUpBody.apiKeys,
-            authenticators = signUpBody.authenticators,
-            oauthProviders = signUpBody.oauthProviders
-        )
+        val parentOrganizationId = authProxyOrganizationId
+        val organizationName = signUpBody.organizationName
+        val userName = signUpBody.userName
+        val signaturePayload = if (
+            strictRuntimeConfig != null &&
+            parentOrganizationId != null &&
+            organizationName != null &&
+            userName != null
+        ) {
+            ClientSignature.forSignUpV3(
+                verificationToken = verificationToken,
+                parentOrganizationId = parentOrganizationId,
+                subOrganizationName = organizationName,
+                rootUsers = listOf(
+                    V1RootUserParamsV5(
+                        apiKeys = signUpBody.apiKeys,
+                        authenticators = signUpBody.authenticators,
+                        oauthProviders = signUpBody.oauthProviders,
+                        userEmail = signUpBody.userEmail,
+                        userName = userName,
+                        userPhoneNumber = signUpBody.userPhoneNumber
+                    )
+                ),
+                rootQuorumThreshold = 1,
+                wallet = signUpBody.wallet
+            )
+        } else {
+            ClientSignature.forSignUp(
+                verificationToken = verificationToken,
+                email = signUpBody.userEmail,
+                phoneNumber = signUpBody.userPhoneNumber,
+                apiKeys = signUpBody.apiKeys,
+                authenticators = signUpBody.authenticators,
+                oauthProviders = signUpBody.oauthProviders
+            )
+        }
+        val (message, clientSignaturePublicKey) = signaturePayload
 
         val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
         val signature = stamper.sign(payload = message, format = SignatureFormat.raw)

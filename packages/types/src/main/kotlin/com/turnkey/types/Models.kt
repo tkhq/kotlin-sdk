@@ -9514,6 +9514,20 @@ public data class V1LoginUsage(
 )
 
 @Serializable
+public data class V1LoginUsageV2(
+  @SerialName("expirationSeconds")
+  public val expirationSeconds: String? = null,
+  @SerialName("invalidateExisting")
+  public val invalidateExisting: Boolean? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("publicKey")
+  public val publicKey: String,
+  @SerialName("sessionProfileId")
+  public val sessionProfileId: String? = null,
+)
+
+@Serializable
 public data class V1MfaPolicy(
   /**
    * A condition expression that evaluates to true or false, determining when this MFA policy applies.
@@ -11429,6 +11443,28 @@ public data class V1SignupUsageV2(
 )
 
 @Serializable
+public data class V1SignupUsageV3(
+  @SerialName("disableEmailAuth")
+  public val disableEmailAuth: Boolean? = null,
+  @SerialName("disableEmailRecovery")
+  public val disableEmailRecovery: Boolean? = null,
+  @SerialName("disableOtpEmailAuth")
+  public val disableOtpEmailAuth: Boolean? = null,
+  @SerialName("disableSmsAuth")
+  public val disableSmsAuth: Boolean? = null,
+  @SerialName("parentOrganizationId")
+  public val parentOrganizationId: String,
+  @SerialName("rootQuorumThreshold")
+  public val rootQuorumThreshold: Long,
+  @SerialName("rootUsers")
+  public val rootUsers: List<V1RootUserParamsV5>,
+  @SerialName("subOrganizationName")
+  public val subOrganizationName: String,
+  @SerialName("wallet")
+  public val wallet: V1WalletParams? = null,
+)
+
+@Serializable
 public data class V1SimpleClientExtensionResults(
   @SerialName("appid")
   public val appid: Boolean? = null,
@@ -12272,10 +12308,14 @@ public data class V1SwapRefund(
 public data class V1TokenUsage(
   @SerialName("login")
   public val login: V1LoginUsage? = null,
+  @SerialName("loginV2")
+  public val loginV2: V1LoginUsageV2? = null,
   @SerialName("signup")
   public val signup: V1SignupUsage? = null,
   @SerialName("signupV2")
   public val signupV2: V1SignupUsageV2? = null,
+  @SerialName("signupV3")
+  public val signupV3: V1SignupUsageV3? = null,
   /**
    * Unique identifier for the verification token
    */

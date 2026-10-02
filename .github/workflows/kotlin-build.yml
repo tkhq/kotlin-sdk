@@ -83,4 +83,5 @@ jobs:
             :packages:encoding:test \
             :packages:crypto:test \
             :packages:types:test \
-            :packages:tools:test
+            :packages:tools:test \
+            :packages:sdk-kotlin:test

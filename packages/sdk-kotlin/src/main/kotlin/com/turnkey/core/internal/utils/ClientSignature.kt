@@ -5,11 +5,15 @@ import com.turnkey.core.models.errors.TurnkeyKotlinError
 import com.turnkey.types.V1ApiKeyParamsV2
 import com.turnkey.types.V1AuthenticatorParamsV2
 import com.turnkey.types.V1LoginUsage
+import com.turnkey.types.V1LoginUsageV2
 import com.turnkey.types.V1OauthProviderParamsV2
+import com.turnkey.types.V1RootUserParamsV5
 import com.turnkey.types.V1SignupUsage
+import com.turnkey.types.V1SignupUsageV2
+import com.turnkey.types.V1SignupUsageV3
 import com.turnkey.types.V1TokenUsage
 import com.turnkey.types.V1UsageType
-import com.turnkey.types.V1SignupUsageV2
+import com.turnkey.types.V1WalletParams
 import kotlinx.serialization.json.Json
 
 /**
@@ -45,6 +49,59 @@ object ClientSignature {
             val payload = V1TokenUsage(login = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_LOGIN)
 
             val jsonString: String = Json.encodeToString(V1TokenUsage.serializer(), payload)
+
+            return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToBuildClientSignature(t)
+        }
+    }
+
+    /**
+     * Uses strict login usage only when every final request value is known.
+     */
+    internal fun forLoginForRequest(
+        verificationToken: String,
+        organizationId: String?,
+        invalidateExisting: Boolean,
+        expirationSeconds: String?
+    ): ClientSignaturePayload {
+        val targetOrganizationId = organizationId?.takeIf { it.isNotBlank() }
+        return if (targetOrganizationId != null && expirationSeconds != null) {
+            forLoginV2(verificationToken, targetOrganizationId, invalidateExisting, expirationSeconds)
+        } else {
+            forLogin(verificationToken)
+        }
+    }
+
+    /**
+     * Creates a client signature payload that binds a login request's final semantics.
+     *
+     * This may only be used when the target organization and auth proxy session configuration
+     * are known before signing.
+     */
+    internal fun forLoginV2(
+        verificationToken: String,
+        organizationId: String,
+        invalidateExisting: Boolean,
+        expirationSeconds: String?
+    ): ClientSignaturePayload {
+        try {
+            if (organizationId.isBlank()) throw TurnkeyKotlinError.InvalidParameter("Organization ID is required for strict login usage")
+
+            val decoded = Helpers.decodeVerificationToken(verificationToken)
+
+            if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
+            val verificationPublicKey = decoded.publicKey
+
+            val usage = V1LoginUsageV2(
+                organizationId = organizationId,
+                publicKey = verificationPublicKey,
+                invalidateExisting = invalidateExisting,
+                expirationSeconds = expirationSeconds
+            )
+            val payload = V1TokenUsage(loginV2 = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_LOGIN)
+
+            val jsonString = Json.encodeToString(V1TokenUsage.serializer(), payload)
 
             return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
         } catch (t: Throwable) {
@@ -89,6 +146,44 @@ object ClientSignature {
             val payload = V1TokenUsage(signupV2 = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_SIGNUP)
 
             val jsonString: String = Json.encodeToString(V1TokenUsage.serializer(), payload)
+
+            return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
+        } catch (t: Throwable) {
+            throw TurnkeyKotlinError.FailedToBuildClientSignature(t)
+        }
+    }
+
+    /**
+     * Creates a client signature payload that binds a sign-up request's final semantics.
+     *
+     * Required nested collections are passed through explicitly, including empty collections.
+     */
+    internal fun forSignUpV3(
+        verificationToken: String,
+        parentOrganizationId: String,
+        subOrganizationName: String,
+        rootUsers: List<V1RootUserParamsV5>,
+        rootQuorumThreshold: Long,
+        wallet: V1WalletParams? = null
+    ): ClientSignaturePayload {
+        try {
+            if (parentOrganizationId.isBlank()) throw TurnkeyKotlinError.InvalidParameter("Parent organization ID is required for strict sign-up usage")
+
+            val decoded = Helpers.decodeVerificationToken(verificationToken)
+
+            if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
+            val verificationPublicKey = decoded.publicKey
+
+            val usage = V1SignupUsageV3(
+                parentOrganizationId = parentOrganizationId,
+                subOrganizationName = subOrganizationName,
+                rootUsers = rootUsers,
+                rootQuorumThreshold = rootQuorumThreshold,
+                wallet = wallet
+            )
+            val payload = V1TokenUsage(signupV3 = usage, tokenId = decoded.id, type = V1UsageType.USAGE_TYPE_SIGNUP)
+
+            val jsonString = Json.encodeToString(V1TokenUsage.serializer(), payload)
 
             return ClientSignaturePayload(message = jsonString, clientSignaturePublicKey = verificationPublicKey)
         } catch (t: Throwable) {
