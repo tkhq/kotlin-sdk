@@ -122,6 +122,8 @@ object TurnkeyContext {
     lateinit var appContext: Context
     private lateinit var config: TurnkeyConfig
     private lateinit var runtimeConfig: TurnkeyRuntimeConfig
+    @Volatile
+    private var authProxyOrganizationId: String? = null
 
     private val io = Dispatchers.IO
     private val bg = Dispatchers.Default
@@ -227,6 +229,9 @@ object TurnkeyContext {
         return checkNotNull(_client) { "Client not available after initialization." }
     }
 
+    private fun strictRuntimeConfigOrNull(): TurnkeyRuntimeConfig? =
+        if (this::runtimeConfig.isInitialized) runtimeConfig else null
+
     /**
      * Suspending version of [init] that blocks until initialization is complete.
      *
@@ -286,6 +291,7 @@ object TurnkeyContext {
 
                 // Resolve final config (proxy wins; failure is non-fatal)
                 val proxyConfig = runCatching { proxyDeferred.await() }.getOrNull()
+                authProxyOrganizationId = proxyConfig?.organizationId?.takeIf { it.isNotBlank() }
                 runtimeConfig = config.resolveWithProxy(proxyConfig)
             }
         } catch (t: Throwable) {
@@ -342,7 +348,7 @@ object TurnkeyContext {
         )
 
         return TurnkeyRuntimeConfig(
-            organizationId = this.organizationId,
+            organizationId = authProxyConfig?.organizationId ?: this.organizationId,
             apiBaseUrl = this.apiBaseUrl,
             authProxyBaseUrl = this.authProxyBaseUrl,
             authProxyConfigId = this.authProxyConfigId,
@@ -1448,17 +1454,15 @@ object TurnkeyContext {
         sessionKey: String? = null,
     ): LoginWithOtpResult {
         try {
-            val expirationSeconds = runtimeConfig.authConfig?.sessionExpirationSeconds
-            val signaturePayload = if (organizationId != null && expirationSeconds != null) {
-                ClientSignature.forLoginV2(
-                    verificationToken = verificationToken,
-                    organizationId = organizationId,
-                    invalidateExisting = invalidateExisting,
-                    expirationSeconds = expirationSeconds
-                )
-            } else {
-                ClientSignature.forLogin(verificationToken)
-            }
+            val expirationSeconds = strictRuntimeConfigOrNull()
+                ?.authConfig
+                ?.sessionExpirationSeconds
+            val signaturePayload = ClientSignature.forLoginForRequest(
+                verificationToken = verificationToken,
+                organizationId = organizationId,
+                invalidateExisting = invalidateExisting,
+                expirationSeconds = expirationSeconds
+            )
             val (message, clientSignaturePublicKey) = signaturePayload
 
             val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
@@ -1531,12 +1535,18 @@ object TurnkeyContext {
         // build sign up body without client signature first
         var signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
+        val parentOrganizationId = authProxyOrganizationId
         val organizationName = signUpBody.organizationName
         val userName = signUpBody.userName
-        val signaturePayload = if (organizationName != null && userName != null) {
+        val signaturePayload = if (
+            strictRuntimeConfigOrNull() != null &&
+            parentOrganizationId != null &&
+            organizationName != null &&
+            userName != null
+        ) {
             ClientSignature.forSignUpV3(
                 verificationToken = verificationToken,
-                parentOrganizationId = runtimeConfig.organizationId,
+                parentOrganizationId = parentOrganizationId,
                 subOrganizationName = organizationName,
                 rootUsers = listOf(
                     V1RootUserParamsV5(

@@ -57,18 +57,37 @@ object ClientSignature {
     }
 
     /**
+     * Uses strict login usage only when every final request value is known.
+     */
+    internal fun forLoginForRequest(
+        verificationToken: String,
+        organizationId: String?,
+        invalidateExisting: Boolean,
+        expirationSeconds: String?
+    ): ClientSignaturePayload {
+        val targetOrganizationId = organizationId?.takeIf { it.isNotBlank() }
+        return if (targetOrganizationId != null && expirationSeconds != null) {
+            forLoginV2(verificationToken, targetOrganizationId, invalidateExisting, expirationSeconds)
+        } else {
+            forLogin(verificationToken)
+        }
+    }
+
+    /**
      * Creates a client signature payload that binds a login request's final semantics.
      *
      * This may only be used when the target organization and auth proxy session configuration
      * are known before signing.
      */
-    fun forLoginV2(
+    internal fun forLoginV2(
         verificationToken: String,
         organizationId: String,
         invalidateExisting: Boolean,
         expirationSeconds: String?
     ): ClientSignaturePayload {
         try {
+            if (organizationId.isBlank()) throw TurnkeyKotlinError.InvalidParameter("Organization ID is required for strict login usage")
+
             val decoded = Helpers.decodeVerificationToken(verificationToken)
 
             if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")
@@ -139,7 +158,7 @@ object ClientSignature {
      *
      * Required nested collections are passed through explicitly, including empty collections.
      */
-    fun forSignUpV3(
+    internal fun forSignUpV3(
         verificationToken: String,
         parentOrganizationId: String,
         subOrganizationName: String,
@@ -148,6 +167,8 @@ object ClientSignature {
         wallet: V1WalletParams? = null
     ): ClientSignaturePayload {
         try {
+            if (parentOrganizationId.isBlank()) throw TurnkeyKotlinError.InvalidParameter("Parent organization ID is required for strict sign-up usage")
+
             val decoded = Helpers.decodeVerificationToken(verificationToken)
 
             if (decoded.publicKey.isNullOrEmpty()) throw TurnkeyKotlinError.InvalidParameter("Verification token is missing a public key")

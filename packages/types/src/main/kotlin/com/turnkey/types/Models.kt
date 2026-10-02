@@ -389,18 +389,6 @@ public enum class V1ActivityType {
   ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL,
   @SerialName("ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL")
   ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL,
-  @SerialName("ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD")
-  ACTIVITY_TYPE_UPDATE_PAYMENT_METHOD,
-  @SerialName("ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2")
-  ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V2,
-  @SerialName("ACTIVITY_TYPE_EXECUTE_SWAP_V3")
-  ACTIVITY_TYPE_EXECUTE_SWAP_V3,
-  @SerialName("ACTIVITY_TYPE_DELETE_SECRETS")
-  ACTIVITY_TYPE_DELETE_SECRETS,
-  @SerialName("ACTIVITY_TYPE_EARN_CLAIM_REWARDS")
-  ACTIVITY_TYPE_EARN_CLAIM_REWARDS,
-  @SerialName("ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3")
-  ACTIVITY_TYPE_CREATE_SWAP_QUOTE_V3,
 }
 
 @Serializable
@@ -569,8 +557,6 @@ public enum class V1EarnProvider {
   EARN_PROVIDER_MORPHO,
   @SerialName("EARN_PROVIDER_AAVE")
   EARN_PROVIDER_AAVE,
-  @SerialName("EARN_PROVIDER_KAMINO")
-  EARN_PROVIDER_KAMINO,
 }
 
 @Serializable
@@ -605,10 +591,6 @@ public enum class V1FeatureName {
   FEATURE_NAME_SWAP_CONFIG,
   @SerialName("FEATURE_NAME_EARN_CONFIG")
   FEATURE_NAME_EARN_CONFIG,
-  @SerialName("FEATURE_NAME_SWAP_FEE_SPONSORSHIP")
-  FEATURE_NAME_SWAP_FEE_SPONSORSHIP,
-  @SerialName("FEATURE_NAME_SWAP_FIXED_RATE")
-  FEATURE_NAME_SWAP_FIXED_RATE,
 }
 
 @Serializable
@@ -852,16 +834,6 @@ public enum class V1PayloadEncoding {
 }
 
 @Serializable
-public enum class V1ProvisioningState {
-  @SerialName("PROVISIONING_STATE_PENDING")
-  PROVISIONING_STATE_PENDING,
-  @SerialName("PROVISIONING_STATE_AWAITING_PROVISION")
-  PROVISIONING_STATE_AWAITING_PROVISION,
-  @SerialName("PROVISIONING_STATE_PROVISIONED")
-  PROVISIONING_STATE_PROVISIONED,
-}
-
-@Serializable
 public enum class V1SmartContractInterfaceType {
   @SerialName("SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM")
   SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM,
@@ -1062,24 +1034,6 @@ public data class BillingSetPaymentMethodResult(
    */
   @SerialName("lastFour")
   public val lastFour: String,
-)
-
-@Serializable
-public data class BillingUpdatePaymentMethodIntent(
-  /**
-   * The email that will receive invoices for the payment method.
-   */
-  @SerialName("paymentEmail")
-  public val paymentEmail: String,
-)
-
-@Serializable
-public data class BillingUpdatePaymentMethodResult(
-  /**
-   * The email address associated with the payment method.
-   */
-  @SerialName("paymentEmail")
-  public val paymentEmail: String,
 )
 
 @Serializable
@@ -1308,35 +1262,6 @@ public data class V1AcceptInvitationResult(
    */
   @SerialName("userId")
   public val userId: String,
-)
-
-@Serializable
-public data class V1ActivePolicyStatus(
-  /**
-   * Whether the policy is currently active. A policy without a time window is always active.
-   */
-  @SerialName("active")
-  public val active: Boolean,
-  /**
-   * Set when the policy's time expression could not be evaluated; the policy is reported inactive.
-   */
-  @SerialName("error")
-  public val error: String? = null,
-  /**
-   * Unique identifier for the organization the policy belongs to.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * Unique identifier for a given policy.
-   */
-  @SerialName("policyId")
-  public val policyId: String,
-  /**
-   * The policy's time expression, absent when the policy has no time window.
-   */
-  @SerialName("timeExpr")
-  public val timeExpr: String? = null,
 )
 
 @Serializable
@@ -1590,11 +1515,6 @@ public data class V1AssetBalance(
    */
   @SerialName("symbol")
   public val symbol: String? = null,
-  /**
-   * Solana token program address that owns this mint, inferred from getTokenAccountsByOwner. TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA for classic SPL Token, TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb for Token-2022. Empty for native SOL and non-Solana assets.
-   */
-  @SerialName("tokenProgram")
-  public val tokenProgram: String? = null,
 )
 
 @Serializable
@@ -3351,78 +3271,6 @@ public data class V1CreateSwapQuoteIntent(
 )
 
 @Serializable
-public data class V1CreateSwapQuoteIntentV2(
-  /**
-   * Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported.
-   */
-  @SerialName("destinationAddress")
-  public val destinationAddress: String? = null,
-  /**
-   * Base-unit amount of the input asset.
-   */
-  @SerialName("inputAmount")
-  public val inputAmount: String,
-  /**
-   * CAIP-19 asset ID for the input asset. The chain is derived from this value.
-   */
-  @SerialName("inputToken")
-  public val inputToken: String,
-  /**
-   * CAIP-19 asset ID for the output asset.
-   */
-  @SerialName("outputToken")
-  public val outputToken: String,
-  /**
-   * Wallet account address used to price the executable provider quote. Private Key identifiers are not supported.
-   */
-  @SerialName("signWith")
-  public val signWith: String,
-  /**
-   * Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior.
-   */
-  @SerialName("slippageBps")
-  public val slippageBps: String? = null,
-)
-
-@Serializable
-public data class V1CreateSwapQuoteIntentV3(
-  /**
-   * Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported.
-   */
-  @SerialName("destinationAddress")
-  public val destinationAddress: String? = null,
-  @SerialName("feeSponsorship")
-  public val feeSponsorship: Boolean? = null,
-  @SerialName("fixedRate")
-  public val fixedRate: Boolean? = null,
-  /**
-   * Base-unit amount of the input asset.
-   */
-  @SerialName("inputAmount")
-  public val inputAmount: String,
-  /**
-   * CAIP-19 asset ID for the input asset. The chain is derived from this value.
-   */
-  @SerialName("inputToken")
-  public val inputToken: String,
-  /**
-   * CAIP-19 asset ID for the output asset.
-   */
-  @SerialName("outputToken")
-  public val outputToken: String,
-  /**
-   * Wallet account address used to price the executable provider quote. Private Key identifiers are not supported.
-   */
-  @SerialName("signWith")
-  public val signWith: String,
-  /**
-   * Provider-neutral maximum allowed slippage in basis points. Turnkey converts this value to each provider's request format. When omitted, each provider applies its default slippage behavior.
-   */
-  @SerialName("slippageBps")
-  public val slippageBps: String? = null,
-)
-
-@Serializable
 public data class V1CreateSwapQuoteRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -3449,12 +3297,6 @@ public data class V1CreateSwapQuoteResult(
    */
   @SerialName("quotes")
   public val quotes: List<V1SwapQuote>,
-)
-
-@Serializable
-public data class V1CreateSwapQuoteResultV2(
-  @SerialName("quotes")
-  public val quotes: List<V1SwapQuoteV2>? = null,
 )
 
 @Serializable
@@ -3585,16 +3427,6 @@ public data class V1CreateTvcDeploymentIntent(
    */
   @SerialName("healthCheckType")
   public val healthCheckType: V1TvcHealthCheckType,
-  /**
-   * Optional desired instance cpu count.
-   */
-  @SerialName("instanceSizeCpus")
-  public val instanceSizeCpus: Long? = null,
-  /**
-   * Optional desired instance memory size in GiB.
-   */
-  @SerialName("instanceSizeRam")
-  public val instanceSizeRam: Long? = null,
   /**
    * Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds.
    */
@@ -3735,26 +3567,6 @@ public data class V1CreateTvcOperatorIntent(
 )
 
 @Serializable
-public data class V1CreateTvcOperatorRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateTvcOperatorIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
 public data class V1CreateTvcOperatorResult(
   /**
    * Public encryption key for this TVC operator
@@ -3790,26 +3602,6 @@ public data class V1CreateTvcQuorumKeyIntent(
    */
   @SerialName("threshold")
   public val threshold: Long,
-)
-
-@Serializable
-public data class V1CreateTvcQuorumKeyRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1CreateTvcQuorumKeyIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -3966,6 +3758,26 @@ public data class V1CreateVelocityControlIntent(
    */
   @SerialName("name")
   public val name: String,
+)
+
+@Serializable
+public data class V1CreateVelocityControlRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1CreateVelocityControlIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
 )
 
 @Serializable
@@ -4613,42 +4425,6 @@ public data class V1DeletePrivateKeysResult(
 )
 
 @Serializable
-public data class V1DeleteSecretsIntent(
-  /**
-   * Unique identifiers of the secrets to delete. Must contain between 1 and 32 distinct UUIDs. All secrets must belong to the organization.
-   */
-  @SerialName("secretIds")
-  public val secretIds: List<String>,
-)
-
-@Serializable
-public data class V1DeleteSecretsRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1DeleteSecretsIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
-public data class V1DeleteSecretsResult(
-  /**
-   * Unique identifiers of the deleted secrets, in the order requested.
-   */
-  @SerialName("secretIds")
-  public val secretIds: List<String>,
-)
-
-@Serializable
 public data class V1DeleteSmartContractInterfaceIntent(
   /**
    * The ID of a Smart Contract Interface intended for deletion.
@@ -4888,6 +4664,26 @@ public data class V1DeleteVelocityControlIntent(
 )
 
 @Serializable
+public data class V1DeleteVelocityControlRequest(
+  @SerialName("generateAppProofs")
+  public val generateAppProofs: Boolean? = null,
+  /**
+   * Unique identifier for a given Organization.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("parameters")
+  public val parameters: V1DeleteVelocityControlIntent,
+  /**
+   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
+   */
+  @SerialName("timestampMs")
+  public val timestampMs: String,
+  @SerialName("type")
+  public val type: String,
+)
+
+@Serializable
 public data class V1DeleteVelocityControlResult(
   @SerialName("velocityControlId")
   public val velocityControlId: String,
@@ -5035,11 +4831,6 @@ public data class V1DeploymentStatus(
   @SerialName("lastUpdatedTime")
   public val lastUpdatedTime: Externaldatav1Timestamp,
   /**
-   * Current quorum-key provisioning state for this deployment
-   */
-  @SerialName("provisioningState")
-  public val provisioningState: V1ProvisioningState,
-  /**
    * Number of ready replicas
    */
   @SerialName("readyReplicas")
@@ -5065,60 +4856,12 @@ public data class V1DisablePrivateKeyResult(
 )
 
 @Serializable
-public data class V1EarnClaimRewardsIntent(
-  /**
-   * CAIP-2 chain to claim rewards on (e.g. 'eip155:8453'). Rewards accrue per chain; see ListEarnRewards.
-   */
-  @SerialName("caip2")
-  public val caip2: String,
-  /**
-   * A Turnkey-managed wallet address the rewards are attributed to. The claim transaction is signed by this wallet and the Merkl Distributor transfers every reward token to it.
-   */
-  @SerialName("signWith")
-  public val signWith: String,
-  /**
-   * Whether to sponsor this transaction via Gas Station.
-   */
-  @SerialName("sponsor")
-  public val sponsor: Boolean? = null,
-)
-
-@Serializable
-public data class V1EarnClaimRewardsRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1EarnClaimRewardsIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
-public data class V1EarnClaimRewardsResult(
-  /**
-   * Identifier to poll claim status and tx hash via GetEarnClaimRewardsStatus.
-   */
-  @SerialName("claimRequestId")
-  public val claimRequestId: String,
-)
-
-@Serializable
 public data class V1EarnDeployWrapperIntent(
   /**
    * CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
    */
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   /**
    * Your fee on gross yield, in basis points (e.g., '2000' for 20%). Maximum is 4000 (40%).
    */
@@ -5185,8 +4928,8 @@ public data class V1EarnDepositIntent(
   /**
    * CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
    */
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   /**
    * A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported.
    */
@@ -5271,21 +5014,6 @@ public data class V1EarnEnabledVault(
   @SerialName("curator")
   public val curator: String? = null,
   /**
-   * Failure detail when deploy_status is FAILED.
-   */
-  @SerialName("deployError")
-  public val deployError: String? = null,
-  /**
-   * Request id of the wrapper's most recent deploy, for polling GetEarnDeployStatus. Empty when no deploy is recorded.
-   */
-  @SerialName("deployRequestId")
-  public val deployRequestId: String? = null,
-  /**
-   * On-chain status of the wrapper deployment: PENDING, COMPLETED, or FAILED. Only a COMPLETED wrapper is usable. Empty when no deploy is recorded for the wrapper.
-   */
-  @SerialName("deployStatus")
-  public val deployStatus: String? = null,
-  /**
    * When true, deposits to this wrapper are rejected; withdrawals are unaffected. Toggled via EarnSetWrapperState.
    */
   @SerialName("depositsDisabled")
@@ -5300,16 +5028,6 @@ public data class V1EarnEnabledVault(
    */
   @SerialName("exposures")
   public val exposures: List<V1EarnVaultExposure>? = null,
-  /**
-   * Additional assets withdrawable from the underlying vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it.
-   */
-  @SerialName("forceDeallocatableLiquidity")
-  public val forceDeallocatableLiquidity: String? = null,
-  /**
-   * Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead.
-   */
-  @SerialName("forceDeallocatableLiquidityDisplay")
-  public val forceDeallocatableLiquidityDisplay: V1EarnValueDisplay? = null,
   /**
    * Assets currently withdrawable from the underlying vault without a reallocation, in raw on-chain units of the underlying asset. This is the vault's liquidity, not the wrapper's balance. Empty when the provider does not report it.
    */
@@ -5436,84 +5154,6 @@ public data class V1EarnPositionDisplay(
 )
 
 @Serializable
-public data class V1EarnReward(
-  /**
-   * CAIP-19 asset ID of the reward token (e.g. 'eip155:8453/erc20:0xBAa5...'). Reward tokens are campaign-specific and unrelated to the position's underlying asset.
-   */
-  @SerialName("caip19")
-  public val caip19: String? = null,
-  /**
-   * CAIP-2 chain the reward is claimable on (e.g. 'eip155:8453').
-   */
-  @SerialName("caip2")
-  public val caip2: String? = null,
-  /**
-   * Amount claimable now, in raw on-chain units of the reward token.
-   */
-  @SerialName("claimable")
-  public val claimable: String? = null,
-  /**
-   * Lifetime amount already claimed, in raw on-chain units of the reward token.
-   */
-  @SerialName("claimed")
-  public val claimed: String? = null,
-  /**
-   * Decimals of the reward token.
-   */
-  @SerialName("decimals")
-  public val decimals: Long? = null,
-  /**
-   * USD + crypto renderings for display only. Do not do arithmetic with these.
-   */
-  @SerialName("display")
-  public val display: V1EarnRewardDisplay? = null,
-  /**
-   * Amount accrued but not yet claimable (not yet in a live on-chain merkle root; roots update roughly every 8 hours), in raw on-chain units of the reward token.
-   */
-  @SerialName("pending")
-  public val pending: String? = null,
-  /**
-   * Symbol of the reward token (e.g. 'MORPHO'), as reported by Merkl.
-   */
-  @SerialName("symbol")
-  public val symbol: String? = null,
-)
-
-@Serializable
-public data class V1EarnRewardDisplay(
-  /**
-   * Claimable amount in the reward token's own units, for display only.
-   */
-  @SerialName("claimableCrypto")
-  public val claimableCrypto: String? = null,
-  /**
-   * Claimable amount in USD, for display only. Empty when the token is unpriced.
-   */
-  @SerialName("claimableUsd")
-  public val claimableUsd: String? = null,
-  /**
-   * Lifetime claimed amount in the reward token's own units, for display only.
-   */
-  @SerialName("claimedCrypto")
-  public val claimedCrypto: String? = null,
-  /**
-   * Lifetime claimed amount in USD, for display only. Empty when the token is unpriced.
-   */
-  @SerialName("claimedUsd")
-  public val claimedUsd: String? = null,
-  /**
-   * Pending amount in the reward token's own units, for display only.
-   */
-  @SerialName("pendingCrypto")
-  public val pendingCrypto: String? = null,
-  /**
-   * Pending amount in USD, for display only. Empty when the token is unpriced.
-   */
-  @SerialName("pendingUsd")
-  public val pendingUsd: String? = null,
-)
-
-@Serializable
 public data class V1EarnSetWrapperStateIntent(
   /**
    * When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits.
@@ -5603,16 +5243,6 @@ public data class V1EarnVault(
   @SerialName("enabled")
   public val enabled: Boolean? = null,
   /**
-   * Additional assets withdrawable from the vault by force-deallocating its non-liquidity adapters at zero penalty, in raw on-chain units of the underlying asset. Additive to liquidity. Empty when the provider does not report it.
-   */
-  @SerialName("forceDeallocatableLiquidity")
-  public val forceDeallocatableLiquidity: String? = null,
-  /**
-   * Normalized force-deallocatable liquidity values for display purposes only (usd + crypto). Do not do arithmetic with these; use force_deallocatable_liquidity instead.
-   */
-  @SerialName("forceDeallocatableLiquidityDisplay")
-  public val forceDeallocatableLiquidityDisplay: V1EarnValueDisplay? = null,
-  /**
    * Assets currently withdrawable from the vault without a reallocation, in raw on-chain units of the underlying asset. Empty when the provider does not report it.
    */
   @SerialName("liquidity")
@@ -5693,8 +5323,8 @@ public data class V1EarnWithdrawIntent(
   /**
    * CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
    */
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   /**
    * A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported.
    */
@@ -6330,11 +5960,6 @@ public data class V1EthTransactionHistoryItem(
   @SerialName("block")
   public val block: V1TransactionHistoryBlock,
   /**
-   * Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable.
-   */
-  @SerialName("executionFailed")
-  public val executionFailed: Boolean? = null,
-  /**
    * Transaction fee information.
    */
   @SerialName("fee")
@@ -6538,65 +6163,6 @@ public data class V1ExecuteSwapIntentV2(
 )
 
 @Serializable
-public data class V1ExecuteSwapIntentV3(
-  /**
-   * Raw public address that receives the output asset. Required for cross-protocol swaps. The address must match the output token protocol. Wallet account IDs, private key IDs, and CAIP account or asset identifiers are not supported.
-   */
-  @SerialName("destinationAddress")
-  public val destinationAddress: String? = null,
-  /**
-   * Exact EVM sender (EOA account) nonce. Valid only for a non-sponsored EVM swap. Honored for already-delegated (Type-2) batch swaps and single-call swaps; ignored for not-yet-delegated EIP-7702 (Type-4) batches where the outer nonce is derived from the authorization. Prefer gas_station_nonce for batch replay protection and use the nonces endpoint to fetch it. Omit to auto-fetch.
-   */
-  @SerialName("evmNonce")
-  public val evmNonce: String? = null,
-  /**
-   * Exact gas station delegate contract nonce used in the BatchExecution EIP-712 message. Valid for sponsored EVM swaps and non-sponsored EVM swaps that execute as a multi-call batch (for example ERC-20 approve + swap). This is the replay-protection nonce for gas-station batches; use the nonces endpoint to fetch it. Omit to auto-fetch.
-   */
-  @SerialName("gasStationNonce")
-  public val gasStationNonce: String? = null,
-  /**
-   * Exact base-unit amount of the input asset committed by the quote.
-   */
-  @SerialName("inputAmount")
-  public val inputAmount: String,
-  /**
-   * CAIP-19 asset ID for the input asset.
-   */
-  @SerialName("inputToken")
-  public val inputToken: String,
-  /**
-   * Exact minimum base-unit output committed by the quote.
-   */
-  @SerialName("minOutputAmount")
-  public val minOutputAmount: String,
-  /**
-   * CAIP-19 asset ID for the output asset.
-   */
-  @SerialName("outputToken")
-  public val outputToken: String,
-  /**
-   * Quote identifier returned by create_swap_quote. Execution is bound to this quote; the signer is derived from the quote and must not be resupplied.
-   */
-  @SerialName("quoteId")
-  public val quoteId: String,
-  /**
-   * Exact quoted base-unit output amount committed by the quote.
-   */
-  @SerialName("quotedOutputAmount")
-  public val quotedOutputAmount: String,
-  /**
-   * Exact Solana recent blockhash. Valid only for a Solana swap, including sponsored swaps. Omit to auto-fetch.
-   */
-  @SerialName("recentBlockhash")
-  public val recentBlockhash: String? = null,
-  /**
-   * Whether the quoted transaction is sponsored.
-   */
-  @SerialName("sponsor")
-  public val sponsor: Boolean,
-)
-
-@Serializable
 public data class V1ExecuteSwapRequest(
   @SerialName("generateAppProofs")
   public val generateAppProofs: Boolean? = null,
@@ -6690,11 +6256,6 @@ public data class V1ExportSecretParams(
    */
   @SerialName("encryptionSuite")
   public val encryptionSuite: V1TransportEncryptionSuite,
-  /**
-   * Bind metadata to the request.
-   */
-  @SerialName("requestContext")
-  public val requestContext: List<V1KeyValue>? = null,
   /**
    * Unique identifier for the secret to export.
    */
@@ -6898,29 +6459,6 @@ public data class V1FiatOnRampCredential(
   public val sandboxMode: Boolean? = null,
   @SerialName("updatedAt")
   public val updatedAt: Externaldatav1Timestamp,
-)
-
-@Serializable
-public data class V1GetActivePoliciesRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetActivePoliciesResponse(
-  /**
-   * The enclave's trusted timestamp (Unix epoch milliseconds) used to evaluate every policy.
-   */
-  @SerialName("evaluatedAtMs")
-  public val evaluatedAtMs: String,
-  /**
-   * The active/inactive status of every policy in the organization.
-   */
-  @SerialName("statuses")
-  public val statuses: List<V1ActivePolicyStatus>,
 )
 
 @Serializable
@@ -7147,39 +6685,6 @@ public data class V1GetClaimEarnFeesStatusResponse(
   public val error: String? = null,
   /**
    * Status of the fee claim.
-   */
-  @SerialName("status")
-  public val status: String,
-)
-
-@Serializable
-public data class V1GetEarnClaimRewardsStatusRequest(
-  /**
-   * The claim_request_id returned by EarnClaimRewards.
-   */
-  @SerialName("claimRequestId")
-  public val claimRequestId: String,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetEarnClaimRewardsStatusResponse(
-  /**
-   * Transaction hash of the rewards claim, once available.
-   */
-  @SerialName("claimTxHash")
-  public val claimTxHash: String? = null,
-  /**
-   * Reason the rewards claim transaction failed, when status is FAILED.
-   */
-  @SerialName("error")
-  public val error: String? = null,
-  /**
-   * Status of the rewards claim.
    */
   @SerialName("status")
   public val status: String,
@@ -7834,11 +7339,6 @@ public data class V1GetSwapStatusRequest(
 @Serializable
 public data class V1GetSwapStatusResponse(
   /**
-   * Address that receives the output asset.
-   */
-  @SerialName("destinationAddress")
-  public val destinationAddress: String? = null,
-  /**
    * Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only.
    */
   @SerialName("destinationTxHashes")
@@ -7949,11 +7449,6 @@ public data class V1GetTvcAppResponse(
 @Serializable
 public data class V1GetTvcAppsRequest(
   /**
-   * Filter TVC Apps by whether they have a live deployment. If omitted, all TVC Apps are returned.
-   */
-  @SerialName("isLive")
-  public val isLive: Boolean? = null,
-  /**
    * Unique identifier for a given organization.
    */
   @SerialName("organizationId")
@@ -8003,39 +7498,6 @@ public data class V1GetTvcDeploymentDebugLogsResponse(
 )
 
 @Serializable
-public data class V1GetTvcDeploymentProvisioningDetailsRequest(
-  /**
-   * Unique identifier for a given TVC Deployment.
-   */
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcDeploymentProvisioningDetailsResponse(
-  /**
-   * The attestation document of the provisioning enclave. Present only when a deployment is awaiting provisioning.
-   */
-  @SerialName("attestationDocument")
-  public val attestationDocument: String? = null,
-  /**
-   * The manifest envelope containing the TVC deployment's manifest and signatures. Present only when a deployment is awaiting provisioning.
-   */
-  @SerialName("manifestEnvelope")
-  public val manifestEnvelope: String? = null,
-  /**
-   * Current provisioning state.
-   */
-  @SerialName("provisioningState")
-  public val provisioningState: V1ProvisioningState,
-)
-
-@Serializable
 public data class V1GetTvcDeploymentRequest(
   /**
    * Unique identifier for a given TVC Deployment.
@@ -8059,21 +7521,6 @@ public data class V1GetTvcDeploymentResponse(
 )
 
 @Serializable
-public data class V1GetTvcOperatorsRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcOperatorsResponse(
-  @SerialName("tvcOperators")
-  public val tvcOperators: List<V1TvcOperator>,
-)
-
-@Serializable
 public data class V1GetTvcQosVersionsRequest(
   /**
    * Unique identifier for a given Organization.
@@ -8094,21 +7541,6 @@ public data class V1GetTvcQosVersionsResponse(
    */
   @SerialName("latestVersion")
   public val latestVersion: String,
-)
-
-@Serializable
-public data class V1GetTvcQuorumKeysRequest(
-  /**
-   * Unique identifier for a given organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-)
-
-@Serializable
-public data class V1GetTvcQuorumKeysResponse(
-  @SerialName("tvcQuorumKeys")
-  public val tvcQuorumKeys: List<V1TvcQuorumKey>,
 )
 
 @Serializable
@@ -8153,9 +7585,23 @@ public data class V1GetUsersResponse(
 )
 
 @Serializable
+public data class V1GetVelocityControlRequest(
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("velocityControlId")
+  public val velocityControlId: String,
+)
+
+@Serializable
+public data class V1GetVelocityControlResponse(
+  @SerialName("velocityControl")
+  public val velocityControl: V1VelocityControl,
+)
+
+@Serializable
 public data class V1GetVerifiedSubOrgIdsRequest(
   /**
-   * Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'OAUTH_CLAIM', or 'PUBLIC_KEY'
+   * Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'.
    */
   @SerialName("filterType")
   public val filterType: String? = null,
@@ -8687,24 +8133,6 @@ public data class V1InitImportSecretsIntent(
    */
   @SerialName("numSecrets")
   public val numSecrets: Long,
-)
-
-@Serializable
-public data class V1InitImportSecretsRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1InitImportSecretsIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -9373,10 +8801,6 @@ public data class V1Intent(
   public val createSubOrganizationIntentV8: V1CreateSubOrganizationIntentV8? = null,
   @SerialName("createSwapQuoteIntent")
   public val createSwapQuoteIntent: V1CreateSwapQuoteIntent? = null,
-  @SerialName("createSwapQuoteIntentV2")
-  public val createSwapQuoteIntentV2: V1CreateSwapQuoteIntentV2? = null,
-  @SerialName("createSwapQuoteIntentV3")
-  public val createSwapQuoteIntentV3: V1CreateSwapQuoteIntentV3? = null,
   @SerialName("createTvcAppIntent")
   public val createTvcAppIntent: V1CreateTvcAppIntent? = null,
   @SerialName("createTvcDeploymentIntent")
@@ -9431,8 +8855,6 @@ public data class V1Intent(
   public val deletePrivateKeyTagsIntent: V1DeletePrivateKeyTagsIntent? = null,
   @SerialName("deletePrivateKeysIntent")
   public val deletePrivateKeysIntent: V1DeletePrivateKeysIntent? = null,
-  @SerialName("deleteSecretsIntent")
-  public val deleteSecretsIntent: V1DeleteSecretsIntent? = null,
   @SerialName("deleteSmartContractInterfaceIntent")
   public val deleteSmartContractInterfaceIntent: V1DeleteSmartContractInterfaceIntent? = null,
   @SerialName("deleteSubOrganizationIntent")
@@ -9457,8 +8879,6 @@ public data class V1Intent(
   public val disableAuthProxyIntent: V1DisableAuthProxyIntent? = null,
   @SerialName("disablePrivateKeyIntent")
   public val disablePrivateKeyIntent: V1DisablePrivateKeyIntent? = null,
-  @SerialName("earnClaimRewardsIntent")
-  public val earnClaimRewardsIntent: V1EarnClaimRewardsIntent? = null,
   @SerialName("earnDeployWrapperIntent")
   public val earnDeployWrapperIntent: V1EarnDeployWrapperIntent? = null,
   @SerialName("earnDepositIntent")
@@ -9487,8 +8907,6 @@ public data class V1Intent(
   public val executeSwapIntent: V1ExecuteSwapIntent? = null,
   @SerialName("executeSwapIntentV2")
   public val executeSwapIntentV2: V1ExecuteSwapIntentV2? = null,
-  @SerialName("executeSwapIntentV3")
-  public val executeSwapIntentV3: V1ExecuteSwapIntentV3? = null,
   @SerialName("exportPrivateKeyIntent")
   public val exportPrivateKeyIntent: V1ExportPrivateKeyIntent? = null,
   @SerialName("exportSecretsIntent")
@@ -9597,8 +9015,6 @@ public data class V1Intent(
   public val updateOauth2CredentialIntent: V1UpdateOauth2CredentialIntent? = null,
   @SerialName("updateOrganizationNameIntent")
   public val updateOrganizationNameIntent: V1UpdateOrganizationNameIntent? = null,
-  @SerialName("updatePaymentMethodIntent")
-  public val updatePaymentMethodIntent: BillingUpdatePaymentMethodIntent? = null,
   @SerialName("updatePolicyIntent")
   public val updatePolicyIntent: V1UpdatePolicyIntent? = null,
   @SerialName("updatePolicyIntentV2")
@@ -9788,34 +9204,6 @@ public data class V1ListEarnPositionsResponse(
    */
   @SerialName("positions")
   public val positions: List<V1EarnPosition>? = null,
-)
-
-@Serializable
-public data class V1ListEarnRewardsRequest(
-  /**
-   * Optional filter: only return rewards on this chain (e.g. 'eip155:8453'). When unset, every chain the organization has deployed Earn wrappers on is queried.
-   */
-  @SerialName("caip2")
-  public val caip2: String? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  /**
-   * The wallet address to return rewards for.
-   */
-  @SerialName("walletAddress")
-  public val walletAddress: String,
-)
-
-@Serializable
-public data class V1ListEarnRewardsResponse(
-  /**
-   * The wallet's rewards, one entry per (chain, reward token), sorted by chain then token. Entries where every amount is zero are omitted.
-   */
-  @SerialName("rewards")
-  public val rewards: List<V1EarnReward>? = null,
 )
 
 @Serializable
@@ -10069,6 +9457,22 @@ public data class V1ListUserTagsResponse(
    */
   @SerialName("userTags")
   public val userTags: List<Datav1Tag>,
+)
+
+@Serializable
+public data class V1ListVelocityControlsRequest(
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("paginationOptions")
+  public val paginationOptions: V1Pagination? = null,
+)
+
+@Serializable
+public data class V1ListVelocityControlsResponse(
+  @SerialName("pageInfo")
+  public val pageInfo: V1PageInfo,
+  @SerialName("velocityControls")
+  public val velocityControls: List<V1VelocityControl>,
 )
 
 @Serializable
@@ -10820,24 +10224,6 @@ public data class V1PostTvcQuorumKeyShareIntent(
 )
 
 @Serializable
-public data class V1PostTvcQuorumKeyShareRequest(
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1PostTvcQuorumKeyShareIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
-)
-
-@Serializable
 public data class V1PostTvcQuorumKeyShareResult(
   /**
    * The unique identifier for the provisioning quorum key share
@@ -10993,26 +10379,6 @@ public data class V1ReEncryptTvcQuorumKeyShareIntent(
    */
   @SerialName("operatorSignKey")
   public val operatorSignKey: String,
-)
-
-@Serializable
-public data class V1ReEncryptTvcQuorumKeyShareRequest(
-  @SerialName("generateAppProofs")
-  public val generateAppProofs: Boolean? = null,
-  /**
-   * Unique identifier for a given Organization.
-   */
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("parameters")
-  public val parameters: V1ReEncryptTvcQuorumKeyShareIntent,
-  /**
-   * Timestamp (in milliseconds) of the request, used to verify liveness of user requests.
-   */
-  @SerialName("timestampMs")
-  public val timestampMs: String,
-  @SerialName("type")
-  public val type: String,
 )
 
 @Serializable
@@ -11285,8 +10651,6 @@ public data class V1Result(
   public val createSubOrganizationResultV8: V1CreateSubOrganizationResultV8? = null,
   @SerialName("createSwapQuoteResult")
   public val createSwapQuoteResult: V1CreateSwapQuoteResult? = null,
-  @SerialName("createSwapQuoteResultV2")
-  public val createSwapQuoteResultV2: V1CreateSwapQuoteResultV2? = null,
   @SerialName("createTvcAppResult")
   public val createTvcAppResult: V1CreateTvcAppResult? = null,
   @SerialName("createTvcDeploymentResult")
@@ -11335,8 +10699,6 @@ public data class V1Result(
   public val deletePrivateKeyTagsResult: V1DeletePrivateKeyTagsResult? = null,
   @SerialName("deletePrivateKeysResult")
   public val deletePrivateKeysResult: V1DeletePrivateKeysResult? = null,
-  @SerialName("deleteSecretsResult")
-  public val deleteSecretsResult: V1DeleteSecretsResult? = null,
   @SerialName("deleteSmartContractInterfaceResult")
   public val deleteSmartContractInterfaceResult: V1DeleteSmartContractInterfaceResult? = null,
   @SerialName("deleteSubOrganizationResult")
@@ -11361,8 +10723,6 @@ public data class V1Result(
   public val disableAuthProxyResult: V1DisableAuthProxyResult? = null,
   @SerialName("disablePrivateKeyResult")
   public val disablePrivateKeyResult: V1DisablePrivateKeyResult? = null,
-  @SerialName("earnClaimRewardsResult")
-  public val earnClaimRewardsResult: V1EarnClaimRewardsResult? = null,
   @SerialName("earnDeployWrapperResult")
   public val earnDeployWrapperResult: V1EarnDeployWrapperResult? = null,
   @SerialName("earnDepositResult")
@@ -11477,8 +10837,6 @@ public data class V1Result(
   public val updateOauth2CredentialResult: V1UpdateOauth2CredentialResult? = null,
   @SerialName("updateOrganizationNameResult")
   public val updateOrganizationNameResult: V1UpdateOrganizationNameResult? = null,
-  @SerialName("updatePaymentMethodResult")
-  public val updatePaymentMethodResult: BillingUpdatePaymentMethodResult? = null,
   @SerialName("updatePolicyResult")
   public val updatePolicyResult: V1UpdatePolicyResult? = null,
   @SerialName("updatePolicyResultV2")
@@ -11932,17 +11290,17 @@ public data class V1SignRawPayloadRequest(
 @Serializable
 public data class V1SignRawPayloadResult(
   /**
-   * Component of a cryptographic signature, meaning varies based on signing scheme.
+   * Component of an ECSDA signature.
    */
   @SerialName("r")
   public val r: String,
   /**
-   * Component of a cryptographic signature, meaning varies based on signing scheme.
+   * Component of an ECSDA signature.
    */
   @SerialName("s")
   public val s: String,
   /**
-   * Recovery ID for ECDSA signatures, "00" otherwise.
+   * Component of an ECSDA signature.
    */
   @SerialName("v")
   public val v: String,
@@ -12148,7 +11506,7 @@ public data class V1SolSendTransactionIntent(
   @SerialName("sponsor")
   public val sponsor: Boolean? = null,
   /**
-   * Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes.
+   * Base64-encoded serialized unsigned Solana transaction
    */
   @SerialName("unsignedTransaction")
   public val unsignedTransaction: String,
@@ -12167,7 +11525,7 @@ public data class V1SolSendTransactionIntentV2(
   @SerialName("recentBlockhash")
   public val recentBlockhash: String? = null,
   /**
-   * Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers for legacy/V0, or up to 12 for V1 (11 when sponsored). For sponsored transactions this must list every required signer of the transaction in transaction order.
+   * Ordered Solana signer addresses Turnkey signs with. Between 1 and 16 signers. For sponsored transactions this must list every required signer of the transaction in transaction order.
    */
   @SerialName("signWiths")
   public val signWiths: List<String>,
@@ -12177,7 +11535,7 @@ public data class V1SolSendTransactionIntentV2(
   @SerialName("sponsor")
   public val sponsor: Boolean? = null,
   /**
-   * Hex-encoded serialized unsigned Solana transaction in full wire format. Legacy/V0 transactions allow 1232 bytes. V1 allows 4096 bytes with up to 12 trailing 64-byte signature slots, including the paymaster for sponsored transactions. Fill unsigned slots with zeroes.
+   * Hex-encoded serialized unsigned Solana transaction (full wire format with zeroed signature placeholders)
    */
   @SerialName("unsignedTransaction")
   public val unsignedTransaction: String,
@@ -12228,11 +11586,6 @@ public data class V1SolTransactionHistoryItem(
    */
   @SerialName("block")
   public val block: V1TransactionHistoryBlock,
-  /**
-   * Whether the transaction failed during on-chain execution. Omitted when execution outcome is unavailable.
-   */
-  @SerialName("executionFailed")
-  public val executionFailed: Boolean? = null,
   /**
    * Transaction fee information.
    */
@@ -12933,60 +12286,6 @@ public data class V1SwapQuote(
 )
 
 @Serializable
-public data class V1SwapQuoteV2(
-  /**
-   * Client fee in basis points applied for this pair. Informational only; already reflected in output_amount and min_output_amount.
-   */
-  @SerialName("clientFeeBps")
-  public val clientFeeBps: String,
-  /**
-   * Provider-estimated completion time in seconds, when available.
-   */
-  @SerialName("estimatedTimeSeconds")
-  public val estimatedTimeSeconds: String? = null,
-  /**
-   * Quote expiration as a millisecond epoch string.
-   */
-  @SerialName("expiresAt")
-  public val expiresAt: String,
-  @SerialName("feeSponsorship")
-  public val feeSponsorship: Boolean? = null,
-  @SerialName("fixedRate")
-  public val fixedRate: Boolean? = null,
-  /**
-   * Minimum acceptable base-unit amount of the output asset after slippage.
-   */
-  @SerialName("minOutputAmount")
-  public val minOutputAmount: String,
-  /**
-   * Estimated base-unit amount of the output asset.
-   */
-  @SerialName("outputAmount")
-  public val outputAmount: String,
-  /**
-   * Swap provider that produced this quote.
-   */
-  @SerialName("provider")
-  public val provider: String,
-  /**
-   * Identifier for this provider quote. Pass this value to execute_swap_v2 to bind execution to this exact quote. The signer is derived from the quote; clients do not resupply sign_with on execute.
-   */
-  @SerialName("quoteId")
-  public val quoteId: String,
-  @SerialName("remainingFeeComponents")
-  public val remainingFeeComponents: List<String>? = null,
-  /**
-   * Effective total slippage tolerance in basis points for this quote, taken from the provider response when present. When the request omits input slippage_bps, the provider may calculate this value.
-   */
-  @SerialName("slippageBps")
-  public val slippageBps: String? = null,
-  @SerialName("sponsoredFeeComponents")
-  public val sponsoredFeeComponents: List<String>? = null,
-  @SerialName("turnkeyFeeCollection")
-  public val turnkeyFeeCollection: String? = null,
-)
-
-@Serializable
 public data class V1SwapRefund(
   /**
    * Base-unit amount returned by the swap provider.
@@ -13270,16 +12569,6 @@ public data class V1TvcDeployment(
   @SerialName("id")
   public val id: String,
   /**
-   * The instance cpu count for this enclave.
-   */
-  @SerialName("instanceSizeCpus")
-  public val instanceSizeCpus: Long? = null,
-  /**
-   * The instance memory size in GiB for this enclave.
-   */
-  @SerialName("instanceSizeRam")
-  public val instanceSizeRam: Long? = null,
-  /**
    * The manifest used for this deployment
    */
   @SerialName("manifest")
@@ -13369,20 +12658,10 @@ public data class V1TvcOperator(
   @SerialName("createdAt")
   public val createdAt: Externaldatav1Timestamp,
   /**
-   * Encryption public key for this TVC Operator.
-   */
-  @SerialName("encryptPublicKey")
-  public val encryptPublicKey: String,
-  /**
    * Unique Identifier for this TVC Operator.
    */
   @SerialName("id")
   public val id: String,
-  /**
-   * Source of the operator keys: EXTERNAL_KEY or ORG_WALLET_ACCOUNT. Absent for legacy operators whose source was not recorded.
-   */
-  @SerialName("keySource")
-  public val keySource: String? = null,
   /**
    * Name of this TVC Operator.
    */
@@ -13393,11 +12672,6 @@ public data class V1TvcOperator(
    */
   @SerialName("publicKey")
   public val publicKey: String,
-  /**
-   * Signing public key for this TVC Operator.
-   */
-  @SerialName("signPublicKey")
-  public val signPublicKey: String,
   @SerialName("updatedAt")
   public val updatedAt: Externaldatav1Timestamp,
 )
@@ -13499,22 +12773,6 @@ public data class V1TvcOperatorSetParams(
    */
   @SerialName("threshold")
   public val threshold: Long,
-)
-
-@Serializable
-public data class V1TvcQuorumKey(
-  @SerialName("createdAt")
-  public val createdAt: Externaldatav1Timestamp,
-  @SerialName("id")
-  public val id: String,
-  @SerialName("operatorIds")
-  public val operatorIds: List<String>,
-  @SerialName("publicKey")
-  public val publicKey: String,
-  @SerialName("threshold")
-  public val threshold: Long,
-  @SerialName("updatedAt")
-  public val updatedAt: Externaldatav1Timestamp,
 )
 
 @Serializable
@@ -14797,6 +14055,50 @@ public data class V1ValidateTvcImageResponse(
 )
 
 @Serializable
+public data class V1VelocityControl(
+  /**
+   * Aggregation expression that the Velocity Control evaluates.
+   */
+  @SerialName("aggregation")
+  public val aggregation: V1VelocityControlAggregation,
+  /**
+   * Time when the Velocity Control was created.
+   */
+  @SerialName("createdAt")
+  public val createdAt: Externaldatav1Timestamp,
+  /**
+   * Data source for the Velocity Control.
+   */
+  @SerialName("dataSource")
+  public val dataSource: V1VelocityControlDataSource,
+  /**
+   * Identifier for the Velocity Control. Policies reference it as `controls.<identifier>`. It must be unique within the Organization.
+   */
+  @SerialName("identifier")
+  public val identifier: String,
+  /**
+   * Human-readable name for the Velocity Control.
+   */
+  @SerialName("name")
+  public val name: String,
+  /**
+   * Identifier of the Organization that owns the Velocity Control.
+   */
+  @SerialName("organizationId")
+  public val organizationId: String,
+  /**
+   * Time when the Velocity Control was last updated.
+   */
+  @SerialName("updatedAt")
+  public val updatedAt: Externaldatav1Timestamp,
+  /**
+   * Unique identifier for the Velocity Control.
+   */
+  @SerialName("velocityControlId")
+  public val velocityControlId: String,
+)
+
+@Serializable
 public data class V1VelocityControlAggregation(
   /**
    * Scope that partitions matching data before aggregation.
@@ -14861,10 +14163,10 @@ public data class V1VelocityControlAggregationWindow(
 @Serializable
 public data class V1VelocityControlAggregationWindowRolling(
   /**
-   * Duration of the rolling window, in seconds.
+   * Duration of the rolling window, in seconds, as a base-10 integer string.
    */
   @SerialName("duration")
-  public val duration: Long,
+  public val duration: String,
 )
 
 @Serializable
@@ -14926,10 +14228,10 @@ public data class V1VelocityControlDataSourceChainAssetTransferDefinition(
   @SerialName("caip19")
   public val caip19: String,
   /**
-   * Integer between 0 and 255 (inclusive) that specifies the number of decimal places for the asset.
+   * Base-10 integer string from 0 through 255 that specifies the number of decimal places for the asset.
    */
   @SerialName("decimals")
-  public val decimals: Long,
+  public val decimals: String,
 )
 
 @Serializable
@@ -15348,11 +14650,6 @@ public data class V1GetAccountRequest(
   @SerialName("filterValue")
   public val filterValue: String,
   /**
-   * Whether to include requires_social_linking in the response. Only applies when filter_type is 'OIDC_TOKEN'.
-   */
-  @SerialName("includeRequiresSocialLinking")
-  public val includeRequiresSocialLinking: Boolean? = null,
-  /**
    * OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available.
    */
   @SerialName("oidcToken")
@@ -15368,11 +14665,6 @@ public data class V1GetAccountRequest(
 public data class V1GetAccountResponse(
   @SerialName("organizationId")
   public val organizationId: String? = null,
-  /**
-   * True when the organization was matched by verified email and the OIDC token is not yet a registered identity on it.
-   */
-  @SerialName("requiresSocialLinking")
-  public val requiresSocialLinking: Boolean? = null,
 )
 
 @Serializable
@@ -15824,32 +15116,6 @@ public data class TSignedRequest(
 )
 
 @Serializable
-public data class TGetActivePoliciesResponse(
-  /**
-   * The enclave's trusted timestamp (Unix epoch milliseconds) used to evaluate every policy.
-   */
-  @SerialName("evaluatedAtMs")
-  public val evaluatedAtMs: String,
-  /**
-   * The active/inactive status of every policy in the organization.
-   */
-  @SerialName("statuses")
-  public val statuses: List<V1ActivePolicyStatus>,
-)
-
-@Serializable
-public class TGetActivePoliciesBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-)
-
-@Serializable
-public class TGetActivePoliciesInput(
-  @SerialName("body")
-  public val body: TGetActivePoliciesBody,
-)
-
-@Serializable
 public data class TGetActivityResponse(
   /**
    * An action that can be taken within the Turnkey infrastructure.
@@ -16038,39 +15304,6 @@ public class TGetClaimEarnFeesStatusBody(
 public class TGetClaimEarnFeesStatusInput(
   @SerialName("body")
   public val body: TGetClaimEarnFeesStatusBody,
-)
-
-@Serializable
-public data class TGetEarnClaimRewardsStatusResponse(
-  /**
-   * Transaction hash of the rewards claim, once available.
-   */
-  @SerialName("claimTxHash")
-  public val claimTxHash: String? = null,
-  /**
-   * Reason the rewards claim transaction failed, when status is FAILED.
-   */
-  @SerialName("error")
-  public val error: String? = null,
-  /**
-   * Status of the rewards claim.
-   */
-  @SerialName("status")
-  public val status: String,
-)
-
-@Serializable
-public class TGetEarnClaimRewardsStatusBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("claimRequestId")
-  public val claimRequestId: String,
-)
-
-@Serializable
-public class TGetEarnClaimRewardsStatusInput(
-  @SerialName("body")
-  public val body: TGetEarnClaimRewardsStatusBody,
 )
 
 @Serializable
@@ -16618,11 +15851,6 @@ public class TGetSmartContractInterfaceInput(
 @Serializable
 public data class TGetSwapStatusResponse(
   /**
-   * Address that receives the output asset.
-   */
-  @SerialName("destinationAddress")
-  public val destinationAddress: String? = null,
-  /**
    * Provider-reported destination-chain transaction hashes; cross-chain COMPLETED only.
    */
   @SerialName("destinationTxHashes")
@@ -16772,39 +16000,6 @@ public class TGetTvcDeploymentDebugLogsInput(
 )
 
 @Serializable
-public data class TGetTvcDeploymentProvisioningDetailsResponse(
-  /**
-   * The attestation document of the provisioning enclave. Present only when a deployment is awaiting provisioning.
-   */
-  @SerialName("attestationDocument")
-  public val attestationDocument: String? = null,
-  /**
-   * The manifest envelope containing the TVC deployment's manifest and signatures. Present only when a deployment is awaiting provisioning.
-   */
-  @SerialName("manifestEnvelope")
-  public val manifestEnvelope: String? = null,
-  /**
-   * Current provisioning state.
-   */
-  @SerialName("provisioningState")
-  public val provisioningState: V1ProvisioningState,
-)
-
-@Serializable
-public class TGetTvcDeploymentProvisioningDetailsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-)
-
-@Serializable
-public class TGetTvcDeploymentProvisioningDetailsInput(
-  @SerialName("body")
-  public val body: TGetTvcDeploymentProvisioningDetailsBody,
-)
-
-@Serializable
 public data class TGetTvcQosVersionsResponse(
   /**
    * QOS versions supported for new TVC deployments.
@@ -16851,6 +16046,26 @@ public class TGetUserBody(
 public class TGetUserInput(
   @SerialName("body")
   public val body: TGetUserBody,
+)
+
+@Serializable
+public data class TGetVelocityControlResponse(
+  @SerialName("velocityControl")
+  public val velocityControl: V1VelocityControl,
+)
+
+@Serializable
+public class TGetVelocityControlBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("velocityControlId")
+  public val velocityControlId: String,
+)
+
+@Serializable
+public class TGetVelocityControlInput(
+  @SerialName("body")
+  public val body: TGetVelocityControlBody,
 )
 
 @Serializable
@@ -17023,31 +16238,6 @@ public class TListEarnPositionsBody(
 public class TListEarnPositionsInput(
   @SerialName("body")
   public val body: TListEarnPositionsBody,
-)
-
-@Serializable
-public data class TListEarnRewardsResponse(
-  /**
-   * The wallet's rewards, one entry per (chain, reward token), sorted by chain then token. Entries where every amount is zero are omitted.
-   */
-  @SerialName("rewards")
-  public val rewards: List<V1EarnReward>? = null,
-)
-
-@Serializable
-public class TListEarnRewardsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-  @SerialName("walletAddress")
-  public val walletAddress: String,
-  @SerialName("caip2")
-  public val caip2: String? = null,
-)
-
-@Serializable
-public class TListEarnRewardsInput(
-  @SerialName("body")
-  public val body: TListEarnRewardsBody,
 )
 
 @Serializable
@@ -17396,50 +16586,12 @@ public data class TGetTvcAppsResponse(
 public class TGetTvcAppsBody(
   @SerialName("organizationId")
   public val organizationId: String? = null,
-  @SerialName("isLive")
-  public val isLive: Boolean? = null,
 )
 
 @Serializable
 public class TGetTvcAppsInput(
   @SerialName("body")
   public val body: TGetTvcAppsBody,
-)
-
-@Serializable
-public data class TGetTvcOperatorsResponse(
-  @SerialName("tvcOperators")
-  public val tvcOperators: List<V1TvcOperator>,
-)
-
-@Serializable
-public class TGetTvcOperatorsBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-)
-
-@Serializable
-public class TGetTvcOperatorsInput(
-  @SerialName("body")
-  public val body: TGetTvcOperatorsBody,
-)
-
-@Serializable
-public data class TGetTvcQuorumKeysResponse(
-  @SerialName("tvcQuorumKeys")
-  public val tvcQuorumKeys: List<V1TvcQuorumKey>,
-)
-
-@Serializable
-public class TGetTvcQuorumKeysBody(
-  @SerialName("organizationId")
-  public val organizationId: String? = null,
-)
-
-@Serializable
-public class TGetTvcQuorumKeysInput(
-  @SerialName("body")
-  public val body: TGetTvcQuorumKeysBody,
 )
 
 @Serializable
@@ -17482,6 +16634,28 @@ public class TGetUsersBody(
 public class TGetUsersInput(
   @SerialName("body")
   public val body: TGetUsersBody,
+)
+
+@Serializable
+public data class TListVelocityControlsResponse(
+  @SerialName("pageInfo")
+  public val pageInfo: V1PageInfo,
+  @SerialName("velocityControls")
+  public val velocityControls: List<V1VelocityControl>,
+)
+
+@Serializable
+public class TListVelocityControlsBody(
+  @SerialName("organizationId")
+  public val organizationId: String? = null,
+  @SerialName("paginationOptions")
+  public val paginationOptions: V1Pagination? = null,
+)
+
+@Serializable
+public class TListVelocityControlsInput(
+  @SerialName("body")
+  public val body: TListVelocityControlsBody,
 )
 
 @Serializable
@@ -18170,7 +17344,7 @@ public class TCreateSwapQuoteResponse(
   @SerialName("activity")
   public val activity: V1Activity,
   @SerialName("result")
-  public val result: V1CreateSwapQuoteResultV2,
+  public val result: V1CreateSwapQuoteResult,
 )
 
 @Serializable
@@ -18275,10 +17449,6 @@ public class TCreateTvcDeploymentBody(
   public val publicIngressPort: Long,
   @SerialName("replicas")
   public val replicas: Long? = null,
-  @SerialName("instanceSizeCpus")
-  public val instanceSizeCpus: Long? = null,
-  @SerialName("instanceSizeRam")
-  public val instanceSizeRam: Long? = null,
 )
 
 @Serializable
@@ -18311,62 +17481,6 @@ public class TCreateTvcManifestApprovalsBody(
 public class TCreateTvcManifestApprovalsInput(
   @SerialName("body")
   public val body: TCreateTvcManifestApprovalsBody,
-)
-
-@Serializable
-public class TCreateTvcOperatorResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateTvcOperatorResult,
-)
-
-@Serializable
-public class TCreateTvcOperatorBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("walletName")
-  public val walletName: String? = null,
-  @SerialName("walletId")
-  public val walletId: String? = null,
-  @SerialName("path")
-  public val path: String,
-  @SerialName("operatorName")
-  public val operatorName: String,
-)
-
-@Serializable
-public class TCreateTvcOperatorInput(
-  @SerialName("body")
-  public val body: TCreateTvcOperatorBody,
-)
-
-@Serializable
-public class TCreateTvcQuorumKeyResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1CreateTvcQuorumKeyResult,
-)
-
-@Serializable
-public class TCreateTvcQuorumKeyBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("threshold")
-  public val threshold: Long,
-  @SerialName("operatorEncryptKeys")
-  public val operatorEncryptKeys: List<String>,
-)
-
-@Serializable
-public class TCreateTvcQuorumKeyInput(
-  @SerialName("body")
-  public val body: TCreateTvcQuorumKeyBody,
 )
 
 @Serializable
@@ -18417,6 +17531,36 @@ public class TCreateUsersBody(
 public class TCreateUsersInput(
   @SerialName("body")
   public val body: TCreateUsersBody,
+)
+
+@Serializable
+public class TCreateVelocityControlResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1CreateVelocityControlResult,
+)
+
+@Serializable
+public class TCreateVelocityControlBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("name")
+  public val name: String,
+  @SerialName("dataSource")
+  public val dataSource: V1VelocityControlDataSource,
+  @SerialName("aggregation")
+  public val aggregation: V1VelocityControlAggregation,
+  @SerialName("identifier")
+  public val identifier: String,
+)
+
+@Serializable
+public class TCreateVelocityControlInput(
+  @SerialName("body")
+  public val body: TCreateVelocityControlBody,
 )
 
 @Serializable
@@ -18778,30 +17922,6 @@ public class TDeletePrivateKeysInput(
 )
 
 @Serializable
-public class TDeleteSecretsResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1DeleteSecretsResult,
-)
-
-@Serializable
-public class TDeleteSecretsBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("secretIds")
-  public val secretIds: List<String>,
-)
-
-@Serializable
-public class TDeleteSecretsInput(
-  @SerialName("body")
-  public val body: TDeleteSecretsBody,
-)
-
-@Serializable
 public class TDeleteSmartContractInterfaceResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -18946,6 +18066,30 @@ public class TDeleteUsersInput(
 )
 
 @Serializable
+public class TDeleteVelocityControlResponse(
+  @SerialName("activity")
+  public val activity: V1Activity,
+  @SerialName("result")
+  public val result: V1DeleteVelocityControlResult,
+)
+
+@Serializable
+public class TDeleteVelocityControlBody(
+  @SerialName("timestampMs")
+  public val timestampMs: String? = null,
+  @SerialName("organizationId")
+  public val organizationId: String,
+  @SerialName("velocityControlId")
+  public val velocityControlId: String,
+)
+
+@Serializable
+public class TDeleteVelocityControlInput(
+  @SerialName("body")
+  public val body: TDeleteVelocityControlBody,
+)
+
+@Serializable
 public class TDeleteWalletAccountsResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -19022,34 +18166,6 @@ public class TDeleteWebhookEndpointInput(
 )
 
 @Serializable
-public class TEarnClaimRewardsResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1EarnClaimRewardsResult,
-)
-
-@Serializable
-public class TEarnClaimRewardsBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("signWith")
-  public val signWith: String,
-  @SerialName("caip2")
-  public val caip2: String,
-  @SerialName("sponsor")
-  public val sponsor: Boolean? = null,
-)
-
-@Serializable
-public class TEarnClaimRewardsInput(
-  @SerialName("body")
-  public val body: TEarnClaimRewardsBody,
-)
-
-@Serializable
 public class TEarnDeployWrapperResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -19065,8 +18181,8 @@ public class TEarnDeployWrapperBody(
   public val organizationId: String,
   @SerialName("vaultAddress")
   public val vaultAddress: String,
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   @SerialName("clientFeeBps")
   public val clientFeeBps: String,
   @SerialName("clientFeeWallet")
@@ -19099,8 +18215,8 @@ public class TEarnDepositBody(
   public val signWith: String,
   @SerialName("assets")
   public val assets: String,
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   @SerialName("sponsor")
   public val sponsor: Boolean? = null,
 )
@@ -19155,8 +18271,8 @@ public class TEarnWithdrawBody(
   public val wrapperAddress: String,
   @SerialName("signWith")
   public val signWith: String,
-  @SerialName("caip2")
-  public val caip2: String,
+  @SerialName("chainCaip2")
+  public val chainCaip2: String,
   @SerialName("sponsor")
   public val sponsor: Boolean? = null,
   @SerialName("amountValue")
@@ -19590,32 +18706,6 @@ public class TInitImportPrivateKeyInput(
 )
 
 @Serializable
-public class TInitImportSecretsResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1InitImportSecretsResult,
-)
-
-@Serializable
-public class TInitImportSecretsBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("encryptionSuite")
-  public val encryptionSuite: V1TransportEncryptionSuite,
-  @SerialName("numSecrets")
-  public val numSecrets: Long,
-)
-
-@Serializable
-public class TInitImportSecretsInput(
-  @SerialName("body")
-  public val body: TInitImportSecretsBody,
-)
-
-@Serializable
 public class TInitImportWalletResponse(
   @SerialName("activity")
   public val activity: V1Activity,
@@ -19931,68 +19021,6 @@ public class TOtpLoginBody(
 public class TOtpLoginInput(
   @SerialName("body")
   public val body: TOtpLoginBody,
-)
-
-@Serializable
-public class TPostTvcQuorumKeyShareResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1PostTvcQuorumKeyShareResult,
-)
-
-@Serializable
-public class TPostTvcQuorumKeyShareBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-  @SerialName("ephemeralPublicKeyHex")
-  public val ephemeralPublicKeyHex: String,
-  @SerialName("shareApprovalBundle")
-  public val shareApprovalBundle: V1QuorumKeyShareApprovalBundle,
-)
-
-@Serializable
-public class TPostTvcQuorumKeyShareInput(
-  @SerialName("body")
-  public val body: TPostTvcQuorumKeyShareBody,
-)
-
-@Serializable
-public class TReEncryptTvcQuorumKeyShareResponse(
-  @SerialName("activity")
-  public val activity: V1Activity,
-  @SerialName("result")
-  public val result: V1ReEncryptTvcQuorumKeyShareResult,
-)
-
-@Serializable
-public class TReEncryptTvcQuorumKeyShareBody(
-  @SerialName("timestampMs")
-  public val timestampMs: String? = null,
-  @SerialName("organizationId")
-  public val organizationId: String,
-  @SerialName("attestationDocB64")
-  public val attestationDocB64: String,
-  @SerialName("manifestB64")
-  public val manifestB64: String,
-  @SerialName("operatorEncryptKey")
-  public val operatorEncryptKey: String,
-  @SerialName("operatorSignKey")
-  public val operatorSignKey: String,
-  @SerialName("deploymentId")
-  public val deploymentId: String,
-  @SerialName("appQuorumKey")
-  public val appQuorumKey: String,
-)
-
-@Serializable
-public class TReEncryptTvcQuorumKeyShareInput(
-  @SerialName("body")
-  public val body: TReEncryptTvcQuorumKeyShareBody,
 )
 
 @Serializable
@@ -20942,11 +19970,6 @@ public class TNOOPCodegenAnchorInput(
 public data class ProxyTGetAccountResponse(
   @SerialName("organizationId")
   public val organizationId: String? = null,
-  /**
-   * True when the organization was matched by verified email and the OIDC token is not yet a registered identity on it.
-   */
-  @SerialName("requiresSocialLinking")
-  public val requiresSocialLinking: Boolean? = null,
 )
 
 @Serializable
@@ -20959,8 +19982,6 @@ public class ProxyTGetAccountBody(
   public val verificationToken: String? = null,
   @SerialName("oidcToken")
   public val oidcToken: String? = null,
-  @SerialName("includeRequiresSocialLinking")
-  public val includeRequiresSocialLinking: Boolean? = null,
 )
 
 @Serializable
