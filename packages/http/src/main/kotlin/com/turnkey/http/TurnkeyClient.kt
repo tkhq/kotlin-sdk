@@ -2376,7 +2376,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/claim_earn_fees"
     val activityType = "ACTIVITY_TYPE_CLAIM_EARN_FEES"
     val activityRes = activity<TClaimEarnFeesBody>(url, input, activityType)
-    return TClaimEarnFeesResponse(activity = activityRes, result = activityRes.result.claimEarnFeesResult ?: throw RuntimeException("No result found from /public/v1/submit/claim_earn_fees"))
+    return TClaimEarnFeesResponse(activity = activityRes, result = activityRes.result.claimEarnFeesResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/claim_earn_fees"))
   }
 
   public suspend fun stampClaimEarnFees(input: TClaimEarnFeesBody): TSignedRequest {
@@ -2400,7 +2400,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/claim_swap_fees"
     val activityType = "ACTIVITY_TYPE_CLAIM_SWAP_FEES"
     val activityRes = activity<TClaimSwapFeesBody>(url, input, activityType)
-    return TClaimSwapFeesResponse(activity = activityRes, result = activityRes.result.claimSwapFeesResult ?: throw RuntimeException("No result found from /public/v1/submit/claim_swap_fees"))
+    return TClaimSwapFeesResponse(activity = activityRes, result = activityRes.result.claimSwapFeesResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/claim_swap_fees"))
   }
 
   public suspend fun stampClaimSwapFees(input: TClaimSwapFeesBody): TSignedRequest {
@@ -2424,7 +2424,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_api_keys"
     val activityType = "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
     val activityRes = activity<TCreateApiKeysBody>(url, input, activityType)
-    return TCreateApiKeysResponse(activity = activityRes, result = activityRes.result.createApiKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/create_api_keys"))
+    return TCreateApiKeysResponse(activity = activityRes, result = activityRes.result.createApiKeysResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_api_keys"))
   }
 
   public suspend fun stampCreateApiKeys(input: TCreateApiKeysBody): TSignedRequest {
@@ -2448,7 +2448,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_authenticators"
     val activityType = "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
     val activityRes = activity<TCreateAuthenticatorsBody>(url, input, activityType)
-    return TCreateAuthenticatorsResponse(activity = activityRes, result = activityRes.result.createAuthenticatorsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_authenticators"))
+    return TCreateAuthenticatorsResponse(activity = activityRes, result = activityRes.result.createAuthenticatorsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_authenticators"))
   }
 
   public suspend fun stampCreateAuthenticators(input: TCreateAuthenticatorsBody): TSignedRequest {
@@ -2472,7 +2472,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_fiat_on_ramp_credential"
     val activityType = "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL"
     val activityRes = activity<TCreateFiatOnRampCredentialBody>(url, input, activityType)
-    return TCreateFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.createFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/create_fiat_on_ramp_credential"))
+    return TCreateFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.createFiatOnRampCredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_fiat_on_ramp_credential"))
   }
 
   public suspend fun stampCreateFiatOnRampCredential(input: TCreateFiatOnRampCredentialBody): TSignedRequest {
@@ -2496,7 +2496,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_invitations"
     val activityType = "ACTIVITY_TYPE_CREATE_INVITATIONS"
     val activityRes = activity<TCreateInvitationsBody>(url, input, activityType)
-    return TCreateInvitationsResponse(activity = activityRes, result = activityRes.result.createInvitationsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_invitations"))
+    return TCreateInvitationsResponse(activity = activityRes, result = activityRes.result.createInvitationsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_invitations"))
   }
 
   public suspend fun stampCreateInvitations(input: TCreateInvitationsBody): TSignedRequest {
@@ -2520,7 +2520,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_mfa_policy"
     val activityType = "ACTIVITY_TYPE_CREATE_MFA_POLICY"
     val activityRes = activity<TCreateMfaPolicyBody>(url, input, activityType)
-    return TCreateMfaPolicyResponse(activity = activityRes, result = activityRes.result.createMfaPolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/create_mfa_policy"))
+    return TCreateMfaPolicyResponse(activity = activityRes, result = activityRes.result.createMfaPolicyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_mfa_policy"))
   }
 
   public suspend fun stampCreateMfaPolicy(input: TCreateMfaPolicyBody): TSignedRequest {
@@ -2544,7 +2544,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_oauth2_credential"
     val activityType = "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
     val activityRes = activity<TCreateOauth2CredentialBody>(url, input, activityType)
-    return TCreateOauth2CredentialResponse(activity = activityRes, result = activityRes.result.createOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth2_credential"))
+    return TCreateOauth2CredentialResponse(activity = activityRes, result = activityRes.result.createOauth2CredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_oauth2_credential"))
   }
 
   public suspend fun stampCreateOauth2Credential(input: TCreateOauth2CredentialBody): TSignedRequest {
@@ -2568,7 +2568,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_oauth_providers"
     val activityType = "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
     val activityRes = activity<TCreateOauthProvidersBody>(url, input, activityType)
-    return TCreateOauthProvidersResponse(activity = activityRes, result = activityRes.result.createOauthProvidersResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_oauth_providers"))
+    return TCreateOauthProvidersResponse(activity = activityRes, result = activityRes.result.createOauthProvidersResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_oauth_providers"))
   }
 
   public suspend fun stampCreateOauthProviders(input: TCreateOauthProvidersBody): TSignedRequest {
@@ -2592,7 +2592,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_policies"
     val activityType = "ACTIVITY_TYPE_CREATE_POLICIES"
     val activityRes = activity<TCreatePoliciesBody>(url, input, activityType)
-    return TCreatePoliciesResponse(activity = activityRes, result = activityRes.result.createPoliciesResult ?: throw RuntimeException("No result found from /public/v1/submit/create_policies"))
+    return TCreatePoliciesResponse(activity = activityRes, result = activityRes.result.createPoliciesResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_policies"))
   }
 
   public suspend fun stampCreatePolicies(input: TCreatePoliciesBody): TSignedRequest {
@@ -2616,7 +2616,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_policy"
     val activityType = "ACTIVITY_TYPE_CREATE_POLICY_V3"
     val activityRes = activity<TCreatePolicyBody>(url, input, activityType)
-    return TCreatePolicyResponse(activity = activityRes, result = activityRes.result.createPolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/create_policy"))
+    return TCreatePolicyResponse(activity = activityRes, result = activityRes.result.createPolicyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_policy"))
   }
 
   public suspend fun stampCreatePolicy(input: TCreatePolicyBody): TSignedRequest {
@@ -2640,7 +2640,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_private_key_tag"
     val activityType = "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
     val activityRes = activity<TCreatePrivateKeyTagBody>(url, input, activityType)
-    return TCreatePrivateKeyTagResponse(activity = activityRes, result = activityRes.result.createPrivateKeyTagResult ?: throw RuntimeException("No result found from /public/v1/submit/create_private_key_tag"))
+    return TCreatePrivateKeyTagResponse(activity = activityRes, result = activityRes.result.createPrivateKeyTagResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_private_key_tag"))
   }
 
   public suspend fun stampCreatePrivateKeyTag(input: TCreatePrivateKeyTagBody): TSignedRequest {
@@ -2664,7 +2664,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_private_keys"
     val activityType = "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
     val activityRes = activity<TCreatePrivateKeysBody>(url, input, activityType)
-    return TCreatePrivateKeysResponse(activity = activityRes, result = activityRes.result.createPrivateKeysResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_private_keys"))
+    return TCreatePrivateKeysResponse(activity = activityRes, result = activityRes.result.createPrivateKeysResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_private_keys"))
   }
 
   public suspend fun stampCreatePrivateKeys(input: TCreatePrivateKeysBody): TSignedRequest {
@@ -2688,7 +2688,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_read_only_session"
     val activityType = "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
     val activityRes = activity<TCreateReadOnlySessionBody>(url, input, activityType)
-    return TCreateReadOnlySessionResponse(activity = activityRes, result = activityRes.result.createReadOnlySessionResult ?: throw RuntimeException("No result found from /public/v1/submit/create_read_only_session"))
+    return TCreateReadOnlySessionResponse(activity = activityRes, result = activityRes.result.createReadOnlySessionResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_read_only_session"))
   }
 
   public suspend fun stampCreateReadOnlySession(input: TCreateReadOnlySessionBody): TSignedRequest {
@@ -2712,7 +2712,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_read_write_session"
     val activityType = "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
     val activityRes = activity<TCreateReadWriteSessionBody>(url, input, activityType)
-    return TCreateReadWriteSessionResponse(activity = activityRes, result = activityRes.result.createReadWriteSessionResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/create_read_write_session"))
+    return TCreateReadWriteSessionResponse(activity = activityRes, result = activityRes.result.createReadWriteSessionResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_read_write_session"))
   }
 
   public suspend fun stampCreateReadWriteSession(input: TCreateReadWriteSessionBody): TSignedRequest {
@@ -2736,7 +2736,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_session_profile"
     val activityType = "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
     val activityRes = activity<TCreateSessionProfileBody>(url, input, activityType)
-    return TCreateSessionProfileResponse(activity = activityRes, result = activityRes.result.createSessionProfileResult ?: throw RuntimeException("No result found from /public/v1/submit/create_session_profile"))
+    return TCreateSessionProfileResponse(activity = activityRes, result = activityRes.result.createSessionProfileResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_session_profile"))
   }
 
   public suspend fun stampCreateSessionProfile(input: TCreateSessionProfileBody): TSignedRequest {
@@ -2760,7 +2760,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_smart_contract_interface"
     val activityType = "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
     val activityRes = activity<TCreateSmartContractInterfaceBody>(url, input, activityType)
-    return TCreateSmartContractInterfaceResponse(activity = activityRes, result = activityRes.result.createSmartContractInterfaceResult ?: throw RuntimeException("No result found from /public/v1/submit/create_smart_contract_interface"))
+    return TCreateSmartContractInterfaceResponse(activity = activityRes, result = activityRes.result.createSmartContractInterfaceResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_smart_contract_interface"))
   }
 
   public suspend fun stampCreateSmartContractInterface(input: TCreateSmartContractInterfaceBody): TSignedRequest {
@@ -2784,7 +2784,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_sub_organization"
     val activityType = "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
     val activityRes = activity<TCreateSubOrganizationBody>(url, input, activityType)
-    return TCreateSubOrganizationResponse(activity = activityRes, result = activityRes.result.createSubOrganizationResultV8 ?: throw RuntimeException("No result found from /public/v1/submit/create_sub_organization"))
+    return TCreateSubOrganizationResponse(activity = activityRes, result = activityRes.result.createSubOrganizationResultV8 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_sub_organization"))
   }
 
   public suspend fun stampCreateSubOrganization(input: TCreateSubOrganizationBody): TSignedRequest {
@@ -2808,7 +2808,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_swap_quote"
     val activityType = "ACTIVITY_TYPE_CREATE_SWAP_QUOTE"
     val activityRes = activity<TCreateSwapQuoteBody>(url, input, activityType)
-    return TCreateSwapQuoteResponse(activity = activityRes, result = activityRes.result.createSwapQuoteResult ?: throw RuntimeException("No result found from /public/v1/submit/create_swap_quote"))
+    return TCreateSwapQuoteResponse(activity = activityRes, result = activityRes.result.createSwapQuoteResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_swap_quote"))
   }
 
   public suspend fun stampCreateSwapQuote(input: TCreateSwapQuoteBody): TSignedRequest {
@@ -2832,7 +2832,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_tvc_app"
     val activityType = "ACTIVITY_TYPE_CREATE_TVC_APP"
     val activityRes = activity<TCreateTvcAppBody>(url, input, activityType)
-    return TCreateTvcAppResponse(activity = activityRes, result = activityRes.result.createTvcAppResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_app"))
+    return TCreateTvcAppResponse(activity = activityRes, result = activityRes.result.createTvcAppResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_tvc_app"))
   }
 
   public suspend fun stampCreateTvcApp(input: TCreateTvcAppBody): TSignedRequest {
@@ -2856,7 +2856,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_tvc_deployment"
     val activityType = "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
     val activityRes = activity<TCreateTvcDeploymentBody>(url, input, activityType)
-    return TCreateTvcDeploymentResponse(activity = activityRes, result = activityRes.result.createTvcDeploymentResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_deployment"))
+    return TCreateTvcDeploymentResponse(activity = activityRes, result = activityRes.result.createTvcDeploymentResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_tvc_deployment"))
   }
 
   public suspend fun stampCreateTvcDeployment(input: TCreateTvcDeploymentBody): TSignedRequest {
@@ -2880,7 +2880,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_tvc_manifest_approvals"
     val activityType = "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
     val activityRes = activity<TCreateTvcManifestApprovalsBody>(url, input, activityType)
-    return TCreateTvcManifestApprovalsResponse(activity = activityRes, result = activityRes.result.createTvcManifestApprovalsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_tvc_manifest_approvals"))
+    return TCreateTvcManifestApprovalsResponse(activity = activityRes, result = activityRes.result.createTvcManifestApprovalsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_tvc_manifest_approvals"))
   }
 
   public suspend fun stampCreateTvcManifestApprovals(input: TCreateTvcManifestApprovalsBody): TSignedRequest {
@@ -2904,7 +2904,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_user_tag"
     val activityType = "ACTIVITY_TYPE_CREATE_USER_TAG"
     val activityRes = activity<TCreateUserTagBody>(url, input, activityType)
-    return TCreateUserTagResponse(activity = activityRes, result = activityRes.result.createUserTagResult ?: throw RuntimeException("No result found from /public/v1/submit/create_user_tag"))
+    return TCreateUserTagResponse(activity = activityRes, result = activityRes.result.createUserTagResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_user_tag"))
   }
 
   public suspend fun stampCreateUserTag(input: TCreateUserTagBody): TSignedRequest {
@@ -2928,7 +2928,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_users"
     val activityType = "ACTIVITY_TYPE_CREATE_USERS_V4"
     val activityRes = activity<TCreateUsersBody>(url, input, activityType)
-    return TCreateUsersResponse(activity = activityRes, result = activityRes.result.createUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/create_users"))
+    return TCreateUsersResponse(activity = activityRes, result = activityRes.result.createUsersResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_users"))
   }
 
   public suspend fun stampCreateUsers(input: TCreateUsersBody): TSignedRequest {
@@ -2952,7 +2952,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_velocity_control"
     val activityType = "ACTIVITY_TYPE_CREATE_VELOCITY_CONTROL"
     val activityRes = activity<TCreateVelocityControlBody>(url, input, activityType)
-    return TCreateVelocityControlResponse(activity = activityRes, result = activityRes.result.createVelocityControlResult ?: throw RuntimeException("No result found from /public/v1/submit/create_velocity_control"))
+    return TCreateVelocityControlResponse(activity = activityRes, result = activityRes.result.createVelocityControlResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_velocity_control"))
   }
 
   public suspend fun stampCreateVelocityControl(input: TCreateVelocityControlBody): TSignedRequest {
@@ -2976,7 +2976,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_wallet"
     val activityType = "ACTIVITY_TYPE_CREATE_WALLET"
     val activityRes = activity<TCreateWalletBody>(url, input, activityType)
-    return TCreateWalletResponse(activity = activityRes, result = activityRes.result.createWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/create_wallet"))
+    return TCreateWalletResponse(activity = activityRes, result = activityRes.result.createWalletResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_wallet"))
   }
 
   public suspend fun stampCreateWallet(input: TCreateWalletBody): TSignedRequest {
@@ -3000,7 +3000,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_wallet_accounts"
     val activityType = "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
     val activityRes = activity<TCreateWalletAccountsBody>(url, input, activityType)
-    return TCreateWalletAccountsResponse(activity = activityRes, result = activityRes.result.createWalletAccountsResult ?: throw RuntimeException("No result found from /public/v1/submit/create_wallet_accounts"))
+    return TCreateWalletAccountsResponse(activity = activityRes, result = activityRes.result.createWalletAccountsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_wallet_accounts"))
   }
 
   public suspend fun stampCreateWalletAccounts(input: TCreateWalletAccountsBody): TSignedRequest {
@@ -3024,7 +3024,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/create_webhook_endpoint"
     val activityType = "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"
     val activityRes = activity<TCreateWebhookEndpointBody>(url, input, activityType)
-    return TCreateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.createWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/create_webhook_endpoint"))
+    return TCreateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.createWebhookEndpointResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/create_webhook_endpoint"))
   }
 
   public suspend fun stampCreateWebhookEndpoint(input: TCreateWebhookEndpointBody): TSignedRequest {
@@ -3048,7 +3048,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_api_keys"
     val activityType = "ACTIVITY_TYPE_DELETE_API_KEYS"
     val activityRes = activity<TDeleteApiKeysBody>(url, input, activityType)
-    return TDeleteApiKeysResponse(activity = activityRes, result = activityRes.result.deleteApiKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_api_keys"))
+    return TDeleteApiKeysResponse(activity = activityRes, result = activityRes.result.deleteApiKeysResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_api_keys"))
   }
 
   public suspend fun stampDeleteApiKeys(input: TDeleteApiKeysBody): TSignedRequest {
@@ -3072,7 +3072,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_authenticators"
     val activityType = "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
     val activityRes = activity<TDeleteAuthenticatorsBody>(url, input, activityType)
-    return TDeleteAuthenticatorsResponse(activity = activityRes, result = activityRes.result.deleteAuthenticatorsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_authenticators"))
+    return TDeleteAuthenticatorsResponse(activity = activityRes, result = activityRes.result.deleteAuthenticatorsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_authenticators"))
   }
 
   public suspend fun stampDeleteAuthenticators(input: TDeleteAuthenticatorsBody): TSignedRequest {
@@ -3096,7 +3096,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_fiat_on_ramp_credential"
     val activityType = "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"
     val activityRes = activity<TDeleteFiatOnRampCredentialBody>(url, input, activityType)
-    return TDeleteFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.deleteFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_fiat_on_ramp_credential"))
+    return TDeleteFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.deleteFiatOnRampCredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_fiat_on_ramp_credential"))
   }
 
   public suspend fun stampDeleteFiatOnRampCredential(input: TDeleteFiatOnRampCredentialBody): TSignedRequest {
@@ -3120,7 +3120,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_invitation"
     val activityType = "ACTIVITY_TYPE_DELETE_INVITATION"
     val activityRes = activity<TDeleteInvitationBody>(url, input, activityType)
-    return TDeleteInvitationResponse(activity = activityRes, result = activityRes.result.deleteInvitationResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_invitation"))
+    return TDeleteInvitationResponse(activity = activityRes, result = activityRes.result.deleteInvitationResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_invitation"))
   }
 
   public suspend fun stampDeleteInvitation(input: TDeleteInvitationBody): TSignedRequest {
@@ -3144,7 +3144,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_mfa_policy"
     val activityType = "ACTIVITY_TYPE_DELETE_MFA_POLICY"
     val activityRes = activity<TDeleteMfaPolicyBody>(url, input, activityType)
-    return TDeleteMfaPolicyResponse(activity = activityRes, result = activityRes.result.deleteMfaPolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_mfa_policy"))
+    return TDeleteMfaPolicyResponse(activity = activityRes, result = activityRes.result.deleteMfaPolicyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_mfa_policy"))
   }
 
   public suspend fun stampDeleteMfaPolicy(input: TDeleteMfaPolicyBody): TSignedRequest {
@@ -3168,7 +3168,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_oauth2_credential"
     val activityType = "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
     val activityRes = activity<TDeleteOauth2CredentialBody>(url, input, activityType)
-    return TDeleteOauth2CredentialResponse(activity = activityRes, result = activityRes.result.deleteOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_oauth2_credential"))
+    return TDeleteOauth2CredentialResponse(activity = activityRes, result = activityRes.result.deleteOauth2CredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_oauth2_credential"))
   }
 
   public suspend fun stampDeleteOauth2Credential(input: TDeleteOauth2CredentialBody): TSignedRequest {
@@ -3192,7 +3192,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_oauth_providers"
     val activityType = "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"
     val activityRes = activity<TDeleteOauthProvidersBody>(url, input, activityType)
-    return TDeleteOauthProvidersResponse(activity = activityRes, result = activityRes.result.deleteOauthProvidersResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_oauth_providers"))
+    return TDeleteOauthProvidersResponse(activity = activityRes, result = activityRes.result.deleteOauthProvidersResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_oauth_providers"))
   }
 
   public suspend fun stampDeleteOauthProviders(input: TDeleteOauthProvidersBody): TSignedRequest {
@@ -3216,7 +3216,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_policies"
     val activityType = "ACTIVITY_TYPE_DELETE_POLICIES"
     val activityRes = activity<TDeletePoliciesBody>(url, input, activityType)
-    return TDeletePoliciesResponse(activity = activityRes, result = activityRes.result.deletePoliciesResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_policies"))
+    return TDeletePoliciesResponse(activity = activityRes, result = activityRes.result.deletePoliciesResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_policies"))
   }
 
   public suspend fun stampDeletePolicies(input: TDeletePoliciesBody): TSignedRequest {
@@ -3240,7 +3240,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_policy"
     val activityType = "ACTIVITY_TYPE_DELETE_POLICY"
     val activityRes = activity<TDeletePolicyBody>(url, input, activityType)
-    return TDeletePolicyResponse(activity = activityRes, result = activityRes.result.deletePolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_policy"))
+    return TDeletePolicyResponse(activity = activityRes, result = activityRes.result.deletePolicyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_policy"))
   }
 
   public suspend fun stampDeletePolicy(input: TDeletePolicyBody): TSignedRequest {
@@ -3264,7 +3264,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_private_key_tags"
     val activityType = "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
     val activityRes = activity<TDeletePrivateKeyTagsBody>(url, input, activityType)
-    return TDeletePrivateKeyTagsResponse(activity = activityRes, result = activityRes.result.deletePrivateKeyTagsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_private_key_tags"))
+    return TDeletePrivateKeyTagsResponse(activity = activityRes, result = activityRes.result.deletePrivateKeyTagsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_private_key_tags"))
   }
 
   public suspend fun stampDeletePrivateKeyTags(input: TDeletePrivateKeyTagsBody): TSignedRequest {
@@ -3288,7 +3288,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_private_keys"
     val activityType = "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
     val activityRes = activity<TDeletePrivateKeysBody>(url, input, activityType)
-    return TDeletePrivateKeysResponse(activity = activityRes, result = activityRes.result.deletePrivateKeysResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_private_keys"))
+    return TDeletePrivateKeysResponse(activity = activityRes, result = activityRes.result.deletePrivateKeysResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_private_keys"))
   }
 
   public suspend fun stampDeletePrivateKeys(input: TDeletePrivateKeysBody): TSignedRequest {
@@ -3312,7 +3312,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_smart_contract_interface"
     val activityType = "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
     val activityRes = activity<TDeleteSmartContractInterfaceBody>(url, input, activityType)
-    return TDeleteSmartContractInterfaceResponse(activity = activityRes, result = activityRes.result.deleteSmartContractInterfaceResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_smart_contract_interface"))
+    return TDeleteSmartContractInterfaceResponse(activity = activityRes, result = activityRes.result.deleteSmartContractInterfaceResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_smart_contract_interface"))
   }
 
   public suspend fun stampDeleteSmartContractInterface(input: TDeleteSmartContractInterfaceBody): TSignedRequest {
@@ -3336,7 +3336,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_sub_organization"
     val activityType = "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
     val activityRes = activity<TDeleteSubOrganizationBody>(url, input, activityType)
-    return TDeleteSubOrganizationResponse(activity = activityRes, result = activityRes.result.deleteSubOrganizationResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_sub_organization"))
+    return TDeleteSubOrganizationResponse(activity = activityRes, result = activityRes.result.deleteSubOrganizationResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_sub_organization"))
   }
 
   public suspend fun stampDeleteSubOrganization(input: TDeleteSubOrganizationBody): TSignedRequest {
@@ -3360,7 +3360,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_tvc_app_and_deployments"
     val activityType = "ACTIVITY_TYPE_DELETE_TVC_APP_AND_DEPLOYMENTS"
     val activityRes = activity<TDeleteTvcAppAndDeploymentsBody>(url, input, activityType)
-    return TDeleteTvcAppAndDeploymentsResponse(activity = activityRes, result = activityRes.result.deleteTvcAppAndDeploymentsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_tvc_app_and_deployments"))
+    return TDeleteTvcAppAndDeploymentsResponse(activity = activityRes, result = activityRes.result.deleteTvcAppAndDeploymentsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_tvc_app_and_deployments"))
   }
 
   public suspend fun stampDeleteTvcAppAndDeployments(input: TDeleteTvcAppAndDeploymentsBody): TSignedRequest {
@@ -3384,7 +3384,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_tvc_deployment"
     val activityType = "ACTIVITY_TYPE_DELETE_TVC_DEPLOYMENT"
     val activityRes = activity<TDeleteTvcDeploymentBody>(url, input, activityType)
-    return TDeleteTvcDeploymentResponse(activity = activityRes, result = activityRes.result.deleteTvcDeploymentResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_tvc_deployment"))
+    return TDeleteTvcDeploymentResponse(activity = activityRes, result = activityRes.result.deleteTvcDeploymentResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_tvc_deployment"))
   }
 
   public suspend fun stampDeleteTvcDeployment(input: TDeleteTvcDeploymentBody): TSignedRequest {
@@ -3408,7 +3408,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_user_tags"
     val activityType = "ACTIVITY_TYPE_DELETE_USER_TAGS"
     val activityRes = activity<TDeleteUserTagsBody>(url, input, activityType)
-    return TDeleteUserTagsResponse(activity = activityRes, result = activityRes.result.deleteUserTagsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_user_tags"))
+    return TDeleteUserTagsResponse(activity = activityRes, result = activityRes.result.deleteUserTagsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_user_tags"))
   }
 
   public suspend fun stampDeleteUserTags(input: TDeleteUserTagsBody): TSignedRequest {
@@ -3432,7 +3432,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_users"
     val activityType = "ACTIVITY_TYPE_DELETE_USERS"
     val activityRes = activity<TDeleteUsersBody>(url, input, activityType)
-    return TDeleteUsersResponse(activity = activityRes, result = activityRes.result.deleteUsersResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_users"))
+    return TDeleteUsersResponse(activity = activityRes, result = activityRes.result.deleteUsersResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_users"))
   }
 
   public suspend fun stampDeleteUsers(input: TDeleteUsersBody): TSignedRequest {
@@ -3456,7 +3456,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_velocity_control"
     val activityType = "ACTIVITY_TYPE_DELETE_VELOCITY_CONTROL"
     val activityRes = activity<TDeleteVelocityControlBody>(url, input, activityType)
-    return TDeleteVelocityControlResponse(activity = activityRes, result = activityRes.result.deleteVelocityControlResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_velocity_control"))
+    return TDeleteVelocityControlResponse(activity = activityRes, result = activityRes.result.deleteVelocityControlResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_velocity_control"))
   }
 
   public suspend fun stampDeleteVelocityControl(input: TDeleteVelocityControlBody): TSignedRequest {
@@ -3480,7 +3480,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_wallet_accounts"
     val activityType = "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
     val activityRes = activity<TDeleteWalletAccountsBody>(url, input, activityType)
-    return TDeleteWalletAccountsResponse(activity = activityRes, result = activityRes.result.deleteWalletAccountsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_wallet_accounts"))
+    return TDeleteWalletAccountsResponse(activity = activityRes, result = activityRes.result.deleteWalletAccountsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_wallet_accounts"))
   }
 
   public suspend fun stampDeleteWalletAccounts(input: TDeleteWalletAccountsBody): TSignedRequest {
@@ -3504,7 +3504,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_wallets"
     val activityType = "ACTIVITY_TYPE_DELETE_WALLETS"
     val activityRes = activity<TDeleteWalletsBody>(url, input, activityType)
-    return TDeleteWalletsResponse(activity = activityRes, result = activityRes.result.deleteWalletsResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_wallets"))
+    return TDeleteWalletsResponse(activity = activityRes, result = activityRes.result.deleteWalletsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_wallets"))
   }
 
   public suspend fun stampDeleteWallets(input: TDeleteWalletsBody): TSignedRequest {
@@ -3528,7 +3528,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/delete_webhook_endpoint"
     val activityType = "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
     val activityRes = activity<TDeleteWebhookEndpointBody>(url, input, activityType)
-    return TDeleteWebhookEndpointResponse(activity = activityRes, result = activityRes.result.deleteWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/delete_webhook_endpoint"))
+    return TDeleteWebhookEndpointResponse(activity = activityRes, result = activityRes.result.deleteWebhookEndpointResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/delete_webhook_endpoint"))
   }
 
   public suspend fun stampDeleteWebhookEndpoint(input: TDeleteWebhookEndpointBody): TSignedRequest {
@@ -3552,7 +3552,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/earn_deploy_wrapper"
     val activityType = "ACTIVITY_TYPE_EARN_DEPLOY_WRAPPER"
     val activityRes = activity<TEarnDeployWrapperBody>(url, input, activityType)
-    return TEarnDeployWrapperResponse(activity = activityRes, result = activityRes.result.earnDeployWrapperResult ?: throw RuntimeException("No result found from /public/v1/submit/earn_deploy_wrapper"))
+    return TEarnDeployWrapperResponse(activity = activityRes, result = activityRes.result.earnDeployWrapperResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/earn_deploy_wrapper"))
   }
 
   public suspend fun stampEarnDeployWrapper(input: TEarnDeployWrapperBody): TSignedRequest {
@@ -3576,7 +3576,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/earn_deposit"
     val activityType = "ACTIVITY_TYPE_EARN_DEPOSIT"
     val activityRes = activity<TEarnDepositBody>(url, input, activityType)
-    return TEarnDepositResponse(activity = activityRes, result = activityRes.result.earnDepositResult ?: throw RuntimeException("No result found from /public/v1/submit/earn_deposit"))
+    return TEarnDepositResponse(activity = activityRes, result = activityRes.result.earnDepositResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/earn_deposit"))
   }
 
   public suspend fun stampEarnDeposit(input: TEarnDepositBody): TSignedRequest {
@@ -3600,7 +3600,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/earn_set_wrapper_state"
     val activityType = "ACTIVITY_TYPE_EARN_SET_WRAPPER_STATE"
     val activityRes = activity<TEarnSetWrapperStateBody>(url, input, activityType)
-    return TEarnSetWrapperStateResponse(activity = activityRes, result = activityRes.result.earnSetWrapperStateResult ?: throw RuntimeException("No result found from /public/v1/submit/earn_set_wrapper_state"))
+    return TEarnSetWrapperStateResponse(activity = activityRes, result = activityRes.result.earnSetWrapperStateResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/earn_set_wrapper_state"))
   }
 
   public suspend fun stampEarnSetWrapperState(input: TEarnSetWrapperStateBody): TSignedRequest {
@@ -3624,7 +3624,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/earn_withdraw"
     val activityType = "ACTIVITY_TYPE_EARN_WITHDRAW"
     val activityRes = activity<TEarnWithdrawBody>(url, input, activityType)
-    return TEarnWithdrawResponse(activity = activityRes, result = activityRes.result.earnWithdrawResult ?: throw RuntimeException("No result found from /public/v1/submit/earn_withdraw"))
+    return TEarnWithdrawResponse(activity = activityRes, result = activityRes.result.earnWithdrawResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/earn_withdraw"))
   }
 
   public suspend fun stampEarnWithdraw(input: TEarnWithdrawBody): TSignedRequest {
@@ -3648,7 +3648,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/email_auth"
     val activityType = "ACTIVITY_TYPE_EMAIL_AUTH_V3"
     val activityRes = activity<TEmailAuthBody>(url, input, activityType)
-    return TEmailAuthResponse(activity = activityRes, result = activityRes.result.emailAuthResult ?: throw RuntimeException("No result found from /public/v1/submit/email_auth"))
+    return TEmailAuthResponse(activity = activityRes, result = activityRes.result.emailAuthResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/email_auth"))
   }
 
   public suspend fun stampEmailAuth(input: TEmailAuthBody): TSignedRequest {
@@ -3672,7 +3672,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/eth_send_transaction"
     val activityType = "ACTIVITY_TYPE_ETH_SEND_TRANSACTION"
     val activityRes = activity<TEthSendTransactionBody>(url, input, activityType)
-    return TEthSendTransactionResponse(activity = activityRes, result = activityRes.result.ethSendTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/eth_send_transaction"))
+    return TEthSendTransactionResponse(activity = activityRes, result = activityRes.result.ethSendTransactionResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/eth_send_transaction"))
   }
 
   public suspend fun stampEthSendTransaction(input: TEthSendTransactionBody): TSignedRequest {
@@ -3696,7 +3696,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/eth_undelegate_7702"
     val activityType = "ACTIVITY_TYPE_ETH_UNDELEGATE_7702"
     val activityRes = activity<TEthUndelegate7702Body>(url, input, activityType)
-    return TEthUndelegate7702Response(activity = activityRes, result = activityRes.result.ethUndelegate7702Result ?: throw RuntimeException("No result found from /public/v1/submit/eth_undelegate_7702"))
+    return TEthUndelegate7702Response(activity = activityRes, result = activityRes.result.ethUndelegate7702Result ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/eth_undelegate_7702"))
   }
 
   public suspend fun stampEthUndelegate7702(input: TEthUndelegate7702Body): TSignedRequest {
@@ -3720,7 +3720,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/execute_swap"
     val activityType = "ACTIVITY_TYPE_EXECUTE_SWAP_V2"
     val activityRes = activity<TExecuteSwapBody>(url, input, activityType)
-    return TExecuteSwapResponse(activity = activityRes, result = activityRes.result.executeSwapResult ?: throw RuntimeException("No result found from /public/v1/submit/execute_swap"))
+    return TExecuteSwapResponse(activity = activityRes, result = activityRes.result.executeSwapResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/execute_swap"))
   }
 
   public suspend fun stampExecuteSwap(input: TExecuteSwapBody): TSignedRequest {
@@ -3744,7 +3744,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/export_private_key"
     val activityType = "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
     val activityRes = activity<TExportPrivateKeyBody>(url, input, activityType)
-    return TExportPrivateKeyResponse(activity = activityRes, result = activityRes.result.exportPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/export_private_key"))
+    return TExportPrivateKeyResponse(activity = activityRes, result = activityRes.result.exportPrivateKeyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/export_private_key"))
   }
 
   public suspend fun stampExportPrivateKey(input: TExportPrivateKeyBody): TSignedRequest {
@@ -3768,7 +3768,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/export_secrets"
     val activityType = "ACTIVITY_TYPE_EXPORT_SECRETS"
     val activityRes = activity<TExportSecretsBody>(url, input, activityType)
-    return TExportSecretsResponse(activity = activityRes, result = activityRes.result.exportSecretsResult ?: throw RuntimeException("No result found from /public/v1/submit/export_secrets"))
+    return TExportSecretsResponse(activity = activityRes, result = activityRes.result.exportSecretsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/export_secrets"))
   }
 
   public suspend fun stampExportSecrets(input: TExportSecretsBody): TSignedRequest {
@@ -3792,7 +3792,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/export_wallet"
     val activityType = "ACTIVITY_TYPE_EXPORT_WALLET"
     val activityRes = activity<TExportWalletBody>(url, input, activityType)
-    return TExportWalletResponse(activity = activityRes, result = activityRes.result.exportWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/export_wallet"))
+    return TExportWalletResponse(activity = activityRes, result = activityRes.result.exportWalletResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/export_wallet"))
   }
 
   public suspend fun stampExportWallet(input: TExportWalletBody): TSignedRequest {
@@ -3816,7 +3816,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/export_wallet_account"
     val activityType = "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
     val activityRes = activity<TExportWalletAccountBody>(url, input, activityType)
-    return TExportWalletAccountResponse(activity = activityRes, result = activityRes.result.exportWalletAccountResult ?: throw RuntimeException("No result found from /public/v1/submit/export_wallet_account"))
+    return TExportWalletAccountResponse(activity = activityRes, result = activityRes.result.exportWalletAccountResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/export_wallet_account"))
   }
 
   public suspend fun stampExportWalletAccount(input: TExportWalletAccountBody): TSignedRequest {
@@ -3840,7 +3840,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/import_private_key"
     val activityType = "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
     val activityRes = activity<TImportPrivateKeyBody>(url, input, activityType)
-    return TImportPrivateKeyResponse(activity = activityRes, result = activityRes.result.importPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/import_private_key"))
+    return TImportPrivateKeyResponse(activity = activityRes, result = activityRes.result.importPrivateKeyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/import_private_key"))
   }
 
   public suspend fun stampImportPrivateKey(input: TImportPrivateKeyBody): TSignedRequest {
@@ -3864,7 +3864,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/import_secrets"
     val activityType = "ACTIVITY_TYPE_IMPORT_SECRETS"
     val activityRes = activity<TImportSecretsBody>(url, input, activityType)
-    return TImportSecretsResponse(activity = activityRes, result = activityRes.result.importSecretsResult ?: throw RuntimeException("No result found from /public/v1/submit/import_secrets"))
+    return TImportSecretsResponse(activity = activityRes, result = activityRes.result.importSecretsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/import_secrets"))
   }
 
   public suspend fun stampImportSecrets(input: TImportSecretsBody): TSignedRequest {
@@ -3888,7 +3888,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/import_wallet"
     val activityType = "ACTIVITY_TYPE_IMPORT_WALLET"
     val activityRes = activity<TImportWalletBody>(url, input, activityType)
-    return TImportWalletResponse(activity = activityRes, result = activityRes.result.importWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/import_wallet"))
+    return TImportWalletResponse(activity = activityRes, result = activityRes.result.importWalletResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/import_wallet"))
   }
 
   public suspend fun stampImportWallet(input: TImportWalletBody): TSignedRequest {
@@ -3912,7 +3912,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_fiat_on_ramp"
     val activityType = "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
     val activityRes = activity<TInitFiatOnRampBody>(url, input, activityType)
-    return TInitFiatOnRampResponse(activity = activityRes, result = activityRes.result.initFiatOnRampResult ?: throw RuntimeException("No result found from /public/v1/submit/init_fiat_on_ramp"))
+    return TInitFiatOnRampResponse(activity = activityRes, result = activityRes.result.initFiatOnRampResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_fiat_on_ramp"))
   }
 
   public suspend fun stampInitFiatOnRamp(input: TInitFiatOnRampBody): TSignedRequest {
@@ -3936,7 +3936,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_import_private_key"
     val activityType = "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
     val activityRes = activity<TInitImportPrivateKeyBody>(url, input, activityType)
-    return TInitImportPrivateKeyResponse(activity = activityRes, result = activityRes.result.initImportPrivateKeyResult ?: throw RuntimeException("No result found from /public/v1/submit/init_import_private_key"))
+    return TInitImportPrivateKeyResponse(activity = activityRes, result = activityRes.result.initImportPrivateKeyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_import_private_key"))
   }
 
   public suspend fun stampInitImportPrivateKey(input: TInitImportPrivateKeyBody): TSignedRequest {
@@ -3960,7 +3960,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_import_wallet"
     val activityType = "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
     val activityRes = activity<TInitImportWalletBody>(url, input, activityType)
-    return TInitImportWalletResponse(activity = activityRes, result = activityRes.result.initImportWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/init_import_wallet"))
+    return TInitImportWalletResponse(activity = activityRes, result = activityRes.result.initImportWalletResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_import_wallet"))
   }
 
   public suspend fun stampInitImportWallet(input: TInitImportWalletBody): TSignedRequest {
@@ -3984,7 +3984,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_otp"
     val activityType = "ACTIVITY_TYPE_INIT_OTP_V3"
     val activityRes = activity<TInitOtpBody>(url, input, activityType)
-    return TInitOtpResponse(activity = activityRes, result = activityRes.result.initOtpResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/init_otp"))
+    return TInitOtpResponse(activity = activityRes, result = activityRes.result.initOtpResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_otp"))
   }
 
   public suspend fun stampInitOtp(input: TInitOtpBody): TSignedRequest {
@@ -4008,7 +4008,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_otp_auth"
     val activityType = "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
     val activityRes = activity<TInitOtpAuthBody>(url, input, activityType)
-    return TInitOtpAuthResponse(activity = activityRes, result = activityRes.result.initOtpAuthResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/init_otp_auth"))
+    return TInitOtpAuthResponse(activity = activityRes, result = activityRes.result.initOtpAuthResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_otp_auth"))
   }
 
   public suspend fun stampInitOtpAuth(input: TInitOtpAuthBody): TSignedRequest {
@@ -4032,7 +4032,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/init_user_email_recovery"
     val activityType = "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
     val activityRes = activity<TInitUserEmailRecoveryBody>(url, input, activityType)
-    return TInitUserEmailRecoveryResponse(activity = activityRes, result = activityRes.result.initUserEmailRecoveryResult ?: throw RuntimeException("No result found from /public/v1/submit/init_user_email_recovery"))
+    return TInitUserEmailRecoveryResponse(activity = activityRes, result = activityRes.result.initUserEmailRecoveryResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/init_user_email_recovery"))
   }
 
   public suspend fun stampInitUserEmailRecovery(input: TInitUserEmailRecoveryBody): TSignedRequest {
@@ -4056,7 +4056,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/oauth"
     val activityType = "ACTIVITY_TYPE_OAUTH"
     val activityRes = activity<TOauthBody>(url, input, activityType)
-    return TOauthResponse(activity = activityRes, result = activityRes.result.oauthResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth"))
+    return TOauthResponse(activity = activityRes, result = activityRes.result.oauthResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/oauth"))
   }
 
   public suspend fun stampOauth(input: TOauthBody): TSignedRequest {
@@ -4080,7 +4080,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/oauth2_authenticate"
     val activityType = "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
     val activityRes = activity<TOauth2AuthenticateBody>(url, input, activityType)
-    return TOauth2AuthenticateResponse(activity = activityRes, result = activityRes.result.oauth2AuthenticateResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth2_authenticate"))
+    return TOauth2AuthenticateResponse(activity = activityRes, result = activityRes.result.oauth2AuthenticateResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/oauth2_authenticate"))
   }
 
   public suspend fun stampOauth2Authenticate(input: TOauth2AuthenticateBody): TSignedRequest {
@@ -4104,7 +4104,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/oauth_login"
     val activityType = "ACTIVITY_TYPE_OAUTH_LOGIN"
     val activityRes = activity<TOauthLoginBody>(url, input, activityType)
-    return TOauthLoginResponse(activity = activityRes, result = activityRes.result.oauthLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/oauth_login"))
+    return TOauthLoginResponse(activity = activityRes, result = activityRes.result.oauthLoginResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/oauth_login"))
   }
 
   public suspend fun stampOauthLogin(input: TOauthLoginBody): TSignedRequest {
@@ -4128,7 +4128,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/otp_auth"
     val activityType = "ACTIVITY_TYPE_OTP_AUTH"
     val activityRes = activity<TOtpAuthBody>(url, input, activityType)
-    return TOtpAuthResponse(activity = activityRes, result = activityRes.result.otpAuthResult ?: throw RuntimeException("No result found from /public/v1/submit/otp_auth"))
+    return TOtpAuthResponse(activity = activityRes, result = activityRes.result.otpAuthResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/otp_auth"))
   }
 
   public suspend fun stampOtpAuth(input: TOtpAuthBody): TSignedRequest {
@@ -4152,7 +4152,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/otp_login"
     val activityType = "ACTIVITY_TYPE_OTP_LOGIN_V2"
     val activityRes = activity<TOtpLoginBody>(url, input, activityType)
-    return TOtpLoginResponse(activity = activityRes, result = activityRes.result.otpLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/otp_login"))
+    return TOtpLoginResponse(activity = activityRes, result = activityRes.result.otpLoginResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/otp_login"))
   }
 
   public suspend fun stampOtpLogin(input: TOtpLoginBody): TSignedRequest {
@@ -4176,7 +4176,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/recover_user"
     val activityType = "ACTIVITY_TYPE_RECOVER_USER"
     val activityRes = activity<TRecoverUserBody>(url, input, activityType)
-    return TRecoverUserResponse(activity = activityRes, result = activityRes.result.recoverUserResult ?: throw RuntimeException("No result found from /public/v1/submit/recover_user"))
+    return TRecoverUserResponse(activity = activityRes, result = activityRes.result.recoverUserResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/recover_user"))
   }
 
   public suspend fun stampRecoverUser(input: TRecoverUserBody): TSignedRequest {
@@ -4224,7 +4224,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/remove_ip_allowlist"
     val activityType = "ACTIVITY_TYPE_REMOVE_IP_ALLOWLIST"
     val activityRes = activity<TRemoveIpAllowlistBody>(url, input, activityType)
-    return TRemoveIpAllowlistResponse(activity = activityRes, result = activityRes.result.removeIpAllowlistResult ?: throw RuntimeException("No result found from /public/v1/submit/remove_ip_allowlist"))
+    return TRemoveIpAllowlistResponse(activity = activityRes, result = activityRes.result.removeIpAllowlistResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/remove_ip_allowlist"))
   }
 
   public suspend fun stampRemoveIpAllowlist(input: TRemoveIpAllowlistBody): TSignedRequest {
@@ -4248,7 +4248,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/remove_organization_feature"
     val activityType = "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
     val activityRes = activity<TRemoveOrganizationFeatureBody>(url, input, activityType)
-    return TRemoveOrganizationFeatureResponse(activity = activityRes, result = activityRes.result.removeOrganizationFeatureResult ?: throw RuntimeException("No result found from /public/v1/submit/remove_organization_feature"))
+    return TRemoveOrganizationFeatureResponse(activity = activityRes, result = activityRes.result.removeOrganizationFeatureResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/remove_organization_feature"))
   }
 
   public suspend fun stampRemoveOrganizationFeature(input: TRemoveOrganizationFeatureBody): TSignedRequest {
@@ -4272,7 +4272,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/restore_tvc_deployment"
     val activityType = "ACTIVITY_TYPE_RESTORE_TVC_DEPLOYMENT"
     val activityRes = activity<TRestoreTvcDeploymentBody>(url, input, activityType)
-    return TRestoreTvcDeploymentResponse(activity = activityRes, result = activityRes.result.restoreTvcDeploymentResult ?: throw RuntimeException("No result found from /public/v1/submit/restore_tvc_deployment"))
+    return TRestoreTvcDeploymentResponse(activity = activityRes, result = activityRes.result.restoreTvcDeploymentResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/restore_tvc_deployment"))
   }
 
   public suspend fun stampRestoreTvcDeployment(input: TRestoreTvcDeploymentBody): TSignedRequest {
@@ -4296,7 +4296,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/set_ip_allowlist"
     val activityType = "ACTIVITY_TYPE_SET_IP_ALLOWLIST"
     val activityRes = activity<TSetIpAllowlistBody>(url, input, activityType)
-    return TSetIpAllowlistResponse(activity = activityRes, result = activityRes.result.setIpAllowlistResult ?: throw RuntimeException("No result found from /public/v1/submit/set_ip_allowlist"))
+    return TSetIpAllowlistResponse(activity = activityRes, result = activityRes.result.setIpAllowlistResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/set_ip_allowlist"))
   }
 
   public suspend fun stampSetIpAllowlist(input: TSetIpAllowlistBody): TSignedRequest {
@@ -4320,7 +4320,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/set_organization_feature"
     val activityType = "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
     val activityRes = activity<TSetOrganizationFeatureBody>(url, input, activityType)
-    return TSetOrganizationFeatureResponse(activity = activityRes, result = activityRes.result.setOrganizationFeatureResult ?: throw RuntimeException("No result found from /public/v1/submit/set_organization_feature"))
+    return TSetOrganizationFeatureResponse(activity = activityRes, result = activityRes.result.setOrganizationFeatureResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/set_organization_feature"))
   }
 
   public suspend fun stampSetOrganizationFeature(input: TSetOrganizationFeatureBody): TSignedRequest {
@@ -4344,7 +4344,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/set_tvc_app_live_deployment"
     val activityType = "ACTIVITY_TYPE_UPDATE_TVC_APP_LIVE_DEPLOYMENT"
     val activityRes = activity<TUpdateTvcAppLiveDeploymentBody>(url, input, activityType)
-    return TUpdateTvcAppLiveDeploymentResponse(activity = activityRes, result = activityRes.result.updateTvcAppLiveDeploymentResult ?: throw RuntimeException("No result found from /public/v1/submit/set_tvc_app_live_deployment"))
+    return TUpdateTvcAppLiveDeploymentResponse(activity = activityRes, result = activityRes.result.updateTvcAppLiveDeploymentResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/set_tvc_app_live_deployment"))
   }
 
   public suspend fun stampUpdateTvcAppLiveDeployment(input: TUpdateTvcAppLiveDeploymentBody): TSignedRequest {
@@ -4368,7 +4368,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/sign_raw_payload"
     val activityType = "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
     val activityRes = activity<TSignRawPayloadBody>(url, input, activityType)
-    return TSignRawPayloadResponse(activity = activityRes, result = activityRes.result.signRawPayloadResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_raw_payload"))
+    return TSignRawPayloadResponse(activity = activityRes, result = activityRes.result.signRawPayloadResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/sign_raw_payload"))
   }
 
   public suspend fun stampSignRawPayload(input: TSignRawPayloadBody): TSignedRequest {
@@ -4392,7 +4392,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/sign_raw_payloads"
     val activityType = "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
     val activityRes = activity<TSignRawPayloadsBody>(url, input, activityType)
-    return TSignRawPayloadsResponse(activity = activityRes, result = activityRes.result.signRawPayloadsResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_raw_payloads"))
+    return TSignRawPayloadsResponse(activity = activityRes, result = activityRes.result.signRawPayloadsResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/sign_raw_payloads"))
   }
 
   public suspend fun stampSignRawPayloads(input: TSignRawPayloadsBody): TSignedRequest {
@@ -4416,7 +4416,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/sign_transaction"
     val activityType = "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
     val activityRes = activity<TSignTransactionBody>(url, input, activityType)
-    return TSignTransactionResponse(activity = activityRes, result = activityRes.result.signTransactionResult ?: throw RuntimeException("No result found from /public/v1/submit/sign_transaction"))
+    return TSignTransactionResponse(activity = activityRes, result = activityRes.result.signTransactionResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/sign_transaction"))
   }
 
   public suspend fun stampSignTransaction(input: TSignTransactionBody): TSignedRequest {
@@ -4440,7 +4440,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/sol_send_transaction"
     val activityType = "ACTIVITY_TYPE_SOL_SEND_TRANSACTION_V2"
     val activityRes = activity<TSolSendTransactionBody>(url, input, activityType)
-    return TSolSendTransactionResponse(activity = activityRes, result = activityRes.result.solSendTransactionResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/sol_send_transaction"))
+    return TSolSendTransactionResponse(activity = activityRes, result = activityRes.result.solSendTransactionResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/sol_send_transaction"))
   }
 
   public suspend fun stampSolSendTransaction(input: TSolSendTransactionBody): TSignedRequest {
@@ -4464,7 +4464,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/spark_claim_transfer"
     val activityType = "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
     val activityRes = activity<TSparkClaimTransferBody>(url, input, activityType)
-    return TSparkClaimTransferResponse(activity = activityRes, result = activityRes.result.sparkClaimTransferResult ?: throw RuntimeException("No result found from /public/v1/submit/spark_claim_transfer"))
+    return TSparkClaimTransferResponse(activity = activityRes, result = activityRes.result.sparkClaimTransferResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/spark_claim_transfer"))
   }
 
   public suspend fun stampSparkClaimTransfer(input: TSparkClaimTransferBody): TSignedRequest {
@@ -4488,7 +4488,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/spark_prepare_lightning_receive"
     val activityType = "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
     val activityRes = activity<TSparkPrepareLightningReceiveBody>(url, input, activityType)
-    return TSparkPrepareLightningReceiveResponse(activity = activityRes, result = activityRes.result.sparkPrepareLightningReceiveResult ?: throw RuntimeException("No result found from /public/v1/submit/spark_prepare_lightning_receive"))
+    return TSparkPrepareLightningReceiveResponse(activity = activityRes, result = activityRes.result.sparkPrepareLightningReceiveResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/spark_prepare_lightning_receive"))
   }
 
   public suspend fun stampSparkPrepareLightningReceive(input: TSparkPrepareLightningReceiveBody): TSignedRequest {
@@ -4512,7 +4512,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/spark_prepare_transfer"
     val activityType = "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
     val activityRes = activity<TSparkPrepareTransferBody>(url, input, activityType)
-    return TSparkPrepareTransferResponse(activity = activityRes, result = activityRes.result.sparkPrepareTransferResult ?: throw RuntimeException("No result found from /public/v1/submit/spark_prepare_transfer"))
+    return TSparkPrepareTransferResponse(activity = activityRes, result = activityRes.result.sparkPrepareTransferResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/spark_prepare_transfer"))
   }
 
   public suspend fun stampSparkPrepareTransfer(input: TSparkPrepareTransferBody): TSignedRequest {
@@ -4536,7 +4536,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/spark_sign_frost"
     val activityType = "ACTIVITY_TYPE_SPARK_SIGN_FROST"
     val activityRes = activity<TSparkSignFrostBody>(url, input, activityType)
-    return TSparkSignFrostResponse(activity = activityRes, result = activityRes.result.sparkSignFrostResult ?: throw RuntimeException("No result found from /public/v1/submit/spark_sign_frost"))
+    return TSparkSignFrostResponse(activity = activityRes, result = activityRes.result.sparkSignFrostResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/spark_sign_frost"))
   }
 
   public suspend fun stampSparkSignFrost(input: TSparkSignFrostBody): TSignedRequest {
@@ -4560,7 +4560,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/stamp_login"
     val activityType = "ACTIVITY_TYPE_STAMP_LOGIN"
     val activityRes = activity<TStampLoginBody>(url, input, activityType)
-    return TStampLoginResponse(activity = activityRes, result = activityRes.result.stampLoginResult ?: throw RuntimeException("No result found from /public/v1/submit/stamp_login"))
+    return TStampLoginResponse(activity = activityRes, result = activityRes.result.stampLoginResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/stamp_login"))
   }
 
   public suspend fun stampStampLogin(input: TStampLoginBody): TSignedRequest {
@@ -4584,7 +4584,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_fiat_on_ramp_credential"
     val activityType = "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL"
     val activityRes = activity<TUpdateFiatOnRampCredentialBody>(url, input, activityType)
-    return TUpdateFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.updateFiatOnRampCredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/update_fiat_on_ramp_credential"))
+    return TUpdateFiatOnRampCredentialResponse(activity = activityRes, result = activityRes.result.updateFiatOnRampCredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_fiat_on_ramp_credential"))
   }
 
   public suspend fun stampUpdateFiatOnRampCredential(input: TUpdateFiatOnRampCredentialBody): TSignedRequest {
@@ -4608,7 +4608,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_mfa_policy"
     val activityType = "ACTIVITY_TYPE_UPDATE_MFA_POLICY"
     val activityRes = activity<TUpdateMfaPolicyBody>(url, input, activityType)
-    return TUpdateMfaPolicyResponse(activity = activityRes, result = activityRes.result.updateMfaPolicyResult ?: throw RuntimeException("No result found from /public/v1/submit/update_mfa_policy"))
+    return TUpdateMfaPolicyResponse(activity = activityRes, result = activityRes.result.updateMfaPolicyResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_mfa_policy"))
   }
 
   public suspend fun stampUpdateMfaPolicy(input: TUpdateMfaPolicyBody): TSignedRequest {
@@ -4632,7 +4632,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_oauth2_credential"
     val activityType = "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
     val activityRes = activity<TUpdateOauth2CredentialBody>(url, input, activityType)
-    return TUpdateOauth2CredentialResponse(activity = activityRes, result = activityRes.result.updateOauth2CredentialResult ?: throw RuntimeException("No result found from /public/v1/submit/update_oauth2_credential"))
+    return TUpdateOauth2CredentialResponse(activity = activityRes, result = activityRes.result.updateOauth2CredentialResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_oauth2_credential"))
   }
 
   public suspend fun stampUpdateOauth2Credential(input: TUpdateOauth2CredentialBody): TSignedRequest {
@@ -4656,7 +4656,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_organization_name"
     val activityType = "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
     val activityRes = activity<TUpdateOrganizationNameBody>(url, input, activityType)
-    return TUpdateOrganizationNameResponse(activity = activityRes, result = activityRes.result.updateOrganizationNameResult ?: throw RuntimeException("No result found from /public/v1/submit/update_organization_name"))
+    return TUpdateOrganizationNameResponse(activity = activityRes, result = activityRes.result.updateOrganizationNameResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_organization_name"))
   }
 
   public suspend fun stampUpdateOrganizationName(input: TUpdateOrganizationNameBody): TSignedRequest {
@@ -4680,7 +4680,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_policy"
     val activityType = "ACTIVITY_TYPE_UPDATE_POLICY_V2"
     val activityRes = activity<TUpdatePolicyBody>(url, input, activityType)
-    return TUpdatePolicyResponse(activity = activityRes, result = activityRes.result.updatePolicyResultV2 ?: throw RuntimeException("No result found from /public/v1/submit/update_policy"))
+    return TUpdatePolicyResponse(activity = activityRes, result = activityRes.result.updatePolicyResultV2 ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_policy"))
   }
 
   public suspend fun stampUpdatePolicy(input: TUpdatePolicyBody): TSignedRequest {
@@ -4704,7 +4704,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_private_key_tag"
     val activityType = "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
     val activityRes = activity<TUpdatePrivateKeyTagBody>(url, input, activityType)
-    return TUpdatePrivateKeyTagResponse(activity = activityRes, result = activityRes.result.updatePrivateKeyTagResult ?: throw RuntimeException("No result found from /public/v1/submit/update_private_key_tag"))
+    return TUpdatePrivateKeyTagResponse(activity = activityRes, result = activityRes.result.updatePrivateKeyTagResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_private_key_tag"))
   }
 
   public suspend fun stampUpdatePrivateKeyTag(input: TUpdatePrivateKeyTagBody): TSignedRequest {
@@ -4728,7 +4728,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_root_quorum"
     val activityType = "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
     val activityRes = activity<TUpdateRootQuorumBody>(url, input, activityType)
-    return TUpdateRootQuorumResponse(activity = activityRes, result = activityRes.result.updateRootQuorumResult ?: throw RuntimeException("No result found from /public/v1/submit/update_root_quorum"))
+    return TUpdateRootQuorumResponse(activity = activityRes, result = activityRes.result.updateRootQuorumResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_root_quorum"))
   }
 
   public suspend fun stampUpdateRootQuorum(input: TUpdateRootQuorumBody): TSignedRequest {
@@ -4752,7 +4752,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_user"
     val activityType = "ACTIVITY_TYPE_UPDATE_USER"
     val activityRes = activity<TUpdateUserBody>(url, input, activityType)
-    return TUpdateUserResponse(activity = activityRes, result = activityRes.result.updateUserResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user"))
+    return TUpdateUserResponse(activity = activityRes, result = activityRes.result.updateUserResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_user"))
   }
 
   public suspend fun stampUpdateUser(input: TUpdateUserBody): TSignedRequest {
@@ -4776,7 +4776,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_user_email"
     val activityType = "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
     val activityRes = activity<TUpdateUserEmailBody>(url, input, activityType)
-    return TUpdateUserEmailResponse(activity = activityRes, result = activityRes.result.updateUserEmailResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_email"))
+    return TUpdateUserEmailResponse(activity = activityRes, result = activityRes.result.updateUserEmailResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_user_email"))
   }
 
   public suspend fun stampUpdateUserEmail(input: TUpdateUserEmailBody): TSignedRequest {
@@ -4800,7 +4800,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_user_name"
     val activityType = "ACTIVITY_TYPE_UPDATE_USER_NAME"
     val activityRes = activity<TUpdateUserNameBody>(url, input, activityType)
-    return TUpdateUserNameResponse(activity = activityRes, result = activityRes.result.updateUserNameResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_name"))
+    return TUpdateUserNameResponse(activity = activityRes, result = activityRes.result.updateUserNameResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_user_name"))
   }
 
   public suspend fun stampUpdateUserName(input: TUpdateUserNameBody): TSignedRequest {
@@ -4824,7 +4824,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_user_phone_number"
     val activityType = "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
     val activityRes = activity<TUpdateUserPhoneNumberBody>(url, input, activityType)
-    return TUpdateUserPhoneNumberResponse(activity = activityRes, result = activityRes.result.updateUserPhoneNumberResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_phone_number"))
+    return TUpdateUserPhoneNumberResponse(activity = activityRes, result = activityRes.result.updateUserPhoneNumberResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_user_phone_number"))
   }
 
   public suspend fun stampUpdateUserPhoneNumber(input: TUpdateUserPhoneNumberBody): TSignedRequest {
@@ -4848,7 +4848,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_user_tag"
     val activityType = "ACTIVITY_TYPE_UPDATE_USER_TAG"
     val activityRes = activity<TUpdateUserTagBody>(url, input, activityType)
-    return TUpdateUserTagResponse(activity = activityRes, result = activityRes.result.updateUserTagResult ?: throw RuntimeException("No result found from /public/v1/submit/update_user_tag"))
+    return TUpdateUserTagResponse(activity = activityRes, result = activityRes.result.updateUserTagResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_user_tag"))
   }
 
   public suspend fun stampUpdateUserTag(input: TUpdateUserTagBody): TSignedRequest {
@@ -4872,7 +4872,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_wallet"
     val activityType = "ACTIVITY_TYPE_UPDATE_WALLET"
     val activityRes = activity<TUpdateWalletBody>(url, input, activityType)
-    return TUpdateWalletResponse(activity = activityRes, result = activityRes.result.updateWalletResult ?: throw RuntimeException("No result found from /public/v1/submit/update_wallet"))
+    return TUpdateWalletResponse(activity = activityRes, result = activityRes.result.updateWalletResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_wallet"))
   }
 
   public suspend fun stampUpdateWallet(input: TUpdateWalletBody): TSignedRequest {
@@ -4896,7 +4896,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/update_webhook_endpoint"
     val activityType = "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"
     val activityRes = activity<TUpdateWebhookEndpointBody>(url, input, activityType)
-    return TUpdateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.updateWebhookEndpointResult ?: throw RuntimeException("No result found from /public/v1/submit/update_webhook_endpoint"))
+    return TUpdateWebhookEndpointResponse(activity = activityRes, result = activityRes.result.updateWebhookEndpointResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/update_webhook_endpoint"))
   }
 
   public suspend fun stampUpdateWebhookEndpoint(input: TUpdateWebhookEndpointBody): TSignedRequest {
@@ -4920,7 +4920,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/upsert_swap_config"
     val activityType = "ACTIVITY_TYPE_UPSERT_SWAP_CONFIG"
     val activityRes = activity<TUpsertSwapConfigBody>(url, input, activityType)
-    return TUpsertSwapConfigResponse(activity = activityRes, result = activityRes.result.upsertSwapConfigResult ?: throw RuntimeException("No result found from /public/v1/submit/upsert_swap_config"))
+    return TUpsertSwapConfigResponse(activity = activityRes, result = activityRes.result.upsertSwapConfigResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/upsert_swap_config"))
   }
 
   public suspend fun stampUpsertSwapConfig(input: TUpsertSwapConfigBody): TSignedRequest {
@@ -4944,7 +4944,7 @@ public class TurnkeyClient(
     val url = "$apiBaseUrl/public/v1/submit/verify_otp"
     val activityType = "ACTIVITY_TYPE_VERIFY_OTP_V2"
     val activityRes = activity<TVerifyOtpBody>(url, input, activityType)
-    return TVerifyOtpResponse(activity = activityRes, result = activityRes.result.verifyOtpResult ?: throw RuntimeException("No result found from /public/v1/submit/verify_otp"))
+    return TVerifyOtpResponse(activity = activityRes, result = activityRes.result.verifyOtpResult ?: throw TurnkeyHttpError.ActivityNotCompleted(activityRes, "/public/v1/submit/verify_otp"))
   }
 
   public suspend fun stampVerifyOtp(input: TVerifyOtpBody): TSignedRequest {
