@@ -232,6 +232,9 @@ object TurnkeyContext {
     private fun strictRuntimeConfigOrNull(): TurnkeyRuntimeConfig? =
         if (this::runtimeConfig.isInitialized) runtimeConfig else null
 
+    internal fun normalizeOtpLoginOrganizationId(organizationId: String?): String? =
+        organizationId?.trim()?.takeIf { it.isNotEmpty() }
+
     /**
      * Suspending version of [init] that blocks until initialization is complete.
      *
@@ -1454,12 +1457,13 @@ object TurnkeyContext {
         sessionKey: String? = null,
     ): LoginWithOtpResult {
         try {
+            val targetOrganizationId = normalizeOtpLoginOrganizationId(organizationId)
             val expirationSeconds = strictRuntimeConfigOrNull()
                 ?.authConfig
                 ?.sessionExpirationSeconds
             val signaturePayload = ClientSignature.forLoginForRequest(
                 verificationToken = verificationToken,
-                organizationId = organizationId,
+                organizationId = targetOrganizationId,
                 invalidateExisting = invalidateExisting,
                 expirationSeconds = expirationSeconds
             )
@@ -1477,7 +1481,7 @@ object TurnkeyContext {
 
             val res = client.proxyOtpLoginV2(
                 ProxyTOtpLoginV2Body(
-                    organizationId = organizationId,
+                    organizationId = targetOrganizationId,
                     publicKey = clientSignaturePublicKey,
                     verificationToken = verificationToken,
                     invalidateExisting = invalidateExisting,
@@ -1529,8 +1533,12 @@ object TurnkeyContext {
             otpType = otpType, contact = contact, verificationToken = verificationToken
         )
 
-        val updatedCreateSubOrgParams =
-            Helpers.getCreateSubOrgParams(createSubOrgParams, runtimeConfig, overrideParams)
+        val strictRuntimeConfig = strictRuntimeConfigOrNull()
+        val updatedCreateSubOrgParams = Helpers.getCreateSubOrgParams(
+            createSubOrgParams,
+            strictRuntimeConfig ?: config,
+            overrideParams
+        )
 
         // build sign up body without client signature first
         var signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
@@ -1539,7 +1547,7 @@ object TurnkeyContext {
         val organizationName = signUpBody.organizationName
         val userName = signUpBody.userName
         val signaturePayload = if (
-            strictRuntimeConfigOrNull() != null &&
+            strictRuntimeConfig != null &&
             parentOrganizationId != null &&
             organizationName != null &&
             userName != null
