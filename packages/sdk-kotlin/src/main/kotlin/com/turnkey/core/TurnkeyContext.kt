@@ -440,7 +440,8 @@ object TurnkeyContext {
             authProxyUrl = cfg.authProxyBaseUrl,
             authProxyConfigId = cfg.authProxyConfigId,
             stamper = stamper,
-            http = http
+            http = http,
+            activityPoller = cfg.activityPoller,
         )
     }
 
@@ -1216,6 +1217,7 @@ object TurnkeyContext {
                 apiBaseUrl = config.apiBaseUrl,
                 stamper = passkeyStamper,
                 organizationId = organizationId,
+                activityPoller = config.activityPoller,
             )
             val loginRes = passkeyClient.stampLogin(
                 TStampLoginBody(

@@ -1,5 +1,6 @@
 package com.turnkey.core.models
 
+import com.turnkey.http.utils.ActivityPollerConfig
 import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1PayloadEncoding
 
@@ -12,6 +13,12 @@ open class TurnkeyConfig(
     val appScheme: String? = null,
     val autoRefreshManagedStates: Boolean = true,
     val autoFetchWalletKitConfig: Boolean = true,
+
+    /**
+     * Polling budget used by every `TurnkeyClient` this context creates when a submit activity is
+     * not yet terminal. Defaults to `ActivityPollerConfig()` (1 s interval, 3 retries).
+     */
+    val activityPoller: ActivityPollerConfig? = null,
 
     // Callbacks
     val onSessionCreated: ((Session) -> Unit)? = null,
