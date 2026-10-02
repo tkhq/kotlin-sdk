@@ -96,6 +96,7 @@ import com.turnkey.types.V1HashFunction
 import com.turnkey.types.V1ImportWalletResult
 import com.turnkey.types.V1Oauth2Provider
 import com.turnkey.types.V1PayloadEncoding
+import com.turnkey.types.V1RootUserParamsV5
 import com.turnkey.types.V1SignRawPayloadResult
 import com.turnkey.types.V1User
 import com.turnkey.types.V1WalletAccountParams
@@ -1447,7 +1448,18 @@ object TurnkeyContext {
         sessionKey: String? = null,
     ): LoginWithOtpResult {
         try {
-            val (message, clientSignaturePublicKey) = ClientSignature.forLogin(verificationToken)
+            val expirationSeconds = runtimeConfig.authConfig?.sessionExpirationSeconds
+            val signaturePayload = if (organizationId != null && expirationSeconds != null) {
+                ClientSignature.forLoginV2(
+                    verificationToken = verificationToken,
+                    organizationId = organizationId,
+                    invalidateExisting = invalidateExisting,
+                    expirationSeconds = expirationSeconds
+                )
+            } else {
+                ClientSignature.forLogin(verificationToken)
+            }
+            val (message, clientSignaturePublicKey) = signaturePayload
 
             val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
             val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
@@ -1519,14 +1531,37 @@ object TurnkeyContext {
         // build sign up body without client signature first
         var signUpBody = Helpers.buildSignUpBody(updatedCreateSubOrgParams)
 
-        val (message, clientSignaturePublicKey) = ClientSignature.forSignUp(
-            verificationToken = verificationToken,
-            email = signUpBody.userEmail,
-            phoneNumber = signUpBody.userPhoneNumber,
-            apiKeys = signUpBody.apiKeys,
-            authenticators = signUpBody.authenticators,
-            oauthProviders = signUpBody.oauthProviders
-        )
+        val organizationName = signUpBody.organizationName
+        val userName = signUpBody.userName
+        val signaturePayload = if (organizationName != null && userName != null) {
+            ClientSignature.forSignUpV3(
+                verificationToken = verificationToken,
+                parentOrganizationId = runtimeConfig.organizationId,
+                subOrganizationName = organizationName,
+                rootUsers = listOf(
+                    V1RootUserParamsV5(
+                        apiKeys = signUpBody.apiKeys,
+                        authenticators = signUpBody.authenticators,
+                        oauthProviders = signUpBody.oauthProviders,
+                        userEmail = signUpBody.userEmail,
+                        userName = userName,
+                        userPhoneNumber = signUpBody.userPhoneNumber
+                    )
+                ),
+                rootQuorumThreshold = 1,
+                wallet = signUpBody.wallet
+            )
+        } else {
+            ClientSignature.forSignUp(
+                verificationToken = verificationToken,
+                email = signUpBody.userEmail,
+                phoneNumber = signUpBody.userPhoneNumber,
+                apiKeys = signUpBody.apiKeys,
+                authenticators = signUpBody.authenticators,
+                oauthProviders = signUpBody.oauthProviders
+            )
+        }
+        val (message, clientSignaturePublicKey) = signaturePayload
 
         val stamper = Stamper.fromPublicKey(clientSignaturePublicKey)
         val signature = stamper.sign(payload = message, format = SignatureFormat.raw)
