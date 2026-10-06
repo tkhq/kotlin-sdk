@@ -470,7 +470,7 @@ fun generateClientFile(
                                 addStatement("val activityType = %S", versioned)
                                 addStatement("val activityRes = activity<%T>(url, input, activityType)", bodyDto)
 
-                                if (kind == OperationKind.Activity) addStatement("return %T(activity = activityRes, result = activityRes.result.$activityResultType ?: throw RuntimeException(\"No result found from $path\"))", respType)
+                                if (kind == OperationKind.Activity) addStatement("return %T(activity = activityRes, result = activityRes.result.$activityResultType ?: throw %T.ActivityNotCompleted(activityRes, %S))", respType, errorClass, path)
                                 else addStatement("return %T(activity = activityRes)", respType)
                             }
                         } else {

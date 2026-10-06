@@ -1,0 +1,4 @@
+packages:
+  http: minor
+changelog: |-
+  Submit methods now throw `TurnkeyHttpError.ActivityNotCompleted` instead of a bare `RuntimeException("No result found from ...")` when the activity is not `ACTIVITY_STATUS_COMPLETED` after polling. The exception carries the full `V1Activity` (`id`, `status`, `failure`) so callers can tell `PENDING` from `FAILED`/`REJECTED` and resume by polling `getActivity` instead of re-submitting (#95). Note: `TurnkeyHttpError` extends `Exception`, so code that caught `RuntimeException` around submit calls should catch `TurnkeyHttpError.ActivityNotCompleted` or `Exception`.
