@@ -24,7 +24,7 @@ android {
 }
 
 group = "com.turnkey"
-version = "2.1.1"
+version = "2.2.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "http", version.toString())
