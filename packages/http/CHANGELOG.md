@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 — 2026-10-06
+### Minor Changes
+- Submit methods now throw `TurnkeyHttpError.ActivityNotCompleted` instead of a bare `RuntimeException("No result found from ...")` when the activity is not `ACTIVITY_STATUS_COMPLETED` after polling. The exception carries the full `V1Activity` (`id`, `status`, `failure`) so callers can tell `PENDING` from `FAILED`/`REJECTED` and resume by polling `getActivity` instead of re-submitting (#95). Note: `TurnkeyHttpError` extends `Exception`, so code that caught `RuntimeException` around submit calls should catch `TurnkeyHttpError.ActivityNotCompleted` or `Exception`.
+
 ## 2.1.1 — 2026-10-01
 ### Patch Changes
 - Fix `solSendTransaction`, `executeSwap` and `ethUndelegate7702` (and their `stamp*` variants) posting an activity `type` that did not match the generated request body, which the API rejected with HTTP 400 (#95). The client generator now takes the activity type from the request schema's declared `type` unless `VersionedActivityTypes` pins a version.

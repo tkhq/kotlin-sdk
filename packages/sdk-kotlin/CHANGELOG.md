@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 — 2026-10-06
+### Minor Changes
+- Add `TurnkeyConfig.activityPoller` so apps can set the activity polling budget (`ActivityPollerConfig(intervalMs, numRetries)`) for every `TurnkeyClient` created by `TurnkeyContext`, including the passkey login client. Previously the SDK was fixed at the defaults of 1 s and 3 retries (#95).
+
 ## 2.0.2 — 2026-10-01
 ### Patch Changes
 - Bump `com.turnkey:http` dependency to pick up the fix for `solSendTransaction`, `executeSwap` and `ethUndelegate7702` posting an activity `type` that did not match the request body (#95).
