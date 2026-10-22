@@ -231,6 +231,7 @@ fun generateClientFile(
         FunSpec.builder("pollActivityStatus")
             .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
             .addParameter("activityId", String::class)
+            .addParameter("activityOrganizationId", String::class)
             .addParameter("intervalMs", Long::class)
             .addParameter("maxRetries", Int::class)
             .returns(activityCls)
@@ -241,7 +242,7 @@ fun generateClientFile(
                 while (attempts <= maxRetries) {
                     %M(intervalMs)
 
-                    val pollBody = %T(activityId = activityId)
+                    val pollBody = %T(organizationId = activityOrganizationId, activityId = activityId)
                     val pollResponse = getActivity(pollBody)
                     val activity = pollResponse.activity
 
@@ -253,7 +254,7 @@ fun generateClientFile(
                 }
 
                 // Return the last polled activity even if max retries exceeded
-                val finalPollBody = %T(activityId = activityId)
+                val finalPollBody = %T(organizationId = activityOrganizationId, activityId = activityId)
                 return getActivity(finalPollBody).activity
                 """.trimIndent(),
                 delayFunc, getActivityBodyCls, getActivityBodyCls
@@ -322,7 +323,7 @@ fun generateClientFile(
 
                 // Check if polling is enabled and needed
                 if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
-                    return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
+                    return pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
                 }
 
                 return initialActivity
