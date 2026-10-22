@@ -456,6 +456,7 @@ public class TurnkeyClient(
 
   private suspend fun pollActivityStatus(
     activityId: String,
+    activityOrganizationId: String,
     intervalMs: Long,
     maxRetries: Int,
   ): V1Activity {
@@ -464,7 +465,7 @@ public class TurnkeyClient(
     while (attempts <= maxRetries) {
         delay(intervalMs)
 
-        val pollBody = TGetActivityBody(activityId = activityId)
+        val pollBody = TGetActivityBody(organizationId = activityOrganizationId, activityId = activityId)
         val pollResponse = getActivity(pollBody)
         val activity = pollResponse.activity
 
@@ -476,7 +477,7 @@ public class TurnkeyClient(
     }
 
     // Return the last polled activity even if max retries exceeded
-    val finalPollBody = TGetActivityBody(activityId = activityId)
+    val finalPollBody = TGetActivityBody(organizationId = activityOrganizationId, activityId = activityId)
     return getActivity(finalPollBody).activity
   }
 
@@ -533,7 +534,7 @@ public class TurnkeyClient(
 
     // Check if polling is enabled and needed
     if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
-        return pollActivityStatus(initialActivity.id, activityPoller.intervalMs, activityPoller.numRetries)
+        return pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
     }
 
     return initialActivity

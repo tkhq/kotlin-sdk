@@ -1,0 +1,4 @@
+packages:
+  http: patch
+changelog: |-
+  Activity polling now queries the organization the activity belongs to. Previously `get_activity` polls used the client's configured `organizationId`, so polling an activity submitted to a different organization (for example a sub-organization) could fail.
