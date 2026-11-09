@@ -68,6 +68,7 @@ import com.turnkey.passkey.PasskeyStamper
 import com.turnkey.passkey.PasskeyUser
 import com.turnkey.passkey.createPasskey
 import com.turnkey.stamper.utils.SignatureFormat
+import com.turnkey.stamper.RequestStamper
 import com.turnkey.stamper.Stamper
 import com.turnkey.types.V1OauthProviderParamsV2
 import com.turnkey.types.ProxyTGetAccountBody
@@ -431,7 +432,7 @@ object TurnkeyContext {
      */
     fun createTurnkeyClient(
         cfg: TurnkeyConfig,
-        stamper: Stamper? = null,
+        stamper: RequestStamper? = null,
         organizationId: String? = null
     ): TurnkeyClient {
         return TurnkeyClient(

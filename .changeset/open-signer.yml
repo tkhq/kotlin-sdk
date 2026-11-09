@@ -1,0 +1,6 @@
+packages:
+  stamper: minor
+  http: minor
+  sdk-kotlin: minor
+changelog: |-
+  `TurnkeyClient` now accepts any `RequestStamper`, a new interface in `stamper`, instead of only the `Stamper` class. This lets apps sign requests with keys the SDK does not hold, such as Android Keystore keys in StrongBox or the TEE. `Stamper` implements `RequestStamper`, so existing code compiles without changes. The new `ApiKeyStamp` helper builds the `X-Stamp` header from a public key and a DER signature. `TurnkeyContext.createTurnkeyClient` also accepts a `RequestStamper`. The `TurnkeyClient` constructor signature changes, so code compiled against the previous version must be recompiled.
