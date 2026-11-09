@@ -30,7 +30,8 @@ sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): Excep
      * when it sees this status, because waiting does not change it.
      *
      * [mfaStatuses] lists each MFA policy that applies, the methods it requires and the methods
-     * already satisfied, as returned by `getMfaStatus`. It is empty if that call failed. To continue,
+     * already satisfied, as returned by `getMfaStatus`. If that call failed, the list is empty and
+     * [cause] holds the error. To continue,
      * approve the activity (`approveActivity` with `activity.fingerprint`) using a credential of a
      * required type, then poll `getActivity` with `activity.id`.
      */

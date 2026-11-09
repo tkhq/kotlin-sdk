@@ -84,6 +84,7 @@ class MfaRequiredTest {
             assertEquals("activity-1", error.activity.id)
             assertEquals(V1ActivityStatus.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED, error.activity.status)
             assertEquals(listOf("policy-1"), error.mfaStatuses.map { it.mfaPolicyId })
+            assertEquals(null, error.cause)
             assertEquals("/public/v1/submit/delete_policy", server.takeRequest().url.encodedPath)
             val statusRequest = server.takeRequest()
             assertEquals("/public/v1/query/get_mfa_status", statusRequest.url.encodedPath)
@@ -118,5 +119,6 @@ class MfaRequiredTest {
 
             assertEquals("activity-1", error.activity.id)
             assertTrue(error.mfaStatuses.isEmpty())
+            assertTrue(error.cause != null, "the status query error is kept as the cause")
         }
 }

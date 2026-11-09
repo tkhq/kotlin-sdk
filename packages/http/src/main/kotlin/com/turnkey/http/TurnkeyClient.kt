@@ -542,15 +542,18 @@ public class TurnkeyClient(
 
     // More authentication is needed. Polling cannot complete it, so stop and say what is needed.
     if (activity.status == V1ActivityStatus.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
-        // The statuses are extra detail. If the query fails, still report that MFA is needed.
+        // The statuses are extra detail. If the query fails, still report that MFA is needed,
+        // with the query error as the cause.
+        var statusError: Exception? = null
         val mfaStatuses = try {
             getMfaStatus(TGetMfaStatusBody(organizationId = activity.organizationId, activityId = activity.id)).mfaStatuses
         } catch (e: kotlin.coroutines.cancellation.CancellationException) {
             throw e
         } catch (e: Exception) {
+            statusError = e
             emptyList()
         }
-        throw TurnkeyHttpError.MfaRequired(activity, mfaStatuses)
+        throw TurnkeyHttpError.MfaRequired(activity, mfaStatuses, statusError)
     }
 
     return activity
