@@ -1,6 +1,7 @@
 package com.turnkey.http.utils
 
 import com.turnkey.types.V1Activity
+import com.turnkey.types.V1MfaStatus
 
 sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): Exception(
     if (cause != null) "$message - error: ${cause.message}" else message,
@@ -20,6 +21,21 @@ sealed class TurnkeyHttpError (message: String, cause: Throwable? = null): Excep
      */
     data class ActivityNotCompleted(val activity: V1Activity, val path: String, override val cause: Throwable? = null): TurnkeyHttpError(
         "Activity ${activity.id} from $path has status ${activity.status}, expected ACTIVITY_STATUS_COMPLETED",
+        cause
+    )
+
+    /**
+     * A submit call returned an activity with status `ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`: an MFA
+     * policy requires more authentication before the activity can complete. The client stops polling
+     * when it sees this status, because waiting does not change it.
+     *
+     * [mfaStatuses] lists each MFA policy that applies, the methods it requires and the methods
+     * already satisfied, as returned by `getMfaStatus`. It is empty if that call failed. To continue,
+     * approve the activity (`approveActivity` with `activity.fingerprint`) using a credential of a
+     * required type, then poll `getActivity` with `activity.id`.
+     */
+    data class MfaRequired(val activity: V1Activity, val mfaStatuses: List<V1MfaStatus>, override val cause: Throwable? = null): TurnkeyHttpError(
+        "Activity ${activity.id} needs more authentication (ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) before it can complete",
         cause
     )
 

@@ -39,6 +39,8 @@ dependencies {
     api(project(":packages:types"))
     // tests
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver3)
 }
 
 val clientCodegen = tasks.register<JavaExec>("client-codegen") {
