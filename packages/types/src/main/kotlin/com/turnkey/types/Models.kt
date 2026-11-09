@@ -1054,20 +1054,6 @@ public enum class V1UsageControlAggregationMethod {
 }
 
 @Serializable
-public enum class V1UsageControlAggregationOperator {
-  @SerialName("USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN")
-  USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN,
-  @SerialName("USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL")
-  USAGE_CONTROL_AGGREGATION_OPERATOR_LESS_THAN_OR_EQUAL,
-  @SerialName("USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL")
-  USAGE_CONTROL_AGGREGATION_OPERATOR_EQUAL,
-  @SerialName("USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL")
-  USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN_OR_EQUAL,
-  @SerialName("USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN")
-  USAGE_CONTROL_AGGREGATION_OPERATOR_GREATER_THAN,
-}
-
-@Serializable
 public enum class V1UsageType {
   @SerialName("USAGE_TYPE_SIGNUP")
   USAGE_TYPE_SIGNUP,
@@ -4272,8 +4258,8 @@ public data class V1CreateUsageControlIntent(
   /**
    * Aggregation expression that the Usage Control evaluates.
    */
-  @SerialName("aggregation")
-  public val aggregation: V1UsageControlAggregation,
+  @SerialName("budget")
+  public val budget: V1UsageControlBudget,
   /**
    * Data source for the Usage Control.
    */
@@ -16185,54 +16171,6 @@ public data class V1UpsertSwapFixedRateLimitConfigResult(
 )
 
 @Serializable
-public data class V1UsageControlAggregation(
-  /**
-   * Scope that partitions matching data before aggregation.
-   */
-  @SerialName("groupBy")
-  public val groupBy: V1UsageControlAggregationGroupBy,
-  /**
-   * Method that aggregates matching data points.
-   */
-  @SerialName("method")
-  public val method: V1UsageControlAggregationMethod,
-  /**
-   * Comparison between the aggregate and the threshold.
-   */
-  @SerialName("operator")
-  public val `operator`: V1UsageControlAggregationOperator,
-  /**
-   * Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits.
-   */
-  @SerialName("threshold")
-  public val threshold: String,
-  /**
-   * Time window for the aggregation.
-   */
-  @SerialName("window")
-  public val window: V1UsageControlAggregationWindow,
-)
-
-@Serializable
-public data class V1UsageControlAggregationGroupBy(
-  /**
-   * Uses one shared bucket for the Organization.
-   */
-  @SerialName("organization")
-  public val organization: V1UsageControlAggregationGroupByOrganization? = null,
-  /**
-   * Uses one bucket for each User.
-   */
-  @SerialName("user")
-  public val user: V1UsageControlAggregationGroupByUser? = null,
-  /**
-   * Uses one bucket for each Wallet.
-   */
-  @SerialName("wallet")
-  public val wallet: V1UsageControlAggregationGroupByWallet? = null,
-)
-
-@Serializable
 public data class V1UsageControlAggregationWindow(
   /**
    * Uses all matching data without a time limit.
@@ -16256,6 +16194,25 @@ public data class V1UsageControlAggregationWindowRolling(
 )
 
 @Serializable
+public data class V1UsageControlBudget(
+  /**
+   * Non-negative base-10 decimal string with at most 46 integer digits and 32 fractional digits.
+   */
+  @SerialName("limit")
+  public val limit: String,
+  /**
+   * Method that aggregates matching data points.
+   */
+  @SerialName("method")
+  public val method: V1UsageControlAggregationMethod,
+  /**
+   * Time window for the aggregation.
+   */
+  @SerialName("window")
+  public val window: V1UsageControlAggregationWindow,
+)
+
+@Serializable
 public data class V1UsageControlDataSource(
   /**
    * Uses executed Turnkey activities as input data.
@@ -16270,40 +16227,12 @@ public data class V1UsageControlDataSource(
 )
 
 @Serializable
-public data class V1UsageControlDataSourceActivityExecution(
-  /**
-   * Filters activity executions by type.
-   */
-  @SerialName("filter")
-  public val filter: V1UsageControlDataSourceActivityExecutionFilter? = null,
-)
-
-@Serializable
-public data class V1UsageControlDataSourceActivityExecutionFilter(
-  /**
-   * Activity types whose executions are included.
-   */
-  @SerialName("activity")
-  public val activity: List<V1UsageControlDataSourceFilterActivity>? = null,
-)
-
-@Serializable
 public data class V1UsageControlDataSourceChainAssetTransfer(
   /**
    * Assets whose transfers are included in the data source.
    */
   @SerialName("definition")
   public val definition: List<V1UsageControlDataSourceChainAssetTransferDefinition>,
-  /**
-   * Filters asset transfers by activity type.
-   */
-  @SerialName("filter")
-  public val filter: V1UsageControlDataSourceChainAssetTransferFilter? = null,
-  /**
-   * Selects when to measure an asset transfer.
-   */
-  @SerialName("phase")
-  public val phase: V1UsageControlDataSourcePhase? = null,
 )
 
 @Serializable
@@ -16318,38 +16247,6 @@ public data class V1UsageControlDataSourceChainAssetTransferDefinition(
    */
   @SerialName("decimals")
   public val decimals: Long,
-)
-
-@Serializable
-public data class V1UsageControlDataSourceChainAssetTransferFilter(
-  /**
-   * Activity types whose asset transfers are included.
-   */
-  @SerialName("activity")
-  public val activity: List<V1UsageControlDataSourceFilterActivity>? = null,
-)
-
-@Serializable
-public data class V1UsageControlDataSourceFilterActivity(
-  /**
-   * Name of an activity type to include, such as `ACTIVITY_TYPE_SOL_SEND_TRANSACTION`.
-   */
-  @SerialName("activityType")
-  public val activityType: String,
-)
-
-@Serializable
-public data class V1UsageControlDataSourcePhase(
-  /**
-   * Measures the transfer when Turnkey signs the transaction and returns it to the user.
-   */
-  @SerialName("signature")
-  public val signature: V1UsageControlDataSourcePhaseSignature? = null,
-  /**
-   * Reserved for future use. Measures the transfer after the transaction lands on chain.
-   */
-  @SerialName("submission")
-  public val submission: V1UsageControlDataSourcePhaseSubmission? = null,
 )
 
 @Serializable
@@ -17581,22 +17478,10 @@ public class V1UpdateRootQuorumResult()
 public class V1UpdateTvcAppLiveDeploymentResult()
 
 @Serializable
-public class V1UsageControlAggregationGroupByOrganization()
-
-@Serializable
-public class V1UsageControlAggregationGroupByUser()
-
-@Serializable
-public class V1UsageControlAggregationGroupByWallet()
-
-@Serializable
 public class V1UsageControlAggregationWindowInfinite()
 
 @Serializable
-public class V1UsageControlDataSourcePhaseSignature()
-
-@Serializable
-public class V1UsageControlDataSourcePhaseSubmission()
+public class V1UsageControlDataSourceActivityExecution()
 
 @Serializable
 public class V1GetWalletKitClientParamsRequest()
