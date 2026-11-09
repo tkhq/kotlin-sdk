@@ -83,8 +83,11 @@ class RequestStamperTest {
         }
 
     @Test
-    fun value_rejects_non_hex_input() {
+    fun value_rejects_bad_keys_and_signatures() {
         assertFailsWith<IllegalArgumentException> { ApiKeyStamp.value("not hex", "3045") }
-        assertFailsWith<IllegalArgumentException> { ApiKeyStamp.value("02ab", "") }
+        assertFailsWith<IllegalArgumentException> { ApiKeyStamp.value("02" + "ab".repeat(32), "") }
+        // Uncompressed (04...) and short keys are not accepted.
+        assertFailsWith<IllegalArgumentException> { ApiKeyStamp.value("04" + "ab".repeat(64), "3045") }
+        assertFailsWith<IllegalArgumentException> { ApiKeyStamp.value("02ab", "3045") }
     }
 }

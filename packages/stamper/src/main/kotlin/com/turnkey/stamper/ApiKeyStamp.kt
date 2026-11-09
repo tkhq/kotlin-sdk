@@ -27,7 +27,7 @@ object ApiKeyStamp {
         publicKeyHex: String,
         signatureDerHex: String,
     ): String {
-        require(HEX.matches(publicKeyHex)) { "publicKeyHex must be hex" }
+        require(COMPRESSED_P256.matches(publicKeyHex)) { "publicKeyHex must be a compressed P-256 key: 66 hex characters starting with 02 or 03" }
         require(HEX.matches(signatureDerHex)) { "signatureDerHex must be hex" }
         val json =
             """{"publicKey":"${publicKeyHex.lowercase()}","scheme":"$SCHEME","signature":"${signatureDerHex.lowercase()}"}"""
@@ -46,4 +46,6 @@ object ApiKeyStamp {
     ): Pair<String, String> = HEADER_NAME to value(publicKeyHex, signatureDer.toHexString())
 
     private val HEX = Regex("^[0-9a-fA-F]+$")
+
+    private val COMPRESSED_P256 = Regex("^0[23][0-9a-fA-F]{64}$")
 }
