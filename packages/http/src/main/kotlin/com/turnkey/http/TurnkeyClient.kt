@@ -12,7 +12,7 @@ package com.turnkey.http
 
 import com.turnkey.http.utils.ActivityPollerConfig
 import com.turnkey.http.utils.TurnkeyHttpError
-import com.turnkey.stamper.Stamper
+import com.turnkey.stamper.RequestStamper
 import com.turnkey.types.ProxyTGetAccountBody
 import com.turnkey.types.ProxyTGetAccountResponse
 import com.turnkey.types.ProxyTGetWalletKitClientParamsBody
@@ -483,7 +483,7 @@ import okhttp3.Response
  */
 public class TurnkeyClient(
   apiBaseUrl: String? = null,
-  private val stamper: Stamper?,
+  private val stamper: RequestStamper?,
   http: OkHttpClient? = null,
   authProxyUrl: String? = null,
   private val authProxyConfigId: String? = null,

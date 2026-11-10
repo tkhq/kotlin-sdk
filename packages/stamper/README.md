@@ -71,6 +71,27 @@ val client2 = TurnkeyClient(
 )
 ```
 
+## Custom signers
+
+`TurnkeyClient` accepts any `RequestStamper`. `Stamper` is one implementation. Implement the interface yourself to sign with a key that the SDK does not hold, for example an Android Keystore key in StrongBox or the TEE that needs a biometric prompt for each signature.
+
+`ApiKeyStamp` builds the `X-Stamp` header from a P-256 public key and a DER-encoded ECDSA signature over the request body:
+
+```kotlin
+val stamper = RequestStamper { payload ->
+    val signature = Signature.getInstance("SHA256withECDSA").run {
+        initSign(keystorePrivateKey) // from AndroidKeyStore
+        update(payload.toByteArray())
+        sign()
+    }
+    ApiKeyStamp.header(publicKeyHex, signature) // publicKeyHex: compressed SEC1
+}
+
+val client = TurnkeyClient(stamper = stamper, organizationId = orgId)
+```
+
+If the key needs user authentication for each use, sign with a `BiometricPrompt.CryptoObject` that wraps the `Signature`. `stamp` is a `suspend` function, so it can wait for the prompt.
+
 ## Security notes
 
 * Treat `apiPrivateKey` like any other secret. Do not log.

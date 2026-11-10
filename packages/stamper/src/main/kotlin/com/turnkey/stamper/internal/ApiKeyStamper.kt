@@ -10,7 +10,7 @@ import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters
 import org.bouncycastle.crypto.signers.ECDSASigner
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
-import com.turnkey.encoding.toBase64Url
+import com.turnkey.stamper.ApiKeyStamp
 import com.turnkey.stamper.utils.SignatureFormat
 import com.turnkey.stamper.utils.TurnkeyStamperError
 import org.bouncycastle.crypto.params.ECDomainParameters
@@ -49,9 +49,7 @@ internal object ApiKeyStamper {
 
             val signatureHex = sign(payloadSha256, privateKeyHex, SignatureFormat.der)
 
-            val json =
-                """{"publicKey":"${publicKeyHex.lowercase()}","scheme":"SIGNATURE_SCHEME_TK_API_P256","signature":"$signatureHex"}"""
-            return json.toByteArray().toBase64Url()
+            return ApiKeyStamp.value(publicKeyHex, signatureHex)
         } catch (t: Throwable) {
             throw TurnkeyStamperError.FailedToStamp(t)
         }
