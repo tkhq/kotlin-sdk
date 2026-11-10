@@ -77,7 +77,7 @@ fun generateClientFile(
     modelsPkg: String,
     className: String,
 ) {
-    val stamperClass = ClassName("com.turnkey.stamper", "Stamper")
+    val stamperClass = ClassName("com.turnkey.stamper", "RequestStamper")
     val errorClass = ClassName("com.turnkey.http.utils", "TurnkeyHttpError")
     val okHttpClient = ClassName("okhttp3", "OkHttpClient")
     val requestCls = ClassName("okhttp3", "Request")

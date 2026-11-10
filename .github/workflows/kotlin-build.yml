@@ -84,4 +84,5 @@ jobs:
             :packages:crypto:test \
             :packages:types:test \
             :packages:tools:test \
+            :packages:stamper:testDebugUnitTest \
             :packages:http:testDebugUnitTest
