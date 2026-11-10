@@ -15,7 +15,7 @@ class Stamper private constructor(
     private val apiPublicKey: String?,
     private val apiPrivateKey: String?,
     private val passkeyManager: PasskeyStamper?
-) {
+) : RequestStamper {
     companion object {
         private var contextProvider: (() -> Context)? = null
         private var defaultRpId: String? = null
@@ -168,7 +168,7 @@ class Stamper private constructor(
      * @return Pair(headerName, headerValue)
      * @throws TurnkeyStamperError if not configured for any mode
      */
-    suspend fun stamp(payload: String): Pair<String, String> {
+    override suspend fun stamp(payload: String): Pair<String, String> {
         try {
             val payloadBytes = payload.toByteArray(Charsets.UTF_8)
             val digest = MessageDigest.getInstance("SHA-256").digest(payloadBytes)
@@ -180,7 +180,7 @@ class Stamper private constructor(
                         publicKeyHex = apiPublicKey,
                         privateKeyHex = apiPrivateKey
                     )
-                    "X-Stamp" to value
+                    ApiKeyStamp.HEADER_NAME to value
                 }
 
                 passkeyManager != null -> {
