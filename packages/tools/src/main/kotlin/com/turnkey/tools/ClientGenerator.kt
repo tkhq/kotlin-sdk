@@ -226,6 +226,7 @@ fun generateClientFile(
     // Add pollActivityStatus helper function
     val getActivityBodyCls = ClassName("com.turnkey.types", "TGetActivityBody")
     val delayFunc = MemberName("kotlinx.coroutines", "delay")
+    val getMfaStatusBodyCls = ClassName("com.turnkey.types", "TGetMfaStatusBody")
 
     typeBuilder.addFunction(
         FunSpec.builder("pollActivityStatus")
@@ -246,7 +247,7 @@ fun generateClientFile(
                     val pollResponse = getActivity(pollBody)
                     val activity = pollResponse.activity
 
-                    if (activity.status in TERMINAL_ACTIVITY_STATUSES) {
+                    if (activity.status in TERMINAL_ACTIVITY_STATUSES || activity.status == %T.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
                         return activity
                     }
 
@@ -257,7 +258,7 @@ fun generateClientFile(
                 val finalPollBody = %T(organizationId = activityOrganizationId, activityId = activityId)
                 return getActivity(finalPollBody).activity
                 """.trimIndent(),
-                delayFunc, getActivityBodyCls, getActivityBodyCls
+                delayFunc, getActivityBodyCls, activityStatusCls, getActivityBodyCls
             )
             .build()
     )
@@ -321,15 +322,35 @@ fun generateClientFile(
                     json.decodeFromString<%T>(text).activity
                 }
 
-                // Check if polling is enabled and needed
-                if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
-                    return pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
+                // Poll until the activity reaches a terminal status or needs MFA
+                val activity =
+                    if (initialActivity.status in TERMINAL_ACTIVITY_STATUSES || initialActivity.status == %T.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
+                        initialActivity
+                    } else {
+                        pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
+                    }
+
+                // More authentication is needed. Polling cannot complete it, so stop and say what is needed.
+                if (activity.status == %T.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
+                    // The statuses are extra detail. If the query fails, still report that MFA is needed,
+                    // with the query error as the cause.
+                    var statusError: Exception? = null
+                    val mfaStatuses = try {
+                        getMfaStatus(%T(organizationId = activity.organizationId, activityId = activity.id)).mfaStatuses
+                    } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        statusError = e
+                        emptyList()
+                    }
+                    throw %T.MfaRequired(activity, mfaStatuses, statusError)
                 }
 
-                return initialActivity
+                return activity
                 """.trimIndent(),
                 errorClass, jsonObject, jsonPrimitive, requestCls, toReqBody, toMediaType, clientVersionHdr,
-                awaitM, withContextM, dispatchersCls, withContextM, dispatchersCls, activityResponseCls
+                awaitM, withContextM, dispatchersCls, withContextM, dispatchersCls, activityResponseCls,
+                activityStatusCls, activityStatusCls, getMfaStatusBodyCls, errorClass
             )
             .build()
     )

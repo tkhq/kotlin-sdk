@@ -469,7 +469,7 @@ public class TurnkeyClient(
         val pollResponse = getActivity(pollBody)
         val activity = pollResponse.activity
 
-        if (activity.status in TERMINAL_ACTIVITY_STATUSES) {
+        if (activity.status in TERMINAL_ACTIVITY_STATUSES || activity.status == V1ActivityStatus.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
             return activity
         }
 
@@ -532,12 +532,31 @@ public class TurnkeyClient(
         json.decodeFromString<V1ActivityResponse>(text).activity
     }
 
-    // Check if polling is enabled and needed
-    if (initialActivity.status !in TERMINAL_ACTIVITY_STATUSES) {
-        return pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
+    // Poll until the activity reaches a terminal status or needs MFA
+    val activity =
+        if (initialActivity.status in TERMINAL_ACTIVITY_STATUSES || initialActivity.status == V1ActivityStatus.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
+            initialActivity
+        } else {
+            pollActivityStatus(initialActivity.id, initialActivity.organizationId, activityPoller.intervalMs, activityPoller.numRetries)
+        }
+
+    // More authentication is needed. Polling cannot complete it, so stop and say what is needed.
+    if (activity.status == V1ActivityStatus.ACTIVITY_STATUS_AUTHENTICATORS_NEEDED) {
+        // The statuses are extra detail. If the query fails, still report that MFA is needed,
+        // with the query error as the cause.
+        var statusError: Exception? = null
+        val mfaStatuses = try {
+            getMfaStatus(TGetMfaStatusBody(organizationId = activity.organizationId, activityId = activity.id)).mfaStatuses
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            statusError = e
+            emptyList()
+        }
+        throw TurnkeyHttpError.MfaRequired(activity, mfaStatuses, statusError)
     }
 
-    return initialActivity
+    return activity
   }
 
   public suspend fun getActivity(input: TGetActivityBody): TGetActivityResponse {

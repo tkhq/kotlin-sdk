@@ -1,0 +1,4 @@
+packages:
+  http: minor
+changelog: |-
+  Submit calls now throw `TurnkeyHttpError.MfaRequired` when an activity has status `ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`. Previously the client kept polling, although polling cannot change this status, and the call then failed with `ActivityNotCompleted` after the retries ran out. The client now stops at once. `MfaRequired` carries the activity and its MFA statuses from `getMfaStatus`, so callers can show which authentication methods are required and then approve the activity with one of them. Code that caught `ActivityNotCompleted` for this status must catch `MfaRequired` instead.
