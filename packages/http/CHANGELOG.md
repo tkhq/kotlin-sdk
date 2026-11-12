@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.0 — 2026-11-12
+### Patch Changes
+- Bouncy Castle (`bcprov-jdk15to18`) is updated from 1.82 to 1.86. Version 1.82 is affected by GHSA-j295-77c3-9frf, GHSA-9pwp-9qqc-pr26 and GHSA-574f-3g2m-x479, which dependency scanners report as critical. `crypto` and `stamper` use Bouncy Castle directly; `http` and `sdk-kotlin` get it through `stamper`.
+- Activity polling now queries the organization the activity belongs to. Previously `get_activity` polls used the client's configured `organizationId`, so polling an activity submitted to a different organization (for example a sub-organization) could fail.
+### Minor Changes
+- Submit calls now throw `TurnkeyHttpError.MfaRequired` when an activity has status `ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`. Previously the client kept polling, although polling cannot change this status, and the call then failed with `ActivityNotCompleted` after the retries ran out. The client now stops at once. `MfaRequired` carries the activity and its MFA statuses from `getMfaStatus`, so callers can show which authentication methods are required and then approve the activity with one of them. Code that caught `ActivityNotCompleted` for this status must catch `MfaRequired` instead.
+- `TurnkeyClient` now accepts any `RequestStamper`, a new interface in `stamper`, instead of only the `Stamper` class. This lets apps sign requests with keys the SDK does not hold, such as Android Keystore keys in StrongBox or the TEE. `Stamper` implements `RequestStamper`, so existing code compiles without changes. The new `ApiKeyStamp` helper builds the `X-Stamp` header from a public key and a DER signature. `TurnkeyContext.createTurnkeyClient` also accepts a `RequestStamper`. The `TurnkeyClient` constructor signature changes, so code compiled against the previous version must be recompiled.
+- Sync generated HTTP client to `v2026.11.1`. Adds 31 endpoints, including `mintJwt`, wallet authenticators, external signers, `getActivePolicies`, fiat on-ramp and off-ramp, and TVC operators and quorum keys. Removes the velocity control endpoints.
+
 ## 2.2.0 — 2026-10-06
 ### Minor Changes
 - Submit methods now throw `TurnkeyHttpError.ActivityNotCompleted` instead of a bare `RuntimeException("No result found from ...")` when the activity is not `ACTIVITY_STATUS_COMPLETED` after polling. The exception carries the full `V1Activity` (`id`, `status`, `failure`) so callers can tell `PENDING` from `FAILED`/`REJECTED` and resume by polling `getActivity` instead of re-submitting (#95). Note: `TurnkeyHttpError` extends `Exception`, so code that caught `RuntimeException` around submit calls should catch `TurnkeyHttpError.ActivityNotCompleted` or `Exception`.

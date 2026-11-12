@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 — 2026-11-12
+### Minor Changes
+- Sync generated types to `v2026.11.1`. Velocity control types are removed (replaced by usage controls). `Earn*Intent.chainCaip2` is renamed to `caip2`. `V1FiatOnRampCredential` fields are renamed. `FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN` is removed.
+
 ## 2.1.0 — 2026-08-28
 ### Minor Changes
 - Sync generated types to `v2026.8.3`

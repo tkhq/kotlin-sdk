@@ -22,7 +22,7 @@ android {
 }
 
 group = "com.turnkey"
-version = "1.0.3"
+version = "1.1.0"
 
 mavenPublishing {
     coordinates("com.turnkey", "stamper", version.toString())

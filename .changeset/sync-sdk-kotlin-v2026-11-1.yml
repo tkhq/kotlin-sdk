@@ -1,4 +1,0 @@
-packages:
-  sdk-kotlin: minor
-changelog: |-
-  Built against `http` and `types` synced to `v2026.11.1`. `sdk-kotlin` exposes both as API dependencies, so the breaking changes listed for `types` and `http` also apply to code that uses their types through `sdk-kotlin`.
