@@ -12,8 +12,8 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     id("com.vanniktech.maven.publish") version "0.34.0" apply false
 
-    kotlin("jvm") version "2.2.20" apply false
-    kotlin("plugin.serialization") version "2.2.20" apply false
+    kotlin("jvm") version "2.4.21" apply false
+    kotlin("plugin.serialization") version "2.4.21" apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.android.application) apply false
     id("com.android.library") version "8.13.0" apply false

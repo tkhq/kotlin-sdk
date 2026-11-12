@@ -1,7 +1,7 @@
 # Turnkey Kotlin SDK
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat)](LICENSE)
-[![Static Badge](https://img.shields.io/badge/JVM_toolchain-24-red?style=flat)](https://openjdk.org/projects/jdk/24/)
+[![Static Badge](https://img.shields.io/badge/JDK-21_LTS-red?style=flat)](https://openjdk.org/projects/jdk/21/)
 [![Static Badge](https://img.shields.io/badge/docs-available-008000?style=flat)](https://docs.turnkey.com/sdks/kotlin/overview)
 
 The Turnkey **Kotlin/Android** SDKs provide everything you need to build a fully working Android app powered by Turnkey: typed HTTP access, auth flows (OAuth / Passkeys / OTP), session + key management, and wallet utilities.
@@ -256,7 +256,7 @@ This SDK is designed in layers, allowing you to choose the right level of abstra
 
 ### Requirements
 
-* **JDK/Toolchain:** Kotlin JVM toolchain 24 (see module `kotlin { jvmToolchain(24) }`)
+* **JDK:** 21 (LTS) to run Gradle; modules compile with a Kotlin JVM toolchain of 11 (see `kotlin { jvmToolchain(11) }`)
 * **Android:** compileSdk 36 (for Android modules), minSdk varies per package (e.g., passkey/stamper minSdk 28)
 
 ### Build & test
