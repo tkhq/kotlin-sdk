@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 — 2026-11-12
+### Patch Changes
+- Bouncy Castle (`bcprov-jdk15to18`) is updated from 1.82 to 1.86. Version 1.82 is affected by GHSA-j295-77c3-9frf, GHSA-9pwp-9qqc-pr26 and GHSA-574f-3g2m-x479, which dependency scanners report as critical. `crypto` and `stamper` use Bouncy Castle directly; `http` and `sdk-kotlin` get it through `stamper`.
+
 ## 1.0.1 — 2026-06-04
 ### Patch Changes
 - - Export `PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY` constant

@@ -1,4 +1,0 @@
-packages:
-  http: minor
-changelog: |-
-  Sync generated HTTP client to `v2026.11.1`. Adds 31 endpoints, including `mintJwt`, wallet authenticators, external signers, `getActivePolicies`, fiat on-ramp and off-ramp, and TVC operators and quorum keys. Removes the velocity control endpoints.

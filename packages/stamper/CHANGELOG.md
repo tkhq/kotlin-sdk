@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 — 2026-11-12
+### Patch Changes
+- Bouncy Castle (`bcprov-jdk15to18`) is updated from 1.82 to 1.86. Version 1.82 is affected by GHSA-j295-77c3-9frf, GHSA-9pwp-9qqc-pr26 and GHSA-574f-3g2m-x479, which dependency scanners report as critical. `crypto` and `stamper` use Bouncy Castle directly; `http` and `sdk-kotlin` get it through `stamper`.
+### Minor Changes
+- `TurnkeyClient` now accepts any `RequestStamper`, a new interface in `stamper`, instead of only the `Stamper` class. This lets apps sign requests with keys the SDK does not hold, such as Android Keystore keys in StrongBox or the TEE. `Stamper` implements `RequestStamper`, so existing code compiles without changes. The new `ApiKeyStamp` helper builds the `X-Stamp` header from a public key and a DER signature. `TurnkeyContext.createTurnkeyClient` also accepts a `RequestStamper`. The `TurnkeyClient` constructor signature changes, so code compiled against the previous version must be recompiled.
+
 ## 1.0.3 — 2026-06-04
 ### Patch Changes
 - Dependency bump
